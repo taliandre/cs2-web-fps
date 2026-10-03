@@ -271,6 +271,9 @@
   #btnTReload{ right:204px; bottom:64px; }
   #btnTReload .t-btn-disc{ width:62px; height:62px; }
 
+  #btnTInspect{ right:204px; bottom:144px; }
+  #btnTInspect .t-btn-disc{ width:62px; height:62px; }
+
   #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60;opacity:var(--touch-opacity,0.9)}
   .t-wep{padding:8px 16px;background:rgba(12,15,20,.88);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#9aa4b2;font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px);box-shadow:0 4px 12px rgba(0,0,0,.6)}
   .t-wep.active{background:rgba(255,50,50,.25);border-color:#ff5050;color:#fff;box-shadow:0 0 16px rgba(255,60,60,.5)}
@@ -573,6 +576,44 @@
     <div class="t-btn-label">RELOAD <span class="t-btn-percent">90%</span></div>
   </button>
 
+  <!-- 6. İNCELE (INSPECT) -->
+  <button id="btnTInspect" class="t-btn-wrap" type="button" aria-label="İncele (Inspect)">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <path d="M 22 24 L 18 19 L 13 19" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="19" r="2.2" fill="#ffffff"/>
+        <path d="M 42 24 L 47 18 L 53 18" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="54" cy="18" r="2.2" fill="#ffffff"/>
+        <path d="M 22 40 L 17 45 L 12 45" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="11" cy="45" r="2.2" fill="#ffffff"/>
+        <path d="M 26 42 L 23 50 L 19 53" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="18" cy="54" r="2.2" fill="#ffffff"/>
+        <path d="M 32 44 L 32 50 L 35 53" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="36" cy="54" r="2.2" fill="#ffffff"/>
+
+        <path d="M 11 32 C 18 20 42 20 49 32 C 42 44 18 44 11 32 Z" fill="#ffffff" fill-opacity="0.95"/>
+        <ellipse cx="30" cy="32" rx="9" ry="9" fill="#140608"/>
+        <circle cx="30" cy="32" r="7.2" stroke="#ffffff" stroke-width="2.2" fill="#ff3333"/>
+        <circle cx="30" cy="32" r="4" fill="#ffffff"/>
+        <circle cx="28.5" cy="30.5" r="1.4" fill="#ffffff"/>
+
+        <g transform="translate(1, 1)">
+          <circle cx="41" cy="39" r="7.5" fill="#1b080a" stroke="#ffffff" stroke-width="2.6"/>
+          <circle cx="41" cy="39" r="5" fill="#ff4444" fill-opacity="0.8"/>
+          <path d="M 37.5 37 A 4.5 4.5 0 0 1 42 34.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <path d="M 46.5 44.5 L 53 51" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="t-btn-label">INSPECT <span class="t-btn-percent">90%</span></div>
+  </button>
+
   <div id="touchWeaponBar">
     <button class="t-wep active" type="button" data-wep="0">1 AK-47</button>
     <button class="t-wep" type="button" data-wep="1">2 M4A4</button>
@@ -832,7 +873,7 @@ const isMobileMode = () => Device.mode === 'mobile';
 const BIND_DEFS = [
   ['forward', 'Forward', 'KeyW'], ['back', 'Backward', 'KeyS'], ['left', 'Left', 'KeyA'], ['right', 'Right', 'KeyD'],
   ['jump', 'Jump', 'Space'], ['crouch', 'Crouch', 'KeyC'], ['walk', 'Walk (Silent)', 'ShiftLeft'], ['reload', 'Reload', 'KeyR'],
-  ['melee', 'Karambit (Quick)', 'KeyF'], ['w1', 'AK-47', 'Digit1'], ['w2', 'M4A4', 'Digit2'], ['w3', 'AWP', 'Digit3'],
+  ['melee', 'Karambit (Quick)', 'KeyF'], ['inspect', 'Inspect', 'KeyG'], ['w1', 'AK-47', 'Digit1'], ['w2', 'M4A4', 'Digit2'], ['w3', 'AWP', 'Digit3'],
   ['w4', 'Karambit', 'Digit4'], ['last', 'Last Weapon', 'KeyQ'], ['score', 'Scoreboard', 'Tab']
 ];
 const keyLabel = c => {
@@ -1225,6 +1266,13 @@ class SoundEngine {
   tick() { if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.4, 0); this.tone(d, 'square', 1100, 700, t, 0.03, 0.4); }
   step(vol, pan) { if (!this.ctx || vol < 0.02) return; const t = this.ctx.currentTime, d = this.dest(vol, pan); this.noise(d, t, 0.07, 'lowpass', 320 + Math.random() * 120, 0.9, 0.7); }
   click() { if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.35, 0); this.noise(d, t, 0.02, 'highpass', 2500, 1, 0.8); }
+  knifeSpin() {
+    if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.5, 0);
+    this.noise(d, t, 0.28, 'bandpass', 1200, 1.2, 0.55, 3200);
+    this.tone(d, 'sine', 580, 220, t, 0.22, 0.18);
+    this.noise(d, t + 0.14, 0.22, 'highpass', 2400, 0.9, 0.45, 1400);
+    this.tone(d, 'triangle', 880, 440, t + 0.28, 0.08, 0.15);
+  }
   empty() { if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.4, 0); this.noise(d, t, 0.025, 'highpass', 3000, 1, 0.8); this.tone(d, 'square', 800, 400, t, 0.03, 0.3); }
   reload(len) {
     if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.5, 0);
@@ -1271,18 +1319,56 @@ function buildGun(id, noArms) {
     bx(0.045, 0.08, 0.22, black, 0, -0.03, 0.26, g); bx(0.012, 0.03, 0.012, black, 0, 0.05, -0.7, g); cyl(0.02, 0.06, dark, 0, 0.01, -0.73, g);
     muzzle = V3(0, 0.01, -0.77);
   } else if (id === 'knife') {
-    bx(0.036, 0.04, 0.15, dark, 0, 0, 0.04, g);
-    bx(0.04, 0.03, 0.05, 0xf2992e, 0, 0.01, -0.05, g);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.008, 6, 14), mat(steel)); ring.rotation.y = Math.PI / 2; ring.position.set(0, -0.012, 0.135); g.add(ring);
-    let by = 0.012, bz = -0.075, ba = 0;
-    for (let i = 0; i < 6; i++) {
-      const len = 0.062, h = 0.036 - i * 0.0042;
+    const spinPivot = new THREE.Group();
+    spinPivot.position.set(0, -0.012, 0.135);
+    g.add(spinPivot);
+
+    // Index finger safety ring centered at local (0, 0, 0) of spinPivot
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.0075, 8, 20), mat(steel));
+    ring.rotation.y = Math.PI / 2;
+    spinPivot.add(ring);
+    const ringLiner = new THREE.Mesh(new THREE.TorusGeometry(0.024, 0.003, 6, 16), mat(0xf2992e));
+    ringLiner.rotation.y = Math.PI / 2;
+    spinPivot.add(ringLiner);
+
+    // Pommel ring junction
+    bx(0.032, 0.038, 0.03, dark, 0, 0.004, -0.03, spinPivot);
+
+    // Ergonomic handle shank with finger grooves & textured tactical scales
+    bx(0.034, 0.046, 0.14, dark, 0, 0.012, -0.11, spinPivot);
+    bx(0.036, 0.012, 0.03, black, 0, -0.016, -0.06, spinPivot);
+    bx(0.036, 0.014, 0.03, black, 0, -0.018, -0.10, spinPivot);
+    bx(0.036, 0.012, 0.03, black, 0, -0.016, -0.14, spinPivot);
+    bx(0.038, 0.036, 0.12, 0x1b1c20, 0, 0.012, -0.11, spinPivot);
+    cyl(0.006, 0.04, 0xf2992e, 0, 0.012, -0.08, spinPivot);
+    cyl(0.006, 0.04, 0xf2992e, 0, 0.012, -0.13, spinPivot);
+
+    // Bolster / guard
+    bx(0.036, 0.042, 0.035, 0xf2992e, 0, 0.018, -0.19, spinPivot);
+    bx(0.024, 0.014, 0.03, steel, 0, 0.042, -0.18, spinPivot);
+
+    // Classic CS Hawkbill / Talon Curved Blade (segmented curved claw)
+    let by = 0.018, bz = -0.205, ba = 0.1;
+    for (let i = 0; i < 7; i++) {
+      const len = 0.052, h = 0.038 - i * 0.0046;
       const dy = -Math.sin(ba) * len, dz = -Math.cos(ba) * len;
-      const seg = bx(0.007, h, len + 0.012, 0xdfe5ec, 0, by + dy / 2, bz + dz / 2, g); seg.rotation.x = -ba;
-      by += dy; bz += dz; ba += 0.3;
+      const seg = bx(0.008, h, len + 0.008, 0xdde4ed, 0, by + dy / 2, bz + dz / 2, spinPivot);
+      seg.rotation.x = -ba;
+      const edge = bx(0.004, h * 0.5, len + 0.008, 0xf4f7fa, 0, by + dy / 2 - h * 0.28, bz + dz / 2, spinPivot);
+      edge.rotation.x = -ba;
+      by += dy; bz += dz; ba += 0.28;
     }
-    if (!noArms) { bx(0.085, 0.09, 0.13, skin, 0, -0.02, 0.05, g); bx(0.09, 0.09, 0.45, sleeve, 0.05, -0.1, 0.34, g, -0.25); }
-    muzzle = V3(0, -0.12, -0.35);
+
+    if (!noArms) {
+      // Reverse grip holding: palm curled on handle, index finger through the ring
+      bx(0.078, 0.082, 0.12, skin, 0, -0.015, 0.08, g);
+      bx(0.035, 0.03, 0.06, skin, -0.035, 0.015, 0.07, g);
+      bx(0.024, 0.024, 0.05, skin, 0, -0.012, 0.135, g);
+      bx(0.088, 0.088, 0.45, sleeve, 0.04, -0.09, 0.36, g, -0.25);
+      bx(0.092, 0.092, 0.06, 0x1f2228, 0.03, -0.06, 0.16, g, -0.22);
+    }
+    muzzle = V3(0, -0.16, -0.42);
+    g.userData = { muzzle, flash:mf, spinPivot };
   } else {
     bx(0.055, 0.09, 0.55, green, 0, 0, 0, g); cyl(0.016, 0.62, dark, 0, 0.015, -0.58, g);
     cyl(0.032, 0.30, black, 0, 0.09, -0.05, g); cyl(0.04, 0.05, black, 0, 0.09, -0.21, g); cyl(0.036, 0.04, black, 0, 0.09, 0.11, g);
@@ -1301,7 +1387,8 @@ function buildGun(id, noArms) {
   const p1 = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.22), fm), p2 = p1.clone(); p2.rotation.z = Math.PI / 4;
   const p3 = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), fm); p3.rotation.y = Math.PI / 2; p3.position.z = 0.04;
   mf.add(p1, p2, p3); g.add(mf);
-  g.userData = { muzzle, flash:mf };
+  if (!g.userData) g.userData = { muzzle, flash:mf };
+  else g.userData.flash = mf;
   return g;
 }
 function buildBotModel(color, kind) {
@@ -1506,7 +1593,7 @@ class InputManager {
       if (!this.locked) return;
       if (e.code !== 'F12') e.preventDefault();
       const code = Binds.canon(e.code); if (!code) return;
-      if (e.repeat && (code.startsWith('Digit') || code === 'KeyQ' || code === 'KeyR' || code === 'KeyF')) return;
+      if (e.repeat && (code.startsWith('Digit') || code === 'KeyQ' || code === 'KeyR' || code === 'KeyF' || code === 'KeyG')) return;
       this.keys[code] = true;
       if (code === 'Tab') this.tab = true;
       const w = this.g.weapons;
@@ -1514,6 +1601,7 @@ class InputManager {
       if (code === 'KeyQ') w.setWeapon(w.last);
       if (code === 'KeyR') w.startReload();
       if (code === 'KeyF') w.quickMelee();
+      if (code === 'KeyG') w.startInspect();
     });
     addEventListener('keyup', e => {
       if (this.locked && e.code !== 'F12') e.preventDefault();
@@ -1664,6 +1752,7 @@ class TouchControls {
     this.btnCrouch = document.getElementById('btnTCrouch');
     this.btnScope = document.getElementById('btnTScope');
     this.btnReload = document.getElementById('btnTReload');
+    this.btnInspect = document.getElementById('btnTInspect');
     this.btnMenu = document.getElementById('btnTouchMenu');
     this.wepBar = document.getElementById('touchWeaponBar');
 
@@ -1682,6 +1771,7 @@ class TouchControls {
       this.btnCrouch,
       this.btnScope,
       this.btnReload,
+      this.btnInspect,
       this.wepBar
     ].filter(Boolean);
 
@@ -2131,6 +2221,20 @@ class TouchControls {
       }, { passive: false });
     }
 
+    // Inspect Button
+    if (this.btnInspect) {
+      this.btnInspect.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
+        e.preventDefault();
+        this.g.weapons.startInspect();
+      }, { passive: false });
+      this.btnInspect.addEventListener('click', e => {
+        if (this.isEditing) return;
+        e.preventDefault();
+        this.g.weapons.startInspect();
+      });
+    }
+
     // Menu / Pause Button
     if (this.btnMenu) {
       const openMenu = e => {
@@ -2169,18 +2273,40 @@ class WeaponSystem {
     this.punch = { p:0, y:0 }; this.target = { p:0, y:0 }; this.scope = 0; this.flashT = 0;
     this.kick = 0; this.bobT = 0; this.swayX = 0; this.swayY = 0;
     this.base = V3(0.2, -0.2, -0.38); this.swingT = 0; this.swingAlt = 0;
+    this.inspectActive = false; this.inspectT = 0;
     this.guns[0].visible = true;
   }
   setWeapon(i) {
     const p = this.player; if (i === p.cur || !p.alive) return;
-    this.cancelReload(); this.scope = 0; this.last = p.cur; this.guns[p.cur].visible = false; p.cur = i; this.guns[i].visible = true;
+    this.cancelInspect(); this.cancelReload(); this.scope = 0; this.last = p.cur; this.guns[p.cur].visible = false; p.cur = i; this.guns[i].visible = true;
     this.drawT = 0.45; this.idx = 0; this.target.p = this.target.y = 0; this.g.sound.click(); this.g.ui.refreshWeaponList();
   }
   cancelReload() { this.reloadT = 0; }
-  quickMelee() { const p = this.player; if (p.cur === 3) this.setWeapon(this.last === 3 ? 0 : this.last); else this.setWeapon(3); }
+  startInspect() {
+    const p = this.player, w = WEAPONS[p.cur];
+    if (!p.alive || this.reloadT > 0 || this.drawT > 0) return;
+    this.inspectActive = true;
+    this.inspectT = 0;
+    if (w.id === 'knife') {
+      this.g.sound.knifeSpin();
+    } else {
+      this.g.sound.click();
+    }
+  }
+  cancelInspect() {
+    this.inspectActive = false;
+    this.inspectT = 0;
+    for (const gun of this.guns) {
+      if (gun.userData && gun.userData.spinPivot) {
+        gun.userData.spinPivot.rotation.x = 0;
+      }
+    }
+  }
+  quickMelee() { this.cancelInspect(); const p = this.player; if (p.cur === 3) this.setWeapon(this.last === 3 ? 0 : this.last); else this.setWeapon(3); }
   startReload() {
     const p = this.player, w = WEAPONS[p.cur], st = p.ws[p.cur];
     if (!p.alive || this.reloadT > 0 || st.ammo >= w.mag || st.reserve <= 0 || this.drawT > 0) return;
+    this.cancelInspect();
     this.reloadT = this.reloadLen = w.reload; this.scope = 0; this.g.sound.reload(w.reload);
   }
   finishReload() {
@@ -2203,6 +2329,7 @@ class WeaponSystem {
   }
   fire(w, st) {
     const g = this.g, p = this.player, inp = g.input;
+    this.cancelInspect();
     if (w.melee) { this.fireT = w.interval; this.sinceShot = 0; this.swingT = 0.32; this.swingAlt ^= 1; g.melee(p, p.eyePos(V3(0, 0, 0)), p.yaw, p.pitch, w); return; }
     st.ammo--; this.fireT = w.interval; this.sinceShot = 0;
     const yaw = p.yaw + this.punch.y, pitch = p.pitch + this.punch.p;
@@ -2220,6 +2347,7 @@ class WeaponSystem {
     if (p.alive) {
       if (this.reloadT > 0) { this.reloadT -= dt; if (this.reloadT <= 0) { this.reloadT = 0; this.finishReload(); } }
       if (inp.scopeEdge && !w.melee && this.reloadT <= 0 && this.drawT <= 0) {
+        this.cancelInspect();
         if (w.scope) { this.scope = (this.scope + 1) % 3; g.sound.click(); }
         else { this.scope = this.scope ? 0 : 1; g.sound.click(); }
       }
@@ -2230,7 +2358,7 @@ class WeaponSystem {
         else { g.sound.empty(); this.fireT = 0.3; }
       }
       if (st.ammo <= 0 && st.reserve > 0 && this.reloadT <= 0 && this.fireT <= 0) this.startReload();
-    } else { this.scope = 0; }
+    } else { this.scope = 0; this.cancelInspect(); }
     // recoil: pattern follow + exponential decay when trigger released
     const firing = this.sinceShot < w.interval + 0.08;
     if (!firing) { const k = Math.exp(-dt * 6); this.target.p *= k; this.target.y *= k; }
@@ -2244,10 +2372,60 @@ class WeaponSystem {
     const bobK = p.onGround ? Math.min(sp / 250, 1) : 0.1;
     this.swayX += (clamp(-inp.dx * 0.0006, -0.05, 0.05) - this.swayX) * Math.min(1, dt * 10);
     this.swayY += (clamp(inp.dy * 0.0006, -0.05, 0.05) - this.swayY) * Math.min(1, dt * 10);
-    let ox = this.base.x + Math.sin(this.bobT) * 0.012 * bobK + this.swayX * 0.6;
-    let oy = this.base.y + Math.abs(Math.cos(this.bobT)) * 0.012 * bobK + Math.sin(this.bobT * 0.35) * 0.002 + this.swayY * 0.6;
-    let oz = this.base.z + this.kick * 0.07;
-    let rx = this.kick * 0.09, ry = this.swayX, rz = 0;
+
+    const isKnife = w.id === 'knife';
+    const curBase = isKnife ? V3(0.18, -0.16, -0.30) : this.base;
+    let ox = curBase.x + Math.sin(this.bobT) * 0.012 * bobK + this.swayX * 0.6;
+    let oy = curBase.y + Math.abs(Math.cos(this.bobT)) * 0.012 * bobK + Math.sin(this.bobT * 0.35) * 0.002 + this.swayY * 0.6;
+    let oz = curBase.z + this.kick * 0.07;
+    let rx = (isKnife ? 0.20 : 0) + this.kick * 0.09;
+    let ry = (isKnife ? 0.44 : 0) + this.swayX;
+    let rz = (isKnife ? -0.30 : 0);
+
+    if (this.inspectActive) {
+      this.inspectT += dt;
+      if (isKnife) {
+        const spinPivot = gun.userData && gun.userData.spinPivot;
+        const dur = 0.82;
+        if (this.inspectT < dur) {
+          const p = this.inspectT / dur;
+          let rot = 0;
+          if (p < 0.12) {
+            rot = (p / 0.12) * -0.22;
+          } else if (p < 0.74) {
+            const sp = (p - 0.12) / 0.62;
+            rot = -0.22 - sp * Math.PI * 2;
+          } else {
+            const ep = (p - 0.74) / 0.26;
+            rot = (-0.22 - Math.PI * 2) * (1 - ep);
+          }
+          if (spinPivot) spinPivot.rotation.x = rot;
+
+          const blend = Math.sin(p * Math.PI);
+          ox = lerp(ox, 0.14, blend * 0.65);
+          oy = lerp(oy, -0.13, blend * 0.65);
+          oz = lerp(oz, -0.27, blend * 0.65);
+          rx = lerp(rx, 0.08, blend * 0.75);
+          ry = lerp(ry, 0.22, blend * 0.75);
+          rz = lerp(rz, -0.12, blend * 0.75);
+        } else {
+          this.cancelInspect();
+        }
+      } else {
+        const dur = 2.0;
+        if (this.inspectT < dur) {
+          const p = this.inspectT / dur;
+          const s = Math.sin(p * Math.PI);
+          rx += 0.10 * s;
+          ry -= 0.32 * s;
+          rz += 0.22 * s;
+          oy -= 0.03 * s;
+        } else {
+          this.cancelInspect();
+        }
+      }
+    }
+
     if (this.reloadT > 0) { const pr = 1 - this.reloadT / this.reloadLen, s = Math.sin(pr * Math.PI); oy -= 0.12 * s; rx -= 0.7 * s; rz += 0.4 * s; }
     if (this.drawT > 0) { const d = clamp(this.drawT / 0.45, 0, 1); oy -= d * d * 0.4; rx -= d * 0.6; }
     if (this.swingT > 0) {
