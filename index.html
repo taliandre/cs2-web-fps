@@ -165,13 +165,13 @@
   .btn-secondary{padding:13px 22px;font-size:14px;font-weight:700;letter-spacing:2px;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;transition:background .2s}
   .btn-secondary:hover{background:rgba(255,255,255,.12)}
   /* ---------- Touch & Mobile Responsive CSS ---------- */
-  #touchControls{position:fixed;inset:0;pointer-events:none;z-index:50;display:none;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  #touchControls{position:fixed;inset:0;pointer-events:none;z-index:50;display:none;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;--touch-scale:1;--touch-opacity:0.9}
   body.is-touch #touchControls{display:block}
   #touchMoveZone{position:absolute;left:0;top:0;width:50vw;height:100vh;pointer-events:auto;touch-action:none}
   #vJoyBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(245,194,66,.55);background:radial-gradient(circle,rgba(245,194,66,.18) 0%,rgba(10,13,18,.55) 75%);pointer-events:none;display:none;backdrop-filter:blur(3px);box-shadow:0 0 16px rgba(245,194,66,.3)}
   #vJoyKnob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d49a20);border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.6);pointer-events:none}
   #touchLookZone{position:absolute;right:0;top:0;width:50vw;height:100vh;pointer-events:auto;touch-action:none}
-  .t-btn{position:absolute;pointer-events:auto;touch-action:none;border:1px solid rgba(255,255,255,.25);border-radius:50%;color:#fff;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .08s,filter .08s}
+  .t-btn{position:absolute;pointer-events:auto;touch-action:none;border:1px solid rgba(255,255,255,.25);border-radius:50%;color:#fff;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .08s,filter .08s;opacity:var(--touch-opacity)}
   .t-btn:active{transform:scale(.92);filter:brightness(1.25)}
   .t-btn small{font-size:8px;letter-spacing:1px;opacity:.9;font-weight:700}
   #btnTFire{right:24px;bottom:72px;width:74px;height:74px;background:linear-gradient(135deg,rgba(255,75,75,.85),rgba(180,20,20,.9));border-color:#ff6b6b;font-size:24px;box-shadow:0 0 22px rgba(255,60,60,.55)}
@@ -180,10 +180,16 @@
   #btnTCrouch.active{background:var(--gold);color:#111;border-color:#fff;box-shadow:0 0 14px rgba(245,194,66,.6)}
   #btnTScope{right:32px;bottom:160px;width:54px;height:54px;background:rgba(20,30,45,.85);border-color:var(--cyan);font-size:18px}
   #btnTReload{right:174px;bottom:64px;width:48px;height:48px;background:rgba(35,40,50,.85);font-size:17px}
-  #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60}
+  #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60;opacity:var(--touch-opacity)}
   .t-wep{padding:7px 14px;background:rgba(12,15,20,.85);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#9aa4b2;font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px)}
   .t-wep.active{background:rgba(245,194,66,.25);border-color:var(--gold);color:#fff;box-shadow:0 0 12px rgba(245,194,66,.45)}
   #btnTouchMenu{position:absolute;right:14px;top:14px;padding:6px 12px;background:rgba(10,13,18,.85);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px);z-index:60}
+  /* ---------- Touch HUD Customizer & Editing Mode ---------- */
+  #touchControls.editing-hud{display:block!important;z-index:99995;pointer-events:auto}
+  #touchControls.editing-hud #touchMoveZone,#touchControls.editing-hud #touchLookZone{pointer-events:none}
+  #touchControls.editing-hud .t-btn,#touchControls.editing-hud #touchWeaponBar{outline:2px dashed #f5c242;outline-offset:4px;box-shadow:0 0 20px rgba(245,194,66,.65);cursor:grab;touch-action:none;pointer-events:auto}
+  #touchControls.editing-hud .t-btn.is-dragging,#touchControls.editing-hud #touchWeaponBar.is-dragging{outline-color:#3fd0ff;box-shadow:0 0 28px rgba(63,208,255,.9);cursor:grabbing;filter:brightness(1.25)}
+  #touchCustomizerOverlay{display:none;position:fixed;inset:0;background:rgba(6,8,12,.78);backdrop-filter:blur(4px);z-index:99990;touch-action:none;user-select:none;-webkit-user-select:none}
   @media(max-width:768px){
     #panel{padding:18px 14px;width:96vw;max-height:94vh}
     #panel h1{font-size:26px;letter-spacing:4px}
@@ -274,8 +280,9 @@
         <div style="font-size:11px;color:#9aa4b2;letter-spacing:1px;font-weight:700">AKTİF OYUNUNUZ DEVAM EDİYOR</div>
         <div style="font-size:16px;color:#fff;font-weight:800">ODA: <span id="activeRoomCodeText" style="color:var(--gold)">PUBLIC</span></div>
       </div>
-      <div style="display:flex;gap:10px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="btnResumeMatch" type="button" style="padding:10px 18px;background:var(--cyan);border:none;border-radius:6px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">▶ OYUNA DÖN (RESUME)</button>
+        <button id="btnActiveTouchEditor" type="button" style="padding:10px 14px;background:rgba(245,194,66,.15);border:1px solid var(--gold);border-radius:6px;color:var(--gold);font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">🎮 HUD DÜZENLE</button>
         <button id="btnLeaveRoom" type="button" style="padding:10px 18px;background:rgba(255,80,80,.2);border:1px solid #ff5050;border-radius:6px;color:#ff8a8a;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">🚪 FARKLI BİR ODAYA GİR</button>
       </div>
     </div>
@@ -354,8 +361,9 @@
         <div id="err"></div>
       </div>
     </div>
-    <div style="display:flex;gap:12px;margin-top:16px">
-      <button id="playFs" style="margin-top:0;width:100%;background:linear-gradient(90deg,var(--cyan),#8ae4ff);border:none;border-radius:10px;font-weight:800;font-size:14px;letter-spacing:2px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 6px 20px rgba(63,208,255,.25)">⛶ TAM EKRAN MODUNU AÇ / KAPAT</button>
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
+      <button id="btnOpenTouchEditor" type="button" style="flex:1;min-width:200px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:1px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 4px 16px rgba(245,194,66,.25)">🎮 MOBİL KONTROLLERİ DÜZENLE (HUD)</button>
+      <button id="playFs" style="flex:1;min-width:200px;margin-top:0;background:linear-gradient(90deg,var(--cyan),#8ae4ff);border:none;border-radius:10px;font-weight:800;font-size:14px;letter-spacing:2px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 6px 20px rgba(63,208,255,.25)">⛶ TAM EKRAN MODUNU AÇ / KAPAT</button>
     </div>
   </div>
 </div>
@@ -378,6 +386,39 @@
       <button class="btn-primary" id="btnRestart" style="flex:1">YENİDEN BAŞLAT</button>
       <button class="btn-secondary" id="btnEndLeave" style="flex:1.2;background:rgba(255,80,80,.2);border:1px solid #ff5050;color:#ff8a8a;font-weight:800;border-radius:8px;cursor:pointer">🚪 FARKLI ODAYA GİR</button>
       <button class="btn-secondary" id="btnEndMenu" style="flex:1">LOBİ / AYARLAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOKUNMATİK KONTROL DÜZENLEYİCİ ARAYÜZÜ (MOBILE HUD CUSTOMIZER) -->
+<div id="touchCustomizerOverlay">
+  <div style="position:absolute;top:0;left:0;right:0;padding:12px 16px;background:linear-gradient(180deg,rgba(10,13,18,.98),rgba(10,13,18,.85));border-bottom:1px solid rgba(63,208,255,.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.7);pointer-events:auto;z-index:100010">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🎮</span>
+      <div>
+        <div style="font-size:14px;font-weight:900;color:var(--gold);letter-spacing:1px">DOKUNMATİK KONTROL DÜZENLEYİCİ</div>
+        <div style="font-size:10px;color:#9aa4b2">Butonları istediğiniz yere sürükleyin. Değişiklikler otomatik kaydedilir.</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff">
+        <label for="tcScaleRange">Boyut:</label>
+        <input type="range" id="tcScaleRange" min="0.7" max="1.5" step="0.05" value="1.0" style="width:85px;cursor:pointer">
+        <span id="tcScaleVal" style="color:var(--cyan);font-family:monospace;width:34px">100%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff">
+        <label for="tcOpacityRange">Saydamlık:</label>
+        <input type="range" id="tcOpacityRange" min="0.3" max="1.0" step="0.05" value="0.9" style="width:75px;cursor:pointer">
+        <span id="tcOpacityVal" style="color:var(--cyan);font-family:monospace;width:34px">90%</span>
+      </div>
+      <button id="btnTcReset" type="button" style="padding:7px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">↺ SIFIRLA</button>
+      <button id="btnTcSave" type="button" style="padding:8px 16px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:6px;color:#111;font-size:12px;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 12px rgba(245,194,66,.3)">💾 KAYDET VE ÇIK</button>
+    </div>
+  </div>
+
+  <div style="position:absolute;inset:70px 0 0 0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);background-size:40px 40px;display:flex;align-items:center;justify-content:center">
+    <div style="color:rgba(255,255,255,.3);font-size:13px;font-weight:700;letter-spacing:2px;text-align:center;pointer-events:none">
+      DÜZENLEME MODU AKTİF<br><span style="font-size:11px;opacity:.7">BUTONLARI TAŞIMAK İÇİN ÜZERİNE BASIP SÜRÜKLEYİN</span>
     </div>
   </div>
 </div>
@@ -736,37 +777,46 @@ function buildBotModel(color, kind) {
   const darkM = M(0x16171a), boot = M(0x1a1410), accent = M(color), glove = M(0x222222), headgear = M(isCT ? 0x2e3744 : color), cloth2 = M(isCT ? 0x2d3d5a : 0x7a6842);
   const mats = [skin, cloth, vest, pants, darkM, boot, accent, glove, headgear, cloth2];
   const part = (w, h, d, m, x, y, z, parent) => { const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mesh.position.set(x, y, z); parent.add(mesh); return mesh; };
-  const limb = (w, h, d, m, x, y, z) => { const gp = new THREE.Group(); gp.position.set(x, y, z); part(w, h, d, m, 0, -h / 2, 0, gp); pivot.add(gp); return gp; };
+  const limb = (w, h, d, m, x, y, z, parent = pivot) => { const gp = new THREE.Group(); gp.position.set(x, y, z); part(w, h, d, m, 0, -h / 2, 0, gp); parent.add(gp); return gp; };
   // legs with boots and knee pads
-  const legL = limb(0.2, 0.8, 0.22, pants, -0.12, 0.8, 0), legR = limb(0.2, 0.8, 0.22, pants, 0.12, 0.8, 0);
+  const legL = limb(0.2, 0.8, 0.22, pants, -0.12, 0.8, 0, pivot), legR = limb(0.2, 0.8, 0.22, pants, 0.12, 0.8, 0, pivot);
   [legL, legR].forEach(l => { part(0.22, 0.2, 0.34, boot, 0, -0.72, -0.04, l); part(0.22, 0.12, 0.08, darkM, 0, -0.38, -0.12, l); });
+
+  // Upper body (waist-up) pitch group
+  const upperBody = new THREE.Group(); upperBody.position.set(0, 0.82, 0); pivot.add(upperBody);
+
   // torso, belt, tactical vest, pouches, backpack
-  part(0.5, 0.7, 0.28, cloth, 0, 1.15, 0, pivot);
-  part(0.54, 0.46, 0.32, vest, 0, 1.2, 0, pivot);
-  part(0.52, 0.08, 0.3, darkM, 0, 0.82, 0, pivot);
-  part(0.12, 0.14, 0.08, darkM, -0.16, 1.1, -0.18, pivot); part(0.12, 0.14, 0.08, darkM, 0.0, 1.1, -0.18, pivot); part(0.12, 0.14, 0.08, darkM, 0.16, 1.1, -0.18, pivot);
-  part(0.2, 0.06, 0.12, accent, 0, 1.38, -0.17, pivot);
-  if (!isCT) part(0.34, 0.4, 0.14, cloth2, 0, 1.2, 0.22, pivot); else part(0.3, 0.3, 0.1, vest, 0, 1.2, 0.2, pivot);
+  part(0.5, 0.7, 0.28, cloth, 0, 0.33, 0, upperBody);
+  part(0.54, 0.46, 0.32, vest, 0, 0.38, 0, upperBody);
+  part(0.52, 0.08, 0.3, darkM, 0, 0.0, 0, upperBody);
+  part(0.12, 0.14, 0.08, darkM, -0.16, 0.28, -0.18, upperBody); part(0.12, 0.14, 0.08, darkM, 0.0, 0.28, -0.18, upperBody); part(0.12, 0.14, 0.08, darkM, 0.16, 0.28, -0.18, upperBody);
+  part(0.2, 0.06, 0.12, accent, 0, 0.56, -0.17, upperBody);
+  if (!isCT) part(0.34, 0.4, 0.14, cloth2, 0, 0.38, 0.22, upperBody); else part(0.3, 0.3, 0.1, vest, 0, 0.38, 0.2, upperBody);
+
   // head: face + gear
-  part(0.24, 0.26, 0.24, skin, 0, 1.65, 0, pivot);
+  part(0.24, 0.26, 0.24, skin, 0, 0.83, 0, upperBody);
   if (isCT) {
-    part(0.30, 0.16, 0.30, headgear, 0, 1.79, 0, pivot); part(0.26, 0.05, 0.12, darkM, 0, 1.73, -0.17, pivot); part(0.3, 0.07, 0.3, headgear, 0, 1.70, 0.02, pivot);
-    part(0.20, 0.08, 0.04, M(0x0a0c10), 0, 1.65, -0.13, pivot);
+    part(0.30, 0.16, 0.30, headgear, 0, 0.97, 0, upperBody); part(0.26, 0.05, 0.12, darkM, 0, 0.91, -0.17, upperBody); part(0.3, 0.07, 0.3, headgear, 0, 0.88, 0.02, upperBody);
+    part(0.20, 0.08, 0.04, M(0x0a0c10), 0, 0.83, -0.13, upperBody);
   } else {
-    part(0.29, 0.16, 0.29, headgear, 0, 1.78, 0, pivot); part(0.29, 0.14, 0.29, headgear, 0, 1.58, 0.01, pivot); part(0.2, 0.05, 0.04, darkM, 0, 1.68, -0.13, pivot);
-    part(0.12, 0.2, 0.12, headgear, 0, 1.52, 0.12, pivot);
+    part(0.29, 0.16, 0.29, headgear, 0, 0.96, 0, upperBody); part(0.29, 0.14, 0.29, headgear, 0, 0.76, 0.01, upperBody); part(0.2, 0.05, 0.04, darkM, 0, 0.86, -0.13, upperBody);
+    part(0.12, 0.2, 0.12, headgear, 0, 0.70, 0.12, upperBody);
   }
+
   // shoulders + arms with gloves
-  part(0.18, 0.12, 0.2, vest, -0.34, 1.5, 0, pivot); part(0.18, 0.12, 0.2, vest, 0.34, 1.5, 0, pivot);
-  const armL = limb(0.13, 0.55, 0.15, cloth, -0.33, 1.44, 0), armR = limb(0.13, 0.55, 0.15, cloth, 0.33, 1.44, 0);
+  part(0.18, 0.12, 0.2, vest, -0.34, 0.68, 0, upperBody); part(0.18, 0.12, 0.2, vest, 0.34, 0.68, 0, upperBody);
+  const armL = limb(0.13, 0.55, 0.15, cloth, -0.33, 0.62, 0, upperBody), armR = limb(0.13, 0.55, 0.15, cloth, 0.33, 0.62, 0, upperBody);
   part(0.14, 0.12, 0.16, glove, 0, -0.58, 0, armL); part(0.14, 0.12, 0.16, glove, 0, -0.58, 0, armR);
-  armL.rotation.x = 1.35; armR.rotation.x = 1.25;
-  armL.rotation.y = -0.35; armR.rotation.y = 0.25;
-  armL.rotation.z = -0.10; armR.rotation.z = 0.10;
-  // weapon models (shared generator, no viewmodel arms)
-  const holder = new THREE.Group(); holder.position.set(0.04, 1.22, -0.18); holder.scale.setScalar(0.85); pivot.add(holder);
+
+  // weapon models inside holder on upperBody
+  const holder = new THREE.Group(); holder.position.set(0.04, 0.40, -0.18); holder.scale.setScalar(0.85); upperBody.add(holder);
   const guns = WEAPONS.map(w => { const gn = buildGun(w.id, true); gn.visible = false; holder.add(gn); return gn; });
-  return { root, pivot, legL, legR, armL, armR, mats, guns, flash:{ visible:false } };
+
+  // Natural tactical grip
+  armL.rotation.set(1.22, -0.35, -0.12);
+  armR.rotation.set(1.18, 0.28, 0.10);
+
+  return { root, pivot, upperBody, legL, legR, armL, armR, holder, mats, guns, flash:{ visible:false } };
 }
 
 /* =====================================================================
@@ -1049,7 +1099,9 @@ class TouchControls {
     this.fireX = 0;
     this.fireY = 0;
     this.maxR = 48;
+    this.isEditing = false;
 
+    this.container = document.getElementById('touchControls');
     this.zoneMove = document.getElementById('touchMoveZone');
     this.zoneLook = document.getElementById('touchLookZone');
     this.base = document.getElementById('vJoyBase');
@@ -1062,15 +1114,243 @@ class TouchControls {
     this.btnMenu = document.getElementById('btnTouchMenu');
     this.wepBar = document.getElementById('touchWeaponBar');
 
+    this.overlay = document.getElementById('touchCustomizerOverlay');
+    this.scaleRange = document.getElementById('tcScaleRange');
+    this.scaleVal = document.getElementById('tcScaleVal');
+    this.opacityRange = document.getElementById('tcOpacityRange');
+    this.opacityVal = document.getElementById('tcOpacityVal');
+    this.btnReset = document.getElementById('btnTcReset');
+    this.btnSave = document.getElementById('btnTcSave');
+
+    this.customizableElements = [
+      this.btnFire,
+      this.btnJump,
+      this.btnCrouch,
+      this.btnScope,
+      this.btnReload,
+      this.wepBar
+    ].filter(Boolean);
+
+    this.cfg = this.loadConfig();
+    this.applyConfig();
     this.bindEvents();
+    this.bindCustomizer();
   }
+
+  loadConfig() {
+    try {
+      const saved = localStorage.getItem('cs2lp_touch_cfg');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      scale: 1.0,
+      opacity: 0.9,
+      positions: {}
+    };
+  }
+
+  saveConfig() {
+    try {
+      localStorage.setItem('cs2lp_touch_cfg', JSON.stringify(this.cfg));
+    } catch (e) {}
+  }
+
+  applyConfig() {
+    const scale = this.cfg.scale || 1.0;
+    const opacity = this.cfg.opacity != null ? this.cfg.opacity : 0.9;
+    if (this.container) {
+      this.container.style.setProperty('--touch-scale', scale);
+      this.container.style.setProperty('--touch-opacity', opacity);
+    }
+    if (this.scaleRange) {
+      this.scaleRange.value = scale;
+      if (this.scaleVal) this.scaleVal.textContent = Math.round(scale * 100) + '%';
+    }
+    if (this.opacityRange) {
+      this.opacityRange.value = opacity;
+      if (this.opacityVal) this.opacityVal.textContent = Math.round(opacity * 100) + '%';
+    }
+
+    const pos = this.cfg.positions || {};
+    this.customizableElements.forEach(el => {
+      const p = pos[el.id];
+      if (p && p.cx != null && p.cy != null) {
+        const x = p.cx * window.innerWidth;
+        const y = p.cy * window.innerHeight;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      } else {
+        el.style.left = '';
+        el.style.top = '';
+        el.style.right = '';
+        el.style.bottom = '';
+        el.style.transform = `scale(${scale})`;
+      }
+    });
+  }
+
+  resetConfig() {
+    this.cfg = {
+      scale: 1.0,
+      opacity: 0.9,
+      positions: {}
+    };
+    this.saveConfig();
+    this.applyConfig();
+  }
+
+  startEditing() {
+    this.isEditing = true;
+    if (this.overlay) this.overlay.style.display = 'block';
+    if (this.container) {
+      this.container.classList.add('editing-hud');
+      this.container.style.display = 'block';
+    }
+    this.applyConfig();
+  }
+
+  stopEditing(save = true) {
+    this.isEditing = false;
+    if (save) this.saveConfig();
+    if (this.overlay) this.overlay.style.display = 'none';
+    if (this.container) {
+      this.container.classList.remove('editing-hud');
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+      const isPlaying = this.g && this.g.started && !this.g.ui.menuOpen && !this.g.matchEnded;
+      this.container.style.display = (isTouch && isPlaying) ? 'block' : 'none';
+    }
+    this.applyConfig();
+  }
+
+  bindCustomizer() {
+    const btnOpen = document.getElementById('btnOpenTouchEditor');
+    if (btnOpen) btnOpen.addEventListener('click', () => this.startEditing());
+    const btnActive = document.getElementById('btnActiveTouchEditor');
+    if (btnActive) btnActive.addEventListener('click', () => this.startEditing());
+
+    if (this.scaleRange) {
+      this.scaleRange.addEventListener('input', e => {
+        this.cfg.scale = parseFloat(e.target.value) || 1.0;
+        this.applyConfig();
+      });
+    }
+
+    if (this.opacityRange) {
+      this.opacityRange.addEventListener('input', e => {
+        this.cfg.opacity = parseFloat(e.target.value) || 0.9;
+        this.applyConfig();
+      });
+    }
+
+    if (this.btnReset) {
+      this.btnReset.addEventListener('click', () => this.resetConfig());
+    }
+
+    if (this.btnSave) {
+      this.btnSave.addEventListener('click', () => this.stopEditing(true));
+    }
+
+    window.addEventListener('resize', () => this.applyConfig());
+    this.setupElementDragging();
+  }
+
+  setupElementDragging() {
+    this.customizableElements.forEach(el => {
+      let isDragging = false;
+      let startTouchX = 0, startTouchY = 0;
+      let initLeft = 0, initTop = 0;
+
+      const onPointerDown = (clientX, clientY) => {
+        if (!this.isEditing) return false;
+        isDragging = true;
+        el.classList.add('is-dragging');
+        const rect = el.getBoundingClientRect();
+        initLeft = rect.left + rect.width / 2;
+        initTop = rect.top + rect.height / 2;
+        startTouchX = clientX;
+        startTouchY = clientY;
+        return true;
+      };
+
+      const onPointerMove = (clientX, clientY) => {
+        if (!isDragging || !this.isEditing) return;
+        const dx = clientX - startTouchX;
+        const dy = clientY - startTouchY;
+        const curX = clamp(initLeft + dx, 30, window.innerWidth - 30);
+        const curY = clamp(initTop + dy, 70, window.innerHeight - 30);
+        el.style.left = curX + 'px';
+        el.style.top = curY + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.transform = `translate(-50%, -50%) scale(${this.cfg.scale || 1})`;
+      };
+
+      const onPointerUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        el.classList.remove('is-dragging');
+        const rect = el.getBoundingClientRect();
+        const cx = (rect.left + rect.width / 2) / window.innerWidth;
+        const cy = (rect.top + rect.height / 2) / window.innerHeight;
+        if (!this.cfg.positions) this.cfg.positions = {};
+        this.cfg.positions[el.id] = { cx: clamp(cx, 0.04, 0.96), cy: clamp(cy, 0.08, 0.96) };
+        this.saveConfig();
+      };
+
+      el.addEventListener('touchstart', e => {
+        if (!this.isEditing) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const t = e.changedTouches[0];
+        onPointerDown(t.clientX, t.clientY);
+      }, { passive: false });
+
+      el.addEventListener('touchmove', e => {
+        if (!this.isEditing || !isDragging) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const t = e.changedTouches[0];
+        onPointerMove(t.clientX, t.clientY);
+      }, { passive: false });
+
+      el.addEventListener('touchend', e => {
+        if (!this.isEditing) return;
+        e.preventDefault();
+        e.stopPropagation();
+        onPointerUp();
+      }, { passive: false });
+
+      el.addEventListener('touchcancel', () => {
+        if (this.isEditing) onPointerUp();
+      });
+
+      el.addEventListener('mousedown', e => {
+        if (!this.isEditing || e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        onPointerDown(e.clientX, e.clientY);
+        const mouseMove = ev => onPointerMove(ev.clientX, ev.clientY);
+        const mouseUp = () => {
+          onPointerUp();
+          window.removeEventListener('mousemove', mouseMove);
+          window.removeEventListener('mouseup', mouseUp);
+        };
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('mouseup', mouseUp);
+      });
+    });
+  }
+
   bindEvents() {
     if (!this.zoneMove || !this.zoneLook) return;
 
     // Movement Joystick (Left zone)
     this.zoneMove.addEventListener('touchstart', e => {
       e.preventDefault();
-      if (this.moveId !== null) return;
+      if (this.isEditing || this.moveId !== null) return;
       const t = e.changedTouches[0];
       this.moveId = t.identifier;
       this.startX = t.clientX;
@@ -1085,6 +1365,7 @@ class TouchControls {
 
     this.zoneMove.addEventListener('touchmove', e => {
       e.preventDefault();
+      if (this.isEditing) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         if (t.identifier === this.moveId) {
@@ -1121,6 +1402,7 @@ class TouchControls {
     // Look / Aim Swipe (Right zone)
     this.zoneLook.addEventListener('touchstart', e => {
       e.preventDefault();
+      if (this.isEditing) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         if (this.lookId === null) {
@@ -1134,6 +1416,7 @@ class TouchControls {
 
     this.zoneLook.addEventListener('touchmove', e => {
       e.preventDefault();
+      if (this.isEditing) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         if (t.identifier === this.lookId) {
@@ -1162,6 +1445,7 @@ class TouchControls {
     // Fire Button (Press & Hold, with micro-aim drag)
     if (this.btnFire) {
       this.btnFire.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         const t = e.changedTouches[0];
         this.fireId = t.identifier;
@@ -1172,6 +1456,7 @@ class TouchControls {
       }, { passive: false });
 
       this.btnFire.addEventListener('touchmove', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         for (let i = 0; i < e.changedTouches.length; i++) {
           const t = e.changedTouches[i];
@@ -1188,6 +1473,7 @@ class TouchControls {
       }, { passive: false });
 
       const endFire = e => {
+        if (this.isEditing) return;
         for (let i = 0; i < e.changedTouches.length; i++) {
           if (e.changedTouches[i].identifier === this.fireId) {
             this.fireId = null;
@@ -1203,11 +1489,13 @@ class TouchControls {
     // Jump Button
     if (this.btnJump) {
       this.btnJump.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         this.inp.touchJump = true;
         this.inp.keys.Space = true;
       }, { passive: false });
       const endJump = e => {
+        if (this.isEditing) return;
         this.inp.touchJump = false;
         this.inp.keys.Space = false;
       };
@@ -1218,6 +1506,7 @@ class TouchControls {
     // Crouch Button (Toggle)
     if (this.btnCrouch) {
       this.btnCrouch.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         this.inp.touchCrouch = !this.inp.touchCrouch;
         this.btnCrouch.classList.toggle('active', this.inp.touchCrouch);
@@ -1227,6 +1516,7 @@ class TouchControls {
     // Scope / Optic Button
     if (this.btnScope) {
       this.btnScope.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         this.inp.scopeEdge = true;
       }, { passive: false });
@@ -1235,6 +1525,7 @@ class TouchControls {
     // Reload Button
     if (this.btnReload) {
       this.btnReload.addEventListener('touchstart', e => {
+        if (this.isEditing) return;
         e.preventDefault();
         this.g.weapons.startReload();
       }, { passive: false });
@@ -1243,6 +1534,7 @@ class TouchControls {
     // Menu / Pause Button
     if (this.btnMenu) {
       const openMenu = e => {
+        if (this.isEditing) return;
         e.preventDefault();
         this.g.input.unlock();
         this.g.ui.showMenu(true);
@@ -1255,6 +1547,7 @@ class TouchControls {
     if (this.wepBar) {
       this.wepBar.querySelectorAll('.t-wep').forEach((b, i) => {
         const sel = e => {
+          if (this.isEditing) return;
           e.preventDefault();
           this.g.weapons.setWeapon(i);
         };
@@ -1376,7 +1669,14 @@ class Bot extends Actor {
     this.lastKnown = null; this.lostT = 0; this.stepAcc = 0; this.walkPhase = 0; this.skill = rand(0.75, 1.1); this.wantMove = false; this.wpT = 0; this.flashT = 0;
   }
   onSpawn() {
-    this.state = 'PATROL'; this.wp = null; this.target = null; this.burst = 0; this.pause = 0; this.reloadT = 0; this.model.pivot.rotation.x = 0; this.model.root.visible = true;
+    this.state = 'PATROL'; this.wp = null; this.target = null; this.burst = 0; this.pause = 0; this.reloadT = 0;
+    this.model.pivot.rotation.x = 0;
+    if (this.model.upperBody) this.model.upperBody.rotation.x = 0;
+    if (this.model.armL && this.model.armR) {
+      this.model.armL.rotation.set(1.22, -0.35, -0.12);
+      this.model.armR.rotation.set(1.18, 0.28, 0.10);
+    }
+    this.model.root.visible = true;
     const r = Math.random(); this.cur = r < 0.55 ? 0 : r < 0.85 ? 1 : 2; this.lastPos.copy(this.pos);
   }
   hear(pos) { if (this.state === 'PATROL' || this.state === 'INVESTIGATE') { this.state = 'INVESTIGATE'; this.invPos = pos.clone(); this.invT = 5; } }
@@ -1396,7 +1696,11 @@ class Bot extends Actor {
     const g = this.g;
     if (!this.alive) {
       this.model.pivot.rotation.x = Math.max(this.model.pivot.rotation.x - dt * 4, -1.5);
-      if (this.model.armL && this.model.armR) { this.model.armL.rotation.x = 0.2; this.model.armR.rotation.x = 0.2; }
+      if (this.model.upperBody) this.model.upperBody.rotation.x = 0;
+      if (this.model.armL && this.model.armR) {
+        this.model.armL.rotation.set(0.2, 0, 0);
+        this.model.armR.rotation.set(0.2, 0, 0);
+      }
       this.sync(dt);
       return;
     }
@@ -1469,10 +1773,18 @@ class Bot extends Actor {
     m.root.position.copy(this.pos); m.root.rotation.y = this.yaw;
     this.walkPhase += sp * 0.0016; const sw = Math.sin(this.walkPhase * 6) * Math.min(sp / 200, 1) * 0.8;
     m.legL.rotation.x = sw; m.legR.rotation.x = -sw;
-    if (m.armL && m.armR) {
-      const p = Math.max(-0.6, Math.min(0.6, this.pitch * 0.7));
-      m.armL.rotation.x = 1.35 + p;
-      m.armR.rotation.x = 1.25 + p;
+    if (this.alive) {
+      if (m.upperBody) m.upperBody.rotation.x = clamp(this.pitch * 0.75, -0.65, 0.65);
+      if (m.armL && m.armR) {
+        m.armL.rotation.set(1.22, -0.35, -0.12);
+        m.armR.rotation.set(1.18, 0.28, 0.10);
+      }
+    } else {
+      if (m.upperBody) m.upperBody.rotation.x = 0;
+      if (m.armL && m.armR) {
+        m.armL.rotation.set(0.2, 0, 0);
+        m.armR.rotation.set(0.2, 0, 0);
+      }
     }
     m.pivot.scale.y = this.height / 1.8;
     const inv = this.invuln > 0 && Math.floor(this.g.time * 8) % 2 === 0;
@@ -1538,9 +1850,14 @@ class RemotePlayer extends Actor {
   update(dt) {
     if (!this.alive) {
       this.model.pivot.rotation.x = Math.max(this.model.pivot.rotation.x - dt * 4, -1.5);
-      if (this.model.armL && this.model.armR) { this.model.armL.rotation.x = 0.2; this.model.armR.rotation.x = 0.2; }
+      if (this.model.upperBody) this.model.upperBody.rotation.x = 0;
+      if (this.model.armL && this.model.armR) {
+        this.model.armL.rotation.set(0.2, 0, 0);
+        this.model.armR.rotation.set(0.2, 0, 0);
+      }
       return;
     }
+    this.invuln = Math.max(0, this.invuln - dt);
     this.pos.lerp(this.targetPos, Math.min(1, dt * 22));
     this.yaw += wrapAngle(this.targetYaw - this.yaw) * Math.min(1, dt * 25);
     this.pitch += (this.targetPitch - this.pitch) * Math.min(1, dt * 25);
@@ -1552,12 +1869,18 @@ class RemotePlayer extends Actor {
     const sw = Math.sin(this.walkPhase * 6) * Math.min(sp / 200, 1) * 0.8;
     this.model.legL.rotation.x = sw;
     this.model.legR.rotation.x = -sw;
+    if (this.model.upperBody) {
+      this.model.upperBody.rotation.x = clamp(this.pitch * 0.75, -0.65, 0.65);
+    }
     if (this.model.armL && this.model.armR) {
-      const p = Math.max(-0.6, Math.min(0.6, this.pitch * 0.7));
-      this.model.armL.rotation.x = 1.35 + p;
-      this.model.armR.rotation.x = 1.25 + p;
+      this.model.armL.rotation.set(1.22, -0.35, -0.12);
+      this.model.armR.rotation.set(1.18, 0.28, 0.10);
     }
     this.model.pivot.scale.y = this.height / 1.8;
+    const inv = this.invuln > 0 && Math.floor(this.g.time * 8) % 2 === 0;
+    if (this.model.mats) {
+      for (const mt of this.model.mats) mt.emissive.setHex(inv ? 0x1a8fb0 : 0x000000);
+    }
     this.model.guns.forEach((gn, i) => { gn.visible = i === this.cur; });
     const cg = this.model.guns[this.cur];
     if (this.flashT > 0) {
@@ -1710,9 +2033,15 @@ class NetworkManager {
       if (rp) {
         rp.alive = true;
         rp.hp = 100;
+        rp.invuln = 1.0;
         rp.pos.set(msg.pos.x, msg.pos.y, msg.pos.z);
         rp.targetPos.copy(rp.pos);
         if (rp.model && rp.model.pivot) rp.model.pivot.rotation.x = 0;
+        if (rp.model && rp.model.upperBody) rp.model.upperBody.rotation.x = 0;
+        if (rp.model && rp.model.armL && rp.model.armR) {
+          rp.model.armL.rotation.set(1.22, -0.35, -0.12);
+          rp.model.armR.rotation.set(1.18, 0.28, 0.10);
+        }
       }
     }
     else if (msg.type === 'player_left') {
@@ -2179,7 +2508,7 @@ class Game {
     for (const a of this.actors) {
       a.kills = a.deaths = a.headshots = 0;
       this.respawn(a);
-      a.invuln = 3;
+      a.invuln = 1.0;
     }
     this.ui.refreshWeaponList();
     this.ui.updateLiveLeaderboard();
@@ -2241,7 +2570,7 @@ class Game {
     return best;
   }
   respawn(a) {
-    const s = this.pickSpawn(a); a.pos.copy(s); a.vel.set(0, 0, 0); a.hp = 100; a.armor = 100; a.alive = true; a.invuln = 3; a.tagT = 0; a.eye = CFG.eyeStand; a.height = 1.8; a.pitch = 0;
+    const s = this.pickSpawn(a); a.pos.copy(s); a.vel.set(0, 0, 0); a.hp = 100; a.armor = 100; a.alive = true; a.invuln = 1.0; a.tagT = 0; a.eye = CFG.eyeStand; a.height = 1.8; a.pitch = 0;
     a.yaw = Math.atan2(s.x, s.z) + rand(-0.3, 0.3); a.resetLoadout(); a.refreshHB();
     if (a.isPlayer) {
       this.weapons.punch.p = this.weapons.punch.y = this.weapons.target.p = this.weapons.target.y = 0;
@@ -2374,7 +2703,7 @@ class Game {
     for (const a of this.actors) {
       a.kills = a.deaths = a.headshots = 0;
       this.respawn(a);
-      a.invuln = 3;
+      a.invuln = 1.0;
     }
     this.ui.showMatchEndModal(false);
     this.ui.showMenu(false);
@@ -2398,7 +2727,14 @@ class Game {
     if (!this.isOnline) {
       for (const b of this.bots) b.update(dt);
     }
-    for (const a of this.actors) if (!a.alive) { a.respawnT -= dt; if (a.respawnT <= 0) this.respawn(a); }
+    for (const a of this.actors) {
+      if (!a.alive) {
+        if (!this.isOnline || a.isPlayer) {
+          a.respawnT -= dt;
+          if (a.respawnT <= 0) this.respawn(a);
+        }
+      }
+    }
     this.fx.update(dt);
     this.input.endTick();
   }

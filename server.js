@@ -86,6 +86,7 @@ wss.on('connection', (ws) => {
           headshots: 0,
           weapon: 0,
           alive: true,
+          invulnUntil: Date.now() + 1000,
           team: currentRoom.players.size % 2 === 0 ? 'CT' : 'T',
           color: currentRoom.players.size % 2 === 0 ? 0x3a6ab0 : 0xb03a3a
         };
@@ -150,6 +151,9 @@ wss.on('connection', (ws) => {
         const victimEntry = currentRoom.players.get(msg.targetId);
         if (victimEntry && victimEntry.data.alive) {
           const victim = victimEntry.data;
+          if (victim.invulnUntil && Date.now() < victim.invulnUntil) {
+            return;
+          }
           victim.hp = Math.max(0, victim.hp - msg.dmg);
 
           if (victim.hp <= 0) {
@@ -180,6 +184,7 @@ wss.on('connection', (ws) => {
         playerData.alive = true;
         playerData.hp = 100;
         playerData.pos = msg.pos;
+        playerData.invulnUntil = Date.now() + 1000;
         broadcastRoom(currentRoom, {
           type: 'player_respawned',
           id: playerId,
@@ -194,6 +199,7 @@ wss.on('connection', (ws) => {
           p.data.headshots = 0;
           p.data.hp = 100;
           p.data.alive = true;
+          p.data.invulnUntil = Date.now() + 1000;
         }
         broadcastRoom(currentRoom, {
           type: 'match_restarted',
