@@ -171,25 +171,128 @@
   #vJoyBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(245,194,66,.55);background:radial-gradient(circle,rgba(245,194,66,.18) 0%,rgba(10,13,18,.55) 75%);pointer-events:none;display:none;backdrop-filter:blur(3px);box-shadow:0 0 16px rgba(245,194,66,.3)}
   #vJoyKnob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d49a20);border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.6);pointer-events:none}
   #touchLookZone{position:absolute;right:0;top:0;width:50vw;height:100vh;pointer-events:auto;touch-action:none}
-  .t-btn{position:absolute;pointer-events:auto;touch-action:none;border:1px solid rgba(255,255,255,.25);border-radius:50%;color:#fff;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .08s,filter .08s;opacity:var(--touch-opacity)}
-  .t-btn:active{transform:scale(.92);filter:brightness(1.25)}
-  .t-btn small{font-size:8px;letter-spacing:1px;opacity:.9;font-weight:700}
-  #btnTFire{right:24px;bottom:72px;width:74px;height:74px;background:linear-gradient(135deg,rgba(255,75,75,.85),rgba(180,20,20,.9));border-color:#ff6b6b;font-size:24px;box-shadow:0 0 22px rgba(255,60,60,.55)}
-  #btnTJump{right:110px;bottom:118px;width:56px;height:56px;background:linear-gradient(135deg,rgba(63,208,255,.55),rgba(15,60,90,.75));border-color:var(--cyan);font-size:20px}
-  #btnTCrouch{right:116px;bottom:48px;width:50px;height:50px;background:rgba(25,32,42,.85);font-size:18px}
-  #btnTCrouch.active{background:var(--gold);color:#111;border-color:#fff;box-shadow:0 0 14px rgba(245,194,66,.6)}
-  #btnTScope{right:32px;bottom:160px;width:54px;height:54px;background:rgba(20,30,45,.85);border-color:var(--cyan);font-size:18px}
-  #btnTReload{right:174px;bottom:64px;width:48px;height:48px;background:rgba(35,40,50,.85);font-size:17px}
-  #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60;opacity:var(--touch-opacity)}
-  .t-wep{padding:7px 14px;background:rgba(12,15,20,.85);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#9aa4b2;font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px)}
-  .t-wep.active{background:rgba(245,194,66,.25);border-color:var(--gold);color:#fff;box-shadow:0 0 12px rgba(245,194,66,.45)}
-  #btnTouchMenu{position:absolute;right:14px;top:14px;padding:6px 12px;background:rgba(10,13,18,.85);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px);z-index:60}
-  /* ---------- Touch HUD Customizer & Editing Mode ---------- */
-  #touchControls.editing-hud{display:block!important;z-index:99995;pointer-events:auto}
-  #touchControls.editing-hud #touchMoveZone,#touchControls.editing-hud #touchLookZone{pointer-events:none}
-  #touchControls.editing-hud .t-btn,#touchControls.editing-hud #touchWeaponBar{outline:2px dashed #f5c242;outline-offset:4px;box-shadow:0 0 20px rgba(245,194,66,.65);cursor:grab;touch-action:none;pointer-events:auto}
-  #touchControls.editing-hud .t-btn.is-dragging,#touchControls.editing-hud #touchWeaponBar.is-dragging{outline-color:#3fd0ff;box-shadow:0 0 28px rgba(63,208,255,.9);cursor:grabbing;filter:brightness(1.25)}
-  #touchCustomizerOverlay{display:none;position:fixed;inset:0;background:rgba(6,8,12,.78);backdrop-filter:blur(4px);z-index:99990;touch-action:none;user-select:none;-webkit-user-select:none}
+  /* Tactical Combat Buttons (matching reference design) */
+  .t-btn-wrap{
+    position: absolute;
+    pointer-events: auto;
+    touch-action: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    opacity: var(--touch-opacity, 0.9);
+    transition: opacity 0.15s ease;
+  }
+  .t-btn-disc{
+    position: relative;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 45, 45, 0.42) 0%, rgba(42, 12, 14, 0.92) 65%, rgba(14, 8, 10, 0.98) 100%);
+    border: 2px solid rgba(255, 75, 75, 0.9);
+    box-shadow: 0 0 18px rgba(255, 40, 40, 0.65), inset 0 0 16px rgba(255, 30, 30, 0.45);
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+  }
+  .t-btn-wrap:active .t-btn-disc{
+    transform: scale(0.92);
+    box-shadow: 0 0 28px rgba(255, 80, 80, 0.95), inset 0 0 22px rgba(255, 60, 60, 0.7);
+    filter: brightness(1.2);
+  }
+  .t-btn-wrap.active .t-btn-disc, .t-btn-disc.active{
+    background: radial-gradient(circle at 50% 50%, rgba(245, 194, 66, 0.5) 0%, rgba(55, 40, 10, 0.92) 65%, rgba(18, 14, 8, 0.98) 100%);
+    border-color: #f5c242;
+    box-shadow: 0 0 24px rgba(245, 194, 66, 0.85), inset 0 0 16px rgba(245, 194, 66, 0.5);
+  }
+  .t-btn-disc .t-ring{
+    position: absolute;
+    inset: -3px;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    pointer-events: none;
+  }
+  .t-btn-disc .t-icon{
+    width: 60%;
+    height: 60%;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.85));
+    pointer-events: none;
+  }
+  .t-btn-label{
+    margin-top: 5px;
+    font-family: 'Segoe UI', Impact, -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 8px rgba(255,60,60,0.6);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+  }
+  .t-btn-sub{
+    font-size: 8px;
+    color: #ff6666;
+    letter-spacing: 1px;
+    font-weight: 800;
+  }
+  .t-btn-percent{
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    font-family: Consolas, monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* Specific Button Dimensions & Default Positions */
+  #btnTFire{ right:24px; bottom:64px; }
+  #btnTFire .t-btn-disc{ width:82px; height:82px; }
+
+  #btnTScope{ right:30px; bottom:184px; }
+  #btnTScope .t-btn-disc{ width:66px; height:66px; }
+
+  #btnTJump{ right:118px; bottom:138px; }
+  #btnTJump .t-btn-disc{ width:62px; height:62px; }
+
+  #btnTCrouch{ right:124px; bottom:44px; }
+  #btnTCrouch .t-btn-disc{ width:62px; height:62px; }
+
+  #btnTReload{ right:204px; bottom:64px; }
+  #btnTReload .t-btn-disc{ width:62px; height:62px; }
+
+  #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60;opacity:var(--touch-opacity,0.9)}
+  .t-wep{padding:8px 16px;background:rgba(12,15,20,.88);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#9aa4b2;font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px);box-shadow:0 4px 12px rgba(0,0,0,.6)}
+  .t-wep.active{background:rgba(255,50,50,.25);border-color:#ff5050;color:#fff;box-shadow:0 0 16px rgba(255,60,60,.5)}
+
+  #btnTouchMenu{position:absolute;right:14px;top:14px;padding:7px 14px;background:rgba(10,13,18,.88);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px);z-index:60}
+
+  /* Customizer Mode Active */
+  #touchControls.editing-hud{display:block!important;z-index:100000;pointer-events:none}
+  #touchControls.editing-hud #touchMoveZone,#touchControls.editing-hud #touchLookZone{pointer-events:none;display:none}
+  #touchControls.editing-hud .t-btn-wrap,#touchControls.editing-hud #touchWeaponBar{
+    outline:2px dashed #f5c242;
+    outline-offset:6px;
+    box-shadow:0 0 24px rgba(245,194,66,.75);
+    cursor:grab;
+    touch-action:none;
+    pointer-events:auto;
+  }
+  #touchControls.editing-hud .t-btn-wrap.is-dragging,#touchControls.editing-hud #touchWeaponBar.is-dragging{
+    outline-color:#3fd0ff;
+    box-shadow:0 0 32px rgba(63,208,255,1);
+    cursor:grabbing;
+    filter:brightness(1.25);
+  }
   @media(max-width:768px){
     #panel{padding:18px 14px;width:96vw;max-height:94vh}
     #panel h1{font-size:26px;letter-spacing:4px}
@@ -254,11 +357,107 @@
   <div id="vJoyBase"><div id="vJoyKnob"></div></div>
   <div id="touchLookZone"></div>
 
-  <button id="btnTFire" class="t-btn" type="button" aria-label="Ateş Et">🔥<small>ATEŞ</small></button>
-  <button id="btnTJump" class="t-btn" type="button" aria-label="Zıpla">🦘<small>ZIPLA</small></button>
-  <button id="btnTCrouch" class="t-btn" type="button" aria-label="Eğil">⬇️<small>EĞİL</small></button>
-  <button id="btnTScope" class="t-btn" type="button" aria-label="Dürbün Aç">🎯<small>DÜRBÜN</small></button>
-  <button id="btnTReload" class="t-btn" type="button" aria-label="Mermi Doldur">🔄<small>DOLUM</small></button>
+  <!-- 1. ATEŞ (SHOOT / FIRE) -->
+  <button id="btnTFire" class="t-btn-wrap" type="button" aria-label="Ateş Et">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <g transform="rotate(-40 32 32)">
+          <path d="M 32 6 C 32 6 25 18 25 27 L 39 27 C 39 18 32 6 32 6 Z" fill="#ffffff"/>
+          <path d="M 24 29 L 40 29 L 40 51 L 24 51 Z" fill="#ffffff"/>
+          <line x1="24" y1="52" x2="40" y2="52" stroke="#220a0a" stroke-width="2"/>
+          <path d="M 23 54 L 41 54 L 41 57 L 23 57 Z" fill="#ffffff"/>
+          <path d="M 28 12 C 28 12 26 18 26 25 L 28 25 Z" fill="#ffffff" opacity="0.6"/>
+          <rect x="26" y="31" width="3" height="18" fill="#ffffff" opacity="0.5" rx="1"/>
+        </g>
+      </svg>
+    </div>
+    <div class="t-btn-label">SHOOT <span class="t-btn-percent">90%</span></div>
+    <div class="t-btn-sub">FIRE</div>
+  </button>
+
+  <!-- 2. DÜRBÜN (SCOPE) -->
+  <button id="btnTScope" class="t-btn-wrap" type="button" aria-label="Dürbün Aç">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="17" stroke="#ffffff" stroke-width="3" fill="none"/>
+        <line x1="32" y1="7" x2="32" y2="23" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="32" y1="41" x2="32" y2="57" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="7" y1="32" x2="23" y2="32" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+        <line x1="41" y1="32" x2="57" y2="32" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="4.5" fill="#ff3333" stroke="#ffffff" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="t-btn-label">SCOPE <span class="t-btn-percent">90%</span></div>
+  </button>
+
+  <!-- 3. ZIPLA (JUMP) -->
+  <button id="btnTJump" class="t-btn-wrap" type="button" aria-label="Zıpla">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <circle cx="39" cy="18" r="4.5" fill="#ffffff"/>
+        <path d="M 33,24 L 38,24 C 40.5,24 41,26 41,28 L 47,21 C 48.5,19.5 50.5,21 49,23 L 43.5,30.5 L 41,36 L 47.5,43 L 49.5,50 C 50,52 47.5,53 46,51.5 L 41,43.5 L 34,36 L 31,42 L 31,52 C 31,54.5 28,54.5 28,52 L 28,39.5 C 28,37.5 30,35 32,33 L 34,28.5 L 26,30.5 L 22,26.5 C 21,24.5 23,23.5 25,24.5 L 31,26.5 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="t-btn-label">JUMP <span class="t-btn-percent">90%</span></div>
+  </button>
+
+  <!-- 4. EĞİL (CROUCH) -->
+  <button id="btnTCrouch" class="t-btn-wrap" type="button" aria-label="Eğil">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <circle cx="33" cy="17" r="4.2" fill="#ffffff"/>
+        <path d="M 30,22 C 32,22 35,23 36,25 L 42,28 L 43,33 C 43,35 41,36 39,35 L 36,33 L 36,38 C 36,40 37,42 39,44 L 43,47 C 44.5,48.5 44,51 42,51 L 37,51 C 35,51 33,49 32,47 L 31,44 L 27,48 L 26,51 C 25.5,53 23,53 23,51 L 24,46 C 24,44 26,42 27,40 L 30,33 L 28,29 C 27,27 28,24 30,22 Z" fill="#ffffff"/>
+        <path d="M 34,28 L 19,28 C 18,28 17,29 17,30 C 17,31 18,32 19,32 L 26,32 L 26,35 L 29,35 L 29,32 L 34,32 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="t-btn-label">CROUCH <span class="t-btn-percent">90%</span></div>
+  </button>
+
+  <!-- 5. DOLUM (RELOAD) -->
+  <button id="btnTReload" class="t-btn-wrap" type="button" aria-label="Mermi Doldur">
+    <div class="t-btn-disc">
+      <svg class="t-ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,80,80,0.35)" stroke-width="2"/>
+        <path d="M 12 40 A 28 28 0 0 1 40 12" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity="0.95" filter="drop-shadow(0 0 3px rgba(255,255,255,0.85))"/>
+        <circle cx="12" cy="40" r="1.5" fill="#ffffff"/>
+        <circle cx="40" cy="12" r="1.5" fill="#ffffff"/>
+      </svg>
+      <svg class="t-icon" viewBox="0 0 64 64" fill="none">
+        <path d="M 23,23 A 15,15 0 0,1 46,23" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <polygon points="46,16 53,23 46,30" fill="#ffffff"/>
+        <path d="M 41,41 A 15,15 0 0,1 18,41" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <polygon points="18,48 11,41 18,34" fill="#ffffff"/>
+        <path d="M 29,24 C 33,26 34,36 32,40 L 35,39 C 37,35 36,25 32,23 Z" fill="#ffffff"/>
+        <rect x="29.5" y="23" width="3" height="1.5" rx="0.5" fill="#ffffff"/>
+        <rect x="31" y="39.5" width="4" height="1.5" rx="0.5" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="t-btn-label">RELOAD <span class="t-btn-percent">90%</span></div>
+  </button>
 
   <div id="touchWeaponBar">
     <button class="t-wep active" type="button" data-wep="0">1 AK-47</button>
@@ -390,35 +589,38 @@
   </div>
 </div>
 
-<!-- DOKUNMATİK KONTROL DÜZENLEYİCİ ARAYÜZÜ (MOBILE HUD CUSTOMIZER) -->
-<div id="touchCustomizerOverlay">
-  <div style="position:absolute;top:0;left:0;right:0;padding:12px 16px;background:linear-gradient(180deg,rgba(10,13,18,.98),rgba(10,13,18,.85));border-bottom:1px solid rgba(63,208,255,.3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.7);pointer-events:auto;z-index:100010">
-    <div style="display:flex;align-items:center;gap:10px">
+<!-- DOKUNMATİK KONTROL DÜZENLEYİCİ ÜST PANEL (TOP CONTROLS BAR) -->
+<div id="touchCustomizerBar" style="display:none; position:fixed; top:0; left:0; right:0; z-index:200000; pointer-events:auto; background:linear-gradient(180deg, rgba(12,16,22,0.98) 0%, rgba(12,16,22,0.88) 100%); border-bottom:2px solid var(--gold); padding:10px 16px; box-shadow:0 8px 30px rgba(0,0,0,0.85); user-select:none; -webkit-user-select:none;">
+  <div style="max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+    <div style="display:flex; align-items:center; gap:8px;">
       <span style="font-size:20px">🎮</span>
       <div>
-        <div style="font-size:14px;font-weight:900;color:var(--gold);letter-spacing:1px">DOKUNMATİK KONTROL DÜZENLEYİCİ</div>
-        <div style="font-size:10px;color:#9aa4b2">Butonları istediğiniz yere sürükleyin. Değişiklikler otomatik kaydedilir.</div>
+        <div style="font-size:13px; font-weight:900; color:var(--gold); letter-spacing:1px">DOKUNMATİK HUD DÜZENLEYİCİ</div>
+        <div style="font-size:10px; color:#9aa4b2">Butonları istediğiniz yere sürükleyin. Otomatik kaydedilir.</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff">
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#fff">
         <label for="tcScaleRange">Boyut:</label>
-        <input type="range" id="tcScaleRange" min="0.7" max="1.5" step="0.05" value="1.0" style="width:85px;cursor:pointer">
-        <span id="tcScaleVal" style="color:var(--cyan);font-family:monospace;width:34px">100%</span>
+        <input type="range" id="tcScaleRange" min="0.7" max="1.5" step="0.05" value="1.0" style="width:85px; cursor:pointer;">
+        <span id="tcScaleVal" style="color:var(--cyan); font-family:monospace; min-width:34px">100%</span>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff">
+      <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#fff">
         <label for="tcOpacityRange">Saydamlık:</label>
-        <input type="range" id="tcOpacityRange" min="0.3" max="1.0" step="0.05" value="0.9" style="width:75px;cursor:pointer">
-        <span id="tcOpacityVal" style="color:var(--cyan);font-family:monospace;width:34px">90%</span>
+        <input type="range" id="tcOpacityRange" min="0.3" max="1.0" step="0.05" value="0.9" style="width:80px; cursor:pointer;">
+        <span id="tcOpacityVal" style="color:var(--cyan); font-family:monospace; min-width:34px">90%</span>
       </div>
-      <button id="btnTcReset" type="button" style="padding:7px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer">↺ SIFIRLA</button>
-      <button id="btnTcSave" type="button" style="padding:8px 16px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:6px;color:#111;font-size:12px;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 12px rgba(245,194,66,.3)">💾 KAYDET VE ÇIK</button>
+      <button id="btnTcReset" type="button" style="padding:7px 12px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer;">↺ SIFIRLA</button>
+      <button id="btnTcSave" type="button" style="padding:8px 16px; background:linear-gradient(90deg,var(--gold),#e09e1a); border:none; border-radius:6px; color:#111; font-size:12px; font-weight:900; letter-spacing:1px; cursor:pointer; box-shadow:0 4px 14px rgba(245,194,66,0.4)">💾 KAYDET VE ÇIK</button>
     </div>
   </div>
+</div>
 
-  <div style="position:absolute;inset:70px 0 0 0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);background-size:40px 40px;display:flex;align-items:center;justify-content:center">
-    <div style="color:rgba(255,255,255,.3);font-size:13px;font-weight:700;letter-spacing:2px;text-align:center;pointer-events:none">
-      DÜZENLEME MODU AKTİF<br><span style="font-size:11px;opacity:.7">BUTONLARI TAŞIMAK İÇİN ÜZERİNE BASIP SÜRÜKLEYİN</span>
+<!-- DOKUNMATİK KONTROL DÜZENLEYİCİ ARKA PLAN (GRID BACKDROP) -->
+<div id="touchCustomizerBackdrop" style="display:none; position:fixed; inset:0; z-index:99980; pointer-events:none; background:rgba(8,10,14,0.65); backdrop-filter:blur(3px); background-image:linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size:40px 40px;">
+  <div style="position:absolute; inset:70px 0 0 0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+    <div style="color:rgba(255,255,255,0.25); font-size:13px; font-weight:800; letter-spacing:2px; text-align:center;">
+      DÜZENLEME MODU AKTİF<br><span style="font-size:11px; opacity:0.7">BUTONLARI TAŞIMAK İÇİN ÜZERİNE BASIP SÜRÜKLEYİN</span>
     </div>
   </div>
 </div>
@@ -1114,7 +1316,8 @@ class TouchControls {
     this.btnMenu = document.getElementById('btnTouchMenu');
     this.wepBar = document.getElementById('touchWeaponBar');
 
-    this.overlay = document.getElementById('touchCustomizerOverlay');
+    this.bar = document.getElementById('touchCustomizerBar');
+    this.backdrop = document.getElementById('touchCustomizerBackdrop');
     this.scaleRange = document.getElementById('tcScaleRange');
     this.scaleVal = document.getElementById('tcScaleVal');
     this.opacityRange = document.getElementById('tcOpacityRange');
@@ -1158,6 +1361,8 @@ class TouchControls {
   applyConfig() {
     const scale = this.cfg.scale || 1.0;
     const opacity = this.cfg.opacity != null ? this.cfg.opacity : 0.9;
+    const percentStr = Math.round(opacity * 100) + '%';
+
     if (this.container) {
       this.container.style.setProperty('--touch-scale', scale);
       this.container.style.setProperty('--touch-opacity', opacity);
@@ -1168,11 +1373,19 @@ class TouchControls {
     }
     if (this.opacityRange) {
       this.opacityRange.value = opacity;
-      if (this.opacityVal) this.opacityVal.textContent = Math.round(opacity * 100) + '%';
+      if (this.opacityVal) this.opacityVal.textContent = percentStr;
     }
+
+    // Live update percentage label underneath every HUD button (e.g. SHOOT 90%)
+    document.querySelectorAll('.t-btn-percent').forEach(el => {
+      el.textContent = percentStr;
+    });
 
     const pos = this.cfg.positions || {};
     this.customizableElements.forEach(el => {
+      // Force direct opacity on element to ensure immediate visual feedback
+      el.style.opacity = opacity;
+
       const p = pos[el.id];
       if (p && p.cx != null && p.cy != null) {
         const x = p.cx * window.innerWidth;
@@ -1187,7 +1400,11 @@ class TouchControls {
         el.style.top = '';
         el.style.right = '';
         el.style.bottom = '';
-        el.style.transform = `scale(${scale})`;
+        if (el.id === 'touchWeaponBar') {
+          el.style.transform = `translateX(-50%) scale(${scale})`;
+        } else {
+          el.style.transform = `scale(${scale})`;
+        }
       }
     });
   }
@@ -1204,10 +1421,24 @@ class TouchControls {
 
   startEditing() {
     this.isEditing = true;
-    if (this.overlay) this.overlay.style.display = 'block';
+    this.wasMenuOpen = !!(this.g && this.g.ui && this.g.ui.menuOpen);
+    if (this.g && this.g.ui) {
+      const menuEl = document.getElementById('menu');
+      if (menuEl) menuEl.style.display = 'none';
+    }
+    if (this.bar) this.bar.style.display = 'block';
+    if (this.backdrop) this.backdrop.style.display = 'block';
     if (this.container) {
       this.container.classList.add('editing-hud');
       this.container.style.display = 'block';
+    }
+    if (this.scaleRange) {
+      this.scaleRange.value = this.cfg.scale || 1.0;
+      if (this.scaleVal) this.scaleVal.textContent = Math.round((this.cfg.scale || 1.0) * 100) + '%';
+    }
+    if (this.opacityRange) {
+      this.opacityRange.value = this.cfg.opacity != null ? this.cfg.opacity : 0.9;
+      if (this.opacityVal) this.opacityVal.textContent = Math.round((this.cfg.opacity != null ? this.cfg.opacity : 0.9) * 100) + '%';
     }
     this.applyConfig();
   }
@@ -1215,43 +1446,59 @@ class TouchControls {
   stopEditing(save = true) {
     this.isEditing = false;
     if (save) this.saveConfig();
-    if (this.overlay) this.overlay.style.display = 'none';
+    if (this.bar) this.bar.style.display = 'none';
+    if (this.backdrop) this.backdrop.style.display = 'none';
     if (this.container) {
       this.container.classList.remove('editing-hud');
-      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+      const isTouch = document.body.classList.contains('is-touch') || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
       const isPlaying = this.g && this.g.started && !this.g.ui.menuOpen && !this.g.matchEnded;
       this.container.style.display = (isTouch && isPlaying) ? 'block' : 'none';
+    }
+    if (this.wasMenuOpen && this.g && this.g.ui) {
+      this.g.ui.showMenu(true);
     }
     this.applyConfig();
   }
 
   bindCustomizer() {
+    const attachAction = (btn, action) => {
+      if (!btn) return;
+      const handler = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        action();
+      };
+      btn.addEventListener('click', handler);
+      btn.addEventListener('touchend', handler);
+    };
+
     const btnOpen = document.getElementById('btnOpenTouchEditor');
-    if (btnOpen) btnOpen.addEventListener('click', () => this.startEditing());
+    attachAction(btnOpen, () => this.startEditing());
     const btnActive = document.getElementById('btnActiveTouchEditor');
-    if (btnActive) btnActive.addEventListener('click', () => this.startEditing());
+    attachAction(btnActive, () => this.startEditing());
 
     if (this.scaleRange) {
-      this.scaleRange.addEventListener('input', e => {
+      const onScale = e => {
         this.cfg.scale = parseFloat(e.target.value) || 1.0;
         this.applyConfig();
-      });
+      };
+      this.scaleRange.addEventListener('input', onScale);
+      this.scaleRange.addEventListener('change', onScale);
     }
 
     if (this.opacityRange) {
-      this.opacityRange.addEventListener('input', e => {
+      const onOpacity = e => {
         this.cfg.opacity = parseFloat(e.target.value) || 0.9;
         this.applyConfig();
-      });
+      };
+      this.opacityRange.addEventListener('input', onOpacity);
+      this.opacityRange.addEventListener('change', onOpacity);
     }
 
-    if (this.btnReset) {
-      this.btnReset.addEventListener('click', () => this.resetConfig());
-    }
-
-    if (this.btnSave) {
-      this.btnSave.addEventListener('click', () => this.stopEditing(true));
-    }
+    attachAction(this.btnReset, () => this.resetConfig());
+    attachAction(this.btnSave, () => this.stopEditing(true));
 
     window.addEventListener('resize', () => this.applyConfig());
     this.setupElementDragging();
@@ -1505,12 +1752,16 @@ class TouchControls {
 
     // Crouch Button (Toggle)
     if (this.btnCrouch) {
-      this.btnCrouch.addEventListener('touchstart', e => {
+      const toggleCrouch = (e) => {
         if (this.isEditing) return;
-        e.preventDefault();
+        if (e) { e.preventDefault(); e.stopPropagation(); }
         this.inp.touchCrouch = !this.inp.touchCrouch;
         this.btnCrouch.classList.toggle('active', this.inp.touchCrouch);
-      }, { passive: false });
+        const disc = this.btnCrouch.querySelector('.t-btn-disc');
+        if (disc) disc.classList.toggle('active', this.inp.touchCrouch);
+      };
+      this.btnCrouch.addEventListener('touchstart', toggleCrouch, { passive: false });
+      this.btnCrouch.addEventListener('click', toggleCrouch);
     }
 
     // Scope / Optic Button
@@ -2552,7 +2803,11 @@ class Game {
       this.input.touchSide = 0;
     }
     const btnCr = document.getElementById('btnTCrouch');
-    if (btnCr) btnCr.classList.remove('active');
+    if (btnCr) {
+      btnCr.classList.remove('active');
+      const d = btnCr.querySelector('.t-btn-disc');
+      if (d) d.classList.remove('active');
+    }
     const tc = document.getElementById('touchControls');
     if (tc) tc.style.display = 'none';
 
@@ -2696,7 +2951,11 @@ class Game {
       this.input.touchSide = 0;
     }
     const btnCr = document.getElementById('btnTCrouch');
-    if (btnCr) btnCr.classList.remove('active');
+    if (btnCr) {
+      btnCr.classList.remove('active');
+      const d = btnCr.querySelector('.t-btn-disc');
+      if (d) d.classList.remove('active');
+    }
     if (this.network && this.network.connected && this.network.ws) {
       this.network.ws.send(JSON.stringify({ type: 'restart_match' }));
     }
