@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CS2 Low-Poly FFA Deathmatch</title>
+<title>Pixel Shooters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;user-select:none}
@@ -313,6 +314,119 @@
     .kf{padding:3px 8px;font-size:11px}
     #hudRoomInfo{top:50px;padding:3px 8px;font-size:10px}
   }
+  /* =================== PIXEL SHOOTERS MENU (CS2 palette) =================== */
+  :root{--f:'Lilita One','Impact','Arial Black',sans-serif;--ps-orange:#f2992e;--ps-blue:#3f8fd2}
+  body:not(.is-touch) .mobile-only{display:none!important}
+  body.is-touch .pc-only{display:none!important}
+  #menu{position:fixed;inset:0;display:block;z-index:10;overflow:hidden;font-family:var(--f);color:#fff;
+    background:linear-gradient(180deg,#0e2031 0%,#1b4465 36%,#3d85b6 70%,#a5d0e8 100%)}
+  #menu::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 108%,rgba(255,196,110,.45),transparent 58%),repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 24px)}
+  #menu *{font-family:var(--f)}
+  #menu input,#menu select{font-family:'Segoe UI',Arial,sans-serif}
+  #menuLogo{position:absolute;left:14px;top:6px;height:clamp(64px,15vh,128px);filter:drop-shadow(0 4px 8px rgba(0,0,0,.55));z-index:3;pointer-events:none}
+  #menuTop{position:absolute;right:14px;top:12px;display:flex;gap:8px;z-index:5}
+  .icon-btn{min-width:44px;height:44px;padding:0 10px;border-radius:10px;border:3px solid #0b2a44;border-bottom-width:5px;background:linear-gradient(#58b0f5,#2f84cf);color:#fff;font-size:18px;cursor:pointer;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .icon-btn:active{transform:translateY(2px);border-bottom-width:3px}
+  #menuSide{position:absolute;left:0;top:clamp(86px,19vh,150px);width:200px;z-index:4;display:flex;flex-direction:column;gap:8px}
+  #pName{margin-left:10px;width:170px;padding:8px 10px;border-radius:8px;border:3px solid #0b2a44;background:#fff;color:#0b3a58;font-weight:800;font-size:14px;outline:none}
+  .m-tab{text-align:left;padding:10px 18px;font-size:16px;color:#fff;letter-spacing:1px;border:3px solid #0b2a44;border-left:none;border-bottom-width:5px;border-radius:0 18px 18px 0;background:linear-gradient(#58b0f5,#2f84cf);cursor:pointer;width:178px;text-shadow:0 2px 0 rgba(0,0,0,.35);transition:width .12s}
+  .m-tab:hover{width:190px}
+  .m-tab.active{background:linear-gradient(#ffb04a,#e8820f);width:190px}
+  #netStatus{margin:6px 0 0 12px;font-size:12px;color:#d7ecf8;display:flex;align-items:center;gap:6px;font-family:'Segoe UI',Arial,sans-serif;font-weight:700}
+  .m-view{position:absolute;inset:0}
+  #viewProfile{padding:clamp(100px,22vh,170px) 24px 24px 230px;overflow:auto}
+  #menuChar{position:absolute;left:50%;bottom:clamp(84px,14vh,120px);transform:translateX(-50%);height:min(64vh,560px);aspect-ratio:480/600;cursor:pointer;filter:drop-shadow(0 12px 14px rgba(0,0,0,.45));z-index:2}
+  #err{position:absolute;left:50%;transform:translateX(-50%);bottom:4px;color:#ffd0d0;font-size:12px;font-family:'Segoe UI',Arial,sans-serif;z-index:6;text-align:center;max-width:90vw}
+  #menuBottom{position:absolute;left:50%;bottom:clamp(14px,3.5vh,30px);transform:translateX(-50%);display:flex;align-items:stretch;gap:12px;z-index:5}
+  .btn3d{font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#fff;border:3px solid #0b2a44;border-bottom-width:6px;border-radius:12px;padding:10px 18px;cursor:pointer;text-shadow:0 2px 0 rgba(0,0,0,.4);line-height:1.1;transition:filter .1s}
+  .btn3d:hover{filter:brightness(1.1)}
+  .btn3d:active{transform:translateY(3px);border-bottom-width:3px}
+  .btn3d.blue{background:linear-gradient(#58b0f5,#2f84cf)}
+  .btn3d.orange{background:linear-gradient(#ffb04a,#e8820f)}
+  .btn3d.green{background:linear-gradient(#45d17d,#1f9c52)}
+  .btn3d.red{background:linear-gradient(#f56a5a,#c9261a)}
+  .btn3d.big{font-size:30px;padding:12px 44px;border-radius:14px;letter-spacing:3px}
+  .btn3d.small{font-size:12px;padding:8px 12px;border-bottom-width:4px}
+  #modeBox{min-width:190px;border:3px solid #0b2a44;border-bottom-width:6px;border-radius:12px;background:linear-gradient(#3b7fb6,#2a6296);padding:6px 10px;display:flex;flex-direction:column;justify-content:center}
+  #modeBox small{font-size:11px;color:#bfe3f7;letter-spacing:1px}
+  #gameMode{background:transparent;border:none;color:#fff;font-weight:800;font-size:12px;outline:none;cursor:pointer;margin-left:-4px}
+  #gameMode option{color:#0b3a58;background:#fff}
+  #activeMatchBar{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:6;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;padding:10px 16px;border:3px solid #0b2a44;border-radius:14px;background:rgba(10,30,50,.82);backdrop-filter:blur(6px)}
+  #activeMatchBar small{display:block;font-size:11px;color:#9fd2f0;letter-spacing:1px}
+  #activeMatchBar>div:first-child>div{font-size:18px;color:#ffd27a}
+  #activeMatchBar .amb-btns{display:flex;gap:8px;flex-wrap:wrap}
+  /* profile */
+  .pf-head{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  .pf-avatar{width:76px;height:76px;border-radius:16px;border:4px solid #0b2a44;background:linear-gradient(#ffb04a,#e8820f);font-size:42px;display:flex;align-items:center;justify-content:center}
+  .pf-name{font-size:30px;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+  .pf-sub{font-size:12px;letter-spacing:2px;color:#cfe8f7}
+  .pf-grid{display:grid;grid-template-columns:repeat(3,minmax(120px,1fr));gap:12px;max-width:640px;margin-bottom:16px}
+  .pf-box{border:3px solid #0b2a44;border-bottom-width:6px;border-radius:14px;background:linear-gradient(#2d7fb8,#1f5f90);padding:12px 14px;text-align:center}
+  .pf-box.gold{background:linear-gradient(#ffb04a,#e8820f)}
+  .pf-box small{display:block;font-size:11px;letter-spacing:1.5px;color:#d3ecfa}
+  .pf-box b{font-size:36px;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+  /* modals */
+  .m-modal{position:absolute;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(4,12,20,.7);backdrop-filter:blur(4px)}
+  .m-card{position:relative;width:min(640px,94vw);max-height:92vh;overflow:auto;border:5px solid #0a2438;border-radius:18px;background:linear-gradient(180deg,#1f7eb0 0%,#4fa9d4 55%,#8fd0ee 100%);padding:18px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .m-card.wide{width:min(780px,96vw)}
+  .m-title{text-align:center;font-size:32px;letter-spacing:3px;margin:2px 0 12px;text-shadow:0 4px 0 rgba(0,0,0,.35)}
+  .m-close{position:absolute;right:12px;top:8px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+  .friends-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:700px){.friends-grid{grid-template-columns:1fr}}
+  .f-card{border:3px solid #0a2438;border-radius:14px;background:rgba(7,40,66,.55);padding:12px;display:flex;flex-direction:column;gap:9px}
+  .f-card h3{font-size:16px;letter-spacing:1px}
+  .f-card p{font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#d6edf9;line-height:1.35}
+  .f-row{display:flex;gap:6px}
+  .f-row input{flex:1;min-width:0;padding:10px;border-radius:8px;border:3px solid #0a2438;background:#fff;color:#0b3a58;font-weight:900;text-transform:uppercase;outline:none}
+  .s-tabs{display:flex;gap:8px;margin-bottom:12px}
+  .s-tab{flex:1;padding:10px 6px;font-size:14px;color:#fff;border:3px solid #0a2438;border-radius:10px;background:linear-gradient(#2a86bd,#16638f);cursor:pointer;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .s-tab.active{background:linear-gradient(#ffb04a,#e8820f);border-color:#fff}
+  .s-h{font-size:20px;color:#06304d;margin:12px 0 8px;letter-spacing:1px;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+  .s-h small{font-size:12px;color:#0a4468;font-family:'Segoe UI',Arial,sans-serif}
+  #bindGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px}
+  @media(max-width:600px){#bindGrid{grid-template-columns:1fr}}
+  .bind-row{display:flex;align-items:center;gap:10px;color:#06304d;font-size:15px}
+  .key-btn{min-width:112px;padding:8px 6px;border-radius:9px;border:none;background:#fff;color:#1b86c0;font-weight:900;font-size:14px;cursor:pointer;font-family:'Segoe UI',Arial,sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  .key-btn.wait{background:#ffd27a;color:#7a4300}
+  .key-btn.fixed{cursor:default;opacity:.85}
+  .m-card .row label{width:150px;color:#06304d;font-weight:400;font-size:15px}
+  .m-card .row output{color:#fff;font-size:15px;width:56px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .m-card .row{margin:7px 0}
+  .m-card .chk{display:flex;align-items:center;gap:10px;color:#06304d;font-size:15px;margin:8px 0;cursor:pointer}
+  .m-card .chk input{width:22px;height:22px;accent-color:#f2992e}
+  .s-foot{display:flex;gap:10px;margin-top:16px}
+  .s-foot .btn3d{flex:1}
+  /* device gate */
+  #deviceGate{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:var(--f);
+    background:linear-gradient(180deg,#0e2031 0%,#1b4465 40%,#3d85b6 80%,#a5d0e8 100%)}
+  #deviceGate h2{font-size:clamp(24px,5vw,40px);letter-spacing:3px;text-shadow:0 4px 0 rgba(0,0,0,.4);color:#fff}
+  .dg-cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+  .dg-card{width:min(240px,42vw);padding:18px 10px;border-radius:18px;border:4px solid #0a2438;border-bottom-width:8px;background:linear-gradient(#58b0f5,#2f84cf);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--f);text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .dg-card:hover{background:linear-gradient(#ffb04a,#e8820f);transform:translateY(-3px)}
+  .dg-ico{font-size:56px}
+  .dg-card b{font-size:22px;letter-spacing:2px}
+  .dg-card small{font-size:13px;opacity:.9}
+  .dg-note{font-family:'Segoe UI',Arial,sans-serif;font-size:12px;color:#d6edf9}
+  #lockPrompt{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;background:rgba(5,12,20,.6);cursor:pointer;text-align:center;font-family:var(--f)}
+  #lockPrompt b{display:block;font-size:clamp(22px,4vw,38px);text-shadow:0 4px 0 rgba(0,0,0,.5);color:#fff}
+  #lockPrompt small{color:#ffd27a;font-size:14px;letter-spacing:2px}
+  @media(max-width:820px),(max-height:520px){
+    #menuSide{width:150px;top:76px}.m-tab{width:140px;font-size:13px;padding:7px 12px}.m-tab.active,.m-tab:hover{width:148px}
+    #pName{width:130px;font-size:12px}
+    #menuChar{height:min(52vh,360px);bottom:78px}
+    .btn3d.big{font-size:22px;padding:10px 24px}
+    .btn3d{font-size:12px;padding:8px 10px}
+    #modeBox{min-width:130px}
+    #viewProfile{padding-left:170px;padding-top:80px}
+    .pf-grid{grid-template-columns:repeat(2,1fr)}
+    #menuLogo{height:56px}
+  }
+
+  #menu #play{width:auto;margin:0;background:linear-gradient(#45d17d,#1f9c52);color:#fff;padding:12px 44px;border-radius:14px;letter-spacing:3px;font-size:30px;font-weight:400;box-shadow:none}
+  #menu #play:hover{filter:brightness(1.1);transform:none;box-shadow:none}
+  #menu #play:active{transform:translateY(3px)}
+  @media(max-width:820px),(max-height:520px){#menu #play{font-size:22px;padding:10px 24px}}
 </style>
 </head>
 <body>
@@ -463,106 +577,159 @@
     <button class="t-wep active" type="button" data-wep="0">1 AK-47</button>
     <button class="t-wep" type="button" data-wep="1">2 M4A4</button>
     <button class="t-wep" type="button" data-wep="2">3 AWP</button>
+    <button class="t-wep" type="button" data-wep="3">4 KARAMBIT</button>
   </div>
 
   <button id="btnTouchMenu" type="button">⚙️ MENÜ</button>
 </div>
 
+<!-- CİHAZ SEÇİM EKRANI -->
+<div id="deviceGate">
+  <img class="ps-logo" alt="Pixel Shooters" style="height:min(30vh,220px)">
+  <h2>NASIL OYNUYORSUN?</h2>
+  <div class="dg-cards">
+    <button type="button" class="dg-card" data-dev="pc"><span class="dg-ico">🖥️</span><b>BİLGİSAYAR</b><small>Klavye + Fare</small></button>
+    <button type="button" class="dg-card" data-dev="mobile"><span class="dg-ico">📱</span><b>MOBİL</b><small>Dokunmatik + Jiroskop</small></button>
+  </div>
+  <div class="dg-note">Sonradan sağ üstteki cihaz butonundan değiştirebilirsin.</div>
+</div>
+
+<!-- TIKLA VE DEVAM ET (fare kilidi) -->
+<div id="lockPrompt"><div><b>OYUNA DEVAM ETMEK İÇİN TIKLA</b><small>Fare imleci oyuna kilitlenecek</small></div></div>
+
 <div id="menu">
-  <div id="panel">
-    <h1>CS2 <span>LOW-POLY</span> FFA</h1>
-    <div class="sub">DEATHMATCH &middot; MULTIPLAYER &amp; PRIVATE ROOMS</div>
+  <img id="menuLogo" class="ps-logo" alt="Pixel Shooters">
 
-    <!-- AKTİF OYUN VARSA GÖRÜNEN DEVAM ET / FARKLI ODAYA GEÇ BARI -->
-    <div id="activeMatchBar" style="display:none;background:linear-gradient(90deg,rgba(63,208,255,.15),rgba(10,13,18,.9));border:1px solid var(--cyan);border-radius:10px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:11px;color:#9aa4b2;letter-spacing:1px;font-weight:700">AKTİF OYUNUNUZ DEVAM EDİYOR</div>
-        <div style="font-size:16px;color:#fff;font-weight:800">ODA: <span id="activeRoomCodeText" style="color:var(--gold)">PUBLIC</span></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button id="btnResumeMatch" type="button" style="padding:10px 18px;background:var(--cyan);border:none;border-radius:6px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">▶ OYUNA DÖN (RESUME)</button>
-        <button id="btnActiveTouchEditor" type="button" style="padding:10px 14px;background:rgba(245,194,66,.15);border:1px solid var(--gold);border-radius:6px;color:var(--gold);font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">🎮 HUD DÜZENLE</button>
-        <button id="btnLeaveRoom" type="button" style="padding:10px 18px;background:rgba(255,80,80,.2);border:1px solid #ff5050;border-radius:6px;color:#ff8a8a;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">🚪 FARKLI BİR ODAYA GİR</button>
+  <div id="menuTop">
+    <button id="btnDevice" type="button" class="icon-btn" title="Cihaz seç (PC / Mobil)">🖥️/📱</button>
+    <button id="btnSettings" type="button" class="icon-btn" title="Ayarlar">⚙️</button>
+    <button id="playFs" type="button" class="icon-btn" title="Tam ekran">⛶</button>
+  </div>
+
+  <div id="menuSide">
+    <input id="pName" type="text" maxlength="15" value="Player" placeholder="Oyuncu adı">
+    <button type="button" class="m-tab active" data-view="home">🏠 HOME</button>
+    <button type="button" class="m-tab" data-view="profile">👤 PROFILE</button>
+    <div id="netStatus"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:#3fd0ff;display:inline-block"></span> <span id="netStatusText">Lobiye Hazır</span></div>
+  </div>
+
+  <!-- ANA SAYFA -->
+  <div id="viewHome" class="m-view">
+    <div id="activeMatchBar" style="display:none">
+      <div><small>AKTİF OYUNUN DEVAM EDİYOR</small><div>ODA: <span id="activeRoomCodeText">PUBLIC</span></div></div>
+      <div class="amb-btns">
+        <button id="btnResumeMatch" type="button" class="btn3d green">▶ DEVAM</button>
+        <button id="btnActiveTouchEditor" type="button" class="btn3d orange mobile-only">🎮 HUD</button>
+        <button id="btnLeaveRoom" type="button" class="btn3d red">🚪 ODADAN ÇIK</button>
       </div>
     </div>
 
-    <!-- OYUNCU ADI & BAĞLANTI DURUMU -->
-    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px">
-        <label for="pName" style="font-size:12px;color:var(--cyan);font-weight:800;letter-spacing:1px">OYUNCU ADINIZ:</label>
-        <input id="pName" type="text" maxlength="15" value="Player" placeholder="İsminiz" style="flex:1;padding:8px 12px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-weight:800;font-size:14px;outline:none">
-      </div>
-      <div id="netStatus" style="font-size:12px;color:#9aa4b2;display:flex;align-items:center;gap:6px;margin-left:auto">
-        <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#3fd0ff;display:inline-block"></span>
-        <span id="netStatusText">Lobiye Hazır</span>
+    <canvas id="menuChar" width="480" height="600" title="Silahı değiştirmek için tıkla"></canvas>
+    <div id="err"></div>
+
+    <div id="menuBottom">
+      <button id="btnFriends" type="button" class="btn3d blue">PLAY WITH<br>FRIENDS!</button>
+      <button id="play" type="button" class="btn3d green big">▶ PLAY</button>
+      <div id="modeBox">
+        <small>GAME MODE</small>
+        <select id="gameMode">
+          <option value="online">FREE FOR ALL · ONLINE</option>
+          <option value="bots">PRACTICE · BOTS (OFFLINE)</option>
+        </select>
       </div>
     </div>
+  </div>
 
-    <!-- ODA SEÇİM KARTLARI: ODA OLUŞTUR & KOD İLE KATIL -->
-    <div class="room-cards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-      <!-- 1. ODA OLUŞTUR KARTI -->
-      <div class="card" style="margin:0;border:1px solid rgba(245,194,66,.35);background:linear-gradient(135deg,rgba(245,194,66,.08),rgba(10,13,18,.9));display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:18px">👑</span>
-          <h2 style="margin:0;color:var(--gold);font-size:14px;letter-spacing:1px">YENİ ODA OLUŞTUR</h2>
-        </div>
-        <div style="font-size:11px;color:#9aa4b2;line-height:1.4">Kendi özel odanı aç. Sen girdiğin anda <b>botlar olmadan</b> arkadaşların beklenir.</div>
-        <div style="display:flex;gap:6px">
-          <input id="createRoomCode" type="text" maxlength="12" placeholder="Oda Adı (Örn: PROS)" style="flex:1;padding:10px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(245,194,66,.4);border-radius:6px;color:var(--gold);font-weight:900;font-size:14px;text-transform:uppercase;outline:none">
-          <button id="btnRandomCode" type="button" title="Rastgele Kod Üret" style="padding:0 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;cursor:pointer;font-size:15px">🎲</button>
-        </div>
-        <button id="btnCreateRoom" type="button" style="padding:12px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:8px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px rgba(245,194,66,.25);transition:all .15s">🚀 ODA OLUŞTUR &amp; HEMEN GİR</button>
-      </div>
-
-      <!-- 2. KOD İLE KATIL KARTI -->
-      <div class="card" style="margin:0;border:1px solid rgba(63,208,255,.35);background:linear-gradient(135deg,rgba(63,208,255,.08),rgba(10,13,18,.9));display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:18px">⚔️</span>
-          <h2 style="margin:0;color:var(--cyan);font-size:14px;letter-spacing:1px">KOD İLE ODAYA KATIL</h2>
-        </div>
-        <div style="font-size:11px;color:#9aa4b2;line-height:1.4">Arkadaşının sana verdiği oda kodunu yaz ve anında aynı maça katıl.</div>
-        <input id="joinRoomCode" type="text" maxlength="12" placeholder="Oda Kodunu Girin" style="padding:10px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(63,208,255,.4);border-radius:6px;color:var(--cyan);font-weight:900;font-size:14px;text-transform:uppercase;outline:none">
-        <button id="btnJoinRoom" type="button" style="padding:12px;background:linear-gradient(90deg,var(--cyan),#22b4eb);border:none;border-radius:8px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px rgba(63,208,255,.25);transition:all .15s">🔗 ODAYA KATIL</button>
-      </div>
+  <!-- PROFİL -->
+  <div id="viewProfile" class="m-view" style="display:none">
+    <div class="pf-head"><div class="pf-avatar">👤</div><div><div id="pfName" class="pf-name">Player</div><div class="pf-sub">TÜM ZAMANLAR İSTATİSTİKLERİ</div></div></div>
+    <div class="pf-grid">
+      <div class="pf-box"><small>TOPLAM KILL</small><b id="pfKills">0</b></div>
+      <div class="pf-box"><small>TOPLAM ÖLÜM</small><b id="pfDeaths">0</b></div>
+      <div class="pf-box"><small>K/D ORANI</small><b id="pfKd">0.00</b></div>
+      <div class="pf-box gold"><small>KAZANILAN TUR</small><b id="pfWins">0</b></div>
+      <div class="pf-box"><small>OYNANAN MAÇ</small><b id="pfMatches">0</b></div>
+      <div class="pf-box"><small>HEADSHOT</small><b id="pfHs">0</b></div>
     </div>
+    <button id="btnProfileReset" type="button" class="btn3d red small">İSTATİSTİKLERİ SIFIRLA</button>
+  </div>
 
-    <!-- HIZLI BUTONLAR (DAVET LİNKİ & ÇEVRİMDIŞI BOTLAR) -->
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <button id="btnCopyInvite" type="button" style="padding:8px 14px;font-size:11px;font-weight:800;letter-spacing:1px;background:rgba(63,208,255,.1);border:1px solid var(--cyan);color:var(--cyan);border-radius:6px;cursor:pointer">🔗 ODA DAVET LİNKİNİ KOPYALA</button>
-      <button id="btnPlaySolo" type="button" style="padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:1px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#d0d7de;border-radius:6px;cursor:pointer">🤖 ÇEVRİMDIŞI TEK BAŞINA OYNA (BOTLARLA)</button>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div class="card">
-          <h2>SENSITIVITY &amp; FOV</h2>
-          <div class="row"><label>Sensitivity</label><input id="sSens" type="range" min="0.1" max="5" step="0.05"><output id="oSens"></output></div>
-          <div class="row"><label>Field of View</label><input id="sFov" type="range" min="60" max="110" step="1"><output id="oFov"></output></div>
+  <!-- ARKADAŞLARLA OYNA -->
+  <div id="friendsModal" class="m-modal">
+    <div class="m-card">
+      <button type="button" class="m-close" data-close="friendsModal">✖</button>
+      <h2 class="m-title">ARKADAŞLARLA OYNA</h2>
+      <div class="friends-grid">
+        <div class="f-card">
+          <h3>👑 YENİ ODA OLUŞTUR</h3>
+          <p>Kendi özel odanı aç. <b>Botlar olmadan</b> sadece arkadaşların girer.</p>
+          <div class="f-row">
+            <input id="createRoomCode" type="text" maxlength="12" placeholder="Oda Kodu (Örn: PROS)">
+            <button id="btnRandomCode" type="button" class="btn3d blue small" title="Rastgele kod">🎲</button>
+          </div>
+          <button id="btnCreateRoom" type="button" class="btn3d orange">🚀 OLUŞTUR &amp; GİR</button>
         </div>
-        <div class="card" style="margin-top:16px">
-          <h2>CROSSHAIR CUSTOMIZER</h2>
-          <div class="row"><label>Length</label><input id="xSize" type="range" min="1" max="20" step="1"><output id="oxSize"></output></div>
-          <div class="row"><label>Thickness</label><input id="xThick" type="range" min="1" max="6" step="1"><output id="oxThick"></output></div>
-          <div class="row"><label>Gap</label><input id="xGap" type="range" min="0" max="15" step="1"><output id="oxGap"></output></div>
-          <div class="row"><label>Color</label><input id="xColor" type="color"><label style="width:auto"><input id="xDot" type="checkbox"> Center dot</label></div>
-          <div id="preview"><div id="pxh"></div></div>
+        <div class="f-card">
+          <h3>⚔️ KOD İLE KATIL</h3>
+          <p>Arkadaşının verdiği oda kodunu yaz ve aynı maça katıl.</p>
+          <div class="f-row"><input id="joinRoomCode" type="text" maxlength="12" placeholder="Oda Kodunu Gir"></div>
+          <button id="btnJoinRoom" type="button" class="btn3d green">🔗 ODAYA KATIL</button>
         </div>
       </div>
-      <div class="card keys">
-        <h2>CONTROLS &amp; SHORTCUT ISOLATION</h2>
-        <b>W A S D</b> move &nbsp; <b>MOUSE</b> aim<br>
-        <b>LMB</b> fire &nbsp; <b>RMB</b> optic zoom (rifles) / 2-stage scope (AWP)<br>
-        <b>SPACE</b> jump (hold to bunnyhop, air-strafe with A/D + mouse)<br>
-        <b>SHIFT</b> walk (silent, accurate) &nbsp; <b>CTRL</b> or <b>C</b> crouch (eğil)<br>
-        <b>1</b> AK-47 &nbsp; <b>2</b> M4A4 &nbsp; <b>3</b> AWP &nbsp; <b>Q</b> last &nbsp; <b>WHEEL</b> cycle<br>
-        <b>R</b> reload &nbsp; <b>TAB</b> scoreboard &nbsp; <b>ESC</b> menu<br><br>
-        <span style="color:var(--gold);font-weight:600">&#9888; Tarayıcı İpucu:</span> Eğilirken (Ctrl) veya hareket ederken (A/W) tarayıcının sekme kapatması (Ctrl+W) veya seçim yapması (Ctrl+A) tamamen engellendi. En kusursuz deneyim için <b>TAM EKRAN (FULLSCREEN)</b> oynayın.
-        <div id="err"></div>
-      </div>
+      <button id="btnCopyInvite" type="button" class="btn3d blue small" style="margin-top:12px">🔗 ODA DAVET LİNKİNİ KOPYALA</button>
     </div>
-    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
-      <button id="btnOpenTouchEditor" type="button" style="flex:1;min-width:200px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:10px;font-weight:900;font-size:13px;letter-spacing:1px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 4px 16px rgba(245,194,66,.25)">🎮 MOBİL KONTROLLERİ DÜZENLE (HUD)</button>
-      <button id="playFs" style="flex:1;min-width:200px;margin-top:0;background:linear-gradient(90deg,var(--cyan),#8ae4ff);border:none;border-radius:10px;font-weight:800;font-size:14px;letter-spacing:2px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 6px 20px rgba(63,208,255,.25)">⛶ TAM EKRAN MODUNU AÇ / KAPAT</button>
+  </div>
+
+  <!-- AYARLAR -->
+  <div id="settingsModal" class="m-modal">
+    <div class="m-card wide">
+      <button type="button" class="m-close" data-close="settingsModal">✖</button>
+      <h2 class="m-title">SETTINGS</h2>
+      <div class="s-tabs">
+        <button type="button" class="s-tab pc-only active" data-stab="sp-controls">⌨️🖱️ KONTROLLER</button>
+        <button type="button" class="s-tab mobile-only" data-stab="sp-mobile">🎮 MOBİL</button>
+        <button type="button" class="s-tab" data-stab="sp-display">🖥️🔊 GÖRÜNTÜ &amp; SES</button>
+      </div>
+
+      <!-- KONTROLLER (PC) -->
+      <div id="sp-controls" class="s-pane">
+        <h3 class="s-h">KEYBINDINGS <small>(tuşa tıkla, yeni tuşa bas)</small></h3>
+        <div id="bindGrid"></div>
+        <h3 class="s-h">MOUSE</h3>
+        <div class="row"><label>Mouse Speed</label><input id="sSens" type="range" min="0.05" max="15" step="0.05"><output id="oSens"></output></div>
+        <label class="chk"><input id="sInvert" type="checkbox"> Invert Mouse (Y ekseni)</label>
+      </div>
+
+      <!-- MOBİL -->
+      <div id="sp-mobile" class="s-pane" style="display:none">
+        <h3 class="s-h">DOKUNMATİK</h3>
+        <div class="row"><label>Bakış Hassasiyeti</label><input id="sTouchSens" type="range" min="0.2" max="6" step="0.05"><output id="oTouchSens"></output></div>
+        <h3 class="s-h">JİROSKOP</h3>
+        <label class="chk"><input id="sGyro" type="checkbox"> Jiroskop ile nişan al</label>
+        <div class="row"><label>Jiroskop Hassasiyeti</label><input id="sGyroSens" type="range" min="0.2" max="6" step="0.05"><output id="oGyroSens"></output></div>
+        <label class="chk"><input id="sGyroInv" type="checkbox"> Jiroskop yönünü ters çevir</label>
+        <h3 class="s-h">HUD</h3>
+        <button id="btnOpenTouchEditor" type="button" class="btn3d orange">🎮 MOBİL KONTROLLERİ DÜZENLE (HUD)</button>
+      </div>
+
+      <!-- GÖRÜNTÜ & SES -->
+      <div id="sp-display" class="s-pane" style="display:none">
+        <h3 class="s-h">GÖRÜNTÜ</h3>
+        <div class="row"><label>Field of View</label><input id="sFov" type="range" min="60" max="110" step="1"><output id="oFov"></output></div>
+        <h3 class="s-h">SES</h3>
+        <div class="row"><label>Ana Ses</label><input id="sVol" type="range" min="0" max="1" step="0.01"><output id="oVol"></output></div>
+        <h3 class="s-h">CROSSHAIR</h3>
+        <div class="row"><label>Length</label><input id="xSize" type="range" min="1" max="20" step="1"><output id="oxSize"></output></div>
+        <div class="row"><label>Thickness</label><input id="xThick" type="range" min="1" max="6" step="1"><output id="oxThick"></output></div>
+        <div class="row"><label>Gap</label><input id="xGap" type="range" min="0" max="15" step="1"><output id="oxGap"></output></div>
+        <div class="row"><label>Color</label><input id="xColor" type="color"><label class="chk" style="width:auto"><input id="xDot" type="checkbox"> Center dot</label></div>
+        <div id="preview"><div id="pxh"></div></div>
+      </div>
+
+      <div class="s-foot">
+        <button id="btnSettingsReset" type="button" class="btn3d orange">Reset to Defaults</button>
+        <button id="btnSettingsConfirm" type="button" class="btn3d green">Confirm</button>
+      </div>
     </div>
   </div>
 </div>
@@ -641,7 +808,8 @@
    ===================================================================== */
 const U = 0.0254; // Source unit -> metre
 const CFG = { accel:10, airAccel:12, friction:4.0, stopSpeed:100, gravity:800, jump:300, maxSpeed:250, walkSpeed:130, crouchSpeed:85, eyeStand:1.6, eyeCrouch:1.0, tick:1/128 };
-const Settings = { sens:1.2, fov:90, xhSize:6, xhThick:2, xhGap:3, xhColor:'#3fd0ff', xhDot:false };
+const SETTINGS_DEFAULTS = { sens:1.2, fov:90, xhSize:6, xhThick:2, xhGap:3, xhColor:'#3fd0ff', xhDot:false, invertY:false, gyro:false, gyroSens:1.0, gyroInv:false, touchSens:1.0, vol:0.55 };
+const Settings = Object.assign({}, SETTINGS_DEFAULTS);
 try { Object.assign(Settings, JSON.parse(localStorage.getItem('cs2lp_settings') || '{}')); } catch (e) {}
 const saveSettings = () => { try { localStorage.setItem('cs2lp_settings', JSON.stringify(Settings)); } catch (e) {} };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -651,6 +819,152 @@ const wrapAngle = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.
 const DEG = Math.PI / 180;
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const World = { boxes: [] };
+
+/* =====================================================================
+   DEVICE MODE, KEYBINDS, GYROSCOPE, PROFILE (Pixel Shooters)
+   ===================================================================== */
+const Device = {
+  mode: (() => { try { return localStorage.getItem('ps_device') || ''; } catch (e) { return ''; } })(),
+  apply() { document.body.classList.toggle('is-touch', this.mode === 'mobile'); document.body.classList.toggle('is-pc', this.mode === 'pc'); }
+};
+const isMobileMode = () => Device.mode === 'mobile';
+
+const BIND_DEFS = [
+  ['forward', 'Forward', 'KeyW'], ['back', 'Backward', 'KeyS'], ['left', 'Left', 'KeyA'], ['right', 'Right', 'KeyD'],
+  ['jump', 'Jump', 'Space'], ['crouch', 'Crouch', 'KeyC'], ['walk', 'Walk (Silent)', 'ShiftLeft'], ['reload', 'Reload', 'KeyR'],
+  ['melee', 'Karambit (Quick)', 'KeyF'], ['w1', 'AK-47', 'Digit1'], ['w2', 'M4A4', 'Digit2'], ['w3', 'AWP', 'Digit3'],
+  ['w4', 'Karambit', 'Digit4'], ['last', 'Last Weapon', 'KeyQ'], ['score', 'Scoreboard', 'Tab']
+];
+const keyLabel = c => {
+  if (!c) return '-';
+  if (c.startsWith('Key')) return c.slice(3);
+  if (c.startsWith('Digit')) return c.slice(5);
+  const m = { Space:'SPACE', ShiftLeft:'SHIFT', ShiftRight:'R-SHIFT', ControlLeft:'CTRL', ControlRight:'R-CTRL', Tab:'TAB', AltLeft:'ALT', ArrowUp:'↑', ArrowDown:'↓', ArrowLeft:'←', ArrowRight:'→', CapsLock:'CAPS', Backquote:'`' };
+  return m[c] || c.toUpperCase();
+};
+const Binds = {
+  map: {}, rev: {}, blocked: new Set(),
+  load() {
+    let s = {}; try { s = JSON.parse(localStorage.getItem('ps_binds') || '{}'); } catch (e) {}
+    this.map = {}; BIND_DEFS.forEach(([a, , d]) => { this.map[a] = s[a] || d; }); this.rebuild();
+  },
+  save() { try { localStorage.setItem('ps_binds', JSON.stringify(this.map)); } catch (e) {} },
+  reset() { try { localStorage.removeItem('ps_binds'); } catch (e) {} this.load(); },
+  rebuild() {
+    this.rev = {}; this.blocked = new Set();
+    BIND_DEFS.forEach(([a, , d]) => { this.rev[this.map[a]] = d; });
+    BIND_DEFS.forEach(([a, , d]) => { if (this.map[a] !== d && !this.rev[d]) this.blocked.add(d); });
+  },
+  canon(code) { if (this.rev[code]) return this.rev[code]; if (this.blocked.has(code)) return null; return code; },
+  set(a, code) {
+    const old = this.map[a];
+    for (const k in this.map) if (k !== a && this.map[k] === code) this.map[k] = old;
+    this.map[a] = code; this.rebuild(); this.save();
+  }
+};
+Binds.load();
+
+const Gyro = {
+  on: false, bound: false, yaw: 0, pitch: 0, last: 0,
+  ios: /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  async enable() {
+    if (typeof DeviceMotionEvent === 'undefined') return false;
+    try {
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        const r = await DeviceMotionEvent.requestPermission();
+        if (r !== 'granted') return false;
+      }
+    } catch (e) { return false; }
+    if (!this.bound) { this.bound = true; addEventListener('devicemotion', e => this.onMotion(e)); }
+    this.on = true; this.last = 0; return true;
+  },
+  disable() { this.on = false; this.yaw = this.pitch = 0; },
+  onMotion(e) {
+    if (!this.on || !Settings.gyro) return;
+    const r = e.rotationRate, a = e.accelerationIncludingGravity;
+    if (!r || !a || r.alpha == null) return;
+    const now = performance.now(), dt = this.last ? Math.min((now - this.last) / 1000, 0.1) : 0; this.last = now;
+    if (!dt) return;
+    let ux = a.x || 0, uy = a.y || 0, uz = a.z || 0;
+    if (this.ios) { ux = -ux; uy = -uy; uz = -uz; }
+    const n = Math.hypot(ux, uy, uz) || 1; ux /= n; uy /= n; uz /= n;
+    const wx = r.beta || 0, wy = r.gamma || 0, wz = r.alpha || 0;     // deg/s about device x, y, z
+    const yawRate = wx * ux + wy * uy + wz * uz;                      // rotation about the world "up" axis
+    const ang = ((((screen.orientation && screen.orientation.angle) || window.orientation || 0) % 360) + 360) % 360;
+    let rx = 1, ry = 0; if (ang === 90) { rx = 0; ry = -1; } else if (ang === 180) { rx = -1; ry = 0; } else if (ang === 270) { rx = 0; ry = 1; }
+    const pitchRate = wx * rx + wy * ry;                              // rotation about screen-right axis
+    const s = (Settings.gyroInv ? -1 : 1) * Settings.gyroSens * Math.PI / 180;
+    this.yaw += yawRate * s * dt; this.pitch += pitchRate * s * dt;
+  }
+};
+
+const Profile = {
+  kills: 0, deaths: 0, wins: 0, matches: 0, headshots: 0, dirty: false,
+  load() { try { const s = JSON.parse(localStorage.getItem('ps_profile') || '{}'); ['kills','deaths','wins','matches','headshots'].forEach(k => { this[k] = +s[k] || 0; }); } catch (e) {} },
+  save() { try { localStorage.setItem('ps_profile', JSON.stringify({ kills:this.kills, deaths:this.deaths, wins:this.wins, matches:this.matches, headshots:this.headshots })); } catch (e) {} this.dirty = false; },
+  reset() { this.kills = this.deaths = this.wins = this.matches = this.headshots = 0; this.save(); }
+};
+Profile.load();
+
+/* ---- Logo: removes the white background at runtime (flood fill from the edges) ---- */
+function prepareLogo() {
+  const targets = () => document.querySelectorAll('.ps-logo');
+  const fallback = () => targets().forEach(e => { e.src = 'logo.png'; });
+  const img = new Image();
+  img.onerror = fallback;
+  img.onload = () => {
+    try {
+      const W = 640, H = Math.round(img.height * W / img.width);
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d', { willReadFrequently:true }); x.drawImage(img, 0, 0, W, H);
+      const d = x.getImageData(0, 0, W, H), p = d.data, vis = new Uint8Array(W * H), st = [];
+      const isW = i => { const o = i * 4; return p[o] > 232 && p[o + 1] > 232 && p[o + 2] > 232; };
+      const push = i => { if (!vis[i] && isW(i)) { vis[i] = 1; st.push(i); } };
+      for (let i = 0; i < W; i++) { push(i); push((H - 1) * W + i); }
+      for (let j = 0; j < H; j++) { push(j * W); push(j * W + W - 1); }
+      while (st.length) { const i = st.pop(), xx = i % W, yy = (i / W) | 0; if (xx > 0) push(i - 1); if (xx < W - 1) push(i + 1); if (yy > 0) push(i - W); if (yy < H - 1) push(i + W); }
+      for (let i = 0; i < W * H; i++) if (vis[i]) p[i * 4 + 3] = 0;
+      // erode the light fringe next to the removed background
+      const kill = [];
+      for (let yy = 1; yy < H - 1; yy++) for (let xx = 1; xx < W - 1; xx++) {
+        const i = yy * W + xx; if (vis[i]) continue;
+        if (vis[i - 1] || vis[i + 1] || vis[i - W] || vis[i + W]) { const o = i * 4; if (p[o] + p[o + 1] + p[o + 2] > 520) kill.push(i); }
+      }
+      kill.forEach(i => { p[i * 4 + 3] = 0; });
+      x.putImageData(d, 0, 0);
+      const url = c.toDataURL('image/png'); targets().forEach(e => { e.src = url; });
+    } catch (e) { fallback(); }
+  };
+  img.src = 'logo.png';
+}
+
+/* ---- 3D character displayed above the PLAY button ---- */
+class MenuCharacter {
+  constructor(canvas) {
+    this.cv = canvas; this.mx = 0; this.sel = 0;
+    this.r = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+    this.r.setPixelRatio(1); this.r.setSize(480, 600, false); this.r.setClearColor(0x000000, 0);
+    this.scene = new THREE.Scene();
+    this.cam = new THREE.PerspectiveCamera(28, 480 / 600, 0.1, 40); this.cam.position.set(0, 1.12, 4.7); this.cam.lookAt(0, 0.98, 0);
+    this.scene.add(new THREE.HemisphereLight(0xdfeeff, 0x8a7a60, 1.0));
+    const sun = new THREE.DirectionalLight(0xfff0d0, 0.9); sun.position.set(2, 4, 4); this.scene.add(sun);
+    const rim = new THREE.DirectionalLight(0xf2992e, 0.5); rim.position.set(-3, 2, -2); this.scene.add(rim);
+    this.m = buildBotModel(0xf2992e, 'CT'); this.scene.add(this.m.root);
+    this.setGun(0);
+    addEventListener('mousemove', e => { this.mx = (e.clientX / innerWidth - 0.5) * 2; }, { passive:true });
+    canvas.addEventListener('click', () => this.setGun((this.sel + 1) % this.m.guns.length));
+  }
+  setGun(i) { this.sel = i; this.m.guns.forEach((g, k) => { g.visible = k === i; }); }
+  render(t) {
+    const m = this.m;
+    m.root.rotation.y = Math.PI - 0.5 + this.mx * 0.45;
+    m.root.position.y = Math.sin(t * 1.6) * 0.012;
+    m.upperBody.rotation.x = Math.sin(t * 1.6) * 0.012 - 0.02;
+    this.r.render(this.scene, this.cam);
+  }
+}
+
+
 
 /* =====================================================================
    WEAPON DEFINITIONS (data-driven ballistics + recoil patterns)
@@ -669,7 +983,10 @@ const WEAPONS = [
       [0,0,0.1,0.2,0.0,-0.2,-0.4,-0.6,-0.3,0.2,0.6,1.0,1.2,0.8,0.3,-0.3,-0.8,-1.2,-1.5,-1.1,-0.6,0,0.5,1.0,0.7,0.2,-0.4,-0.9,-1.2,-0.8]) },
   { id:'awp', name:'AWP', mag:10, reserve:30, rpm:41, dmg:115, head:450, pen:0.975, rangeMod:0.99, auto:false, scope:true,
     baseSpread:0, scopedBase:0.02, unscopedBase:2.5, moveSpread:7.5, airSpread:9, fireInacc:0, reload:3.6, recoilScale:1.0, glyph:'\u2501\u2501\u257E\u25C9',
-    pattern: mkPattern([0,2.0], [0,0]) }
+    pattern: mkPattern([0,2.0], [0,0]) },
+  { id:'knife', name:'KARAMBIT', mag:1, reserve:0, rpm:90, dmg:40, stab:130, head:40, melee:true, range:2.2, pen:0.85, rangeMod:1, auto:true, scope:false,
+    baseSpread:0, scopedBase:0, unscopedBase:0, moveSpread:0, airSpread:0, fireInacc:0, reload:0, recoilScale:0, glyph:'\u2020',
+    pattern: mkPattern([0,0], [0,0]) }
 ];
 WEAPONS.forEach(w => { w.interval = 60 / w.rpm; });
 const HIT_MULT = { head:null, chest:1.0, stomach:1.25, legs:0.75 };
@@ -855,7 +1172,7 @@ class SoundEngine {
   init() {
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext; const c = this.ctx = new AC();
-    this.master = c.createGain(); this.master.gain.value = 0.55;
+    this.master = c.createGain(); this.master.gain.value = Settings.vol;
     const comp = c.createDynamicsCompressor(); this.master.connect(comp); comp.connect(c.destination);
     const len = c.sampleRate * 2; this.noiseBuf = c.createBuffer(1, len, c.sampleRate);
     const nd = this.noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) nd[i] = Math.random() * 2 - 1;
@@ -893,6 +1210,9 @@ class SoundEngine {
       this.noise(d, t, 0.09, 'bandpass', 1900, 1.1, 1.0);
       this.tone(d, 'triangle', 220, 50, t, 0.1, 0.8);
       this.tone(d, 'sine', 110, 40, t, 0.12, 0.6);
+    } else if (id === 'knife') {
+      this.noise(d, t, 0.18, 'bandpass', 900, 0.8, 0.7, 2600);
+      this.tone(d, 'sine', 420, 160, t, 0.12, 0.25);
     } else {
       this.tone(d, 'sine', 60, 28, t, 0.55, 1.4);
       const crack = this.noise(d, t, 0.09, 'highpass', 2200, 0.8, 1.1);
@@ -950,6 +1270,19 @@ function buildGun(id, noArms) {
     bx(0.04, 0.15, 0.06, black, 0, -0.12, -0.08, g, 0.12); bx(0.04, 0.10, 0.05, black, 0, -0.09, 0.09, g, -0.3);
     bx(0.045, 0.08, 0.22, black, 0, -0.03, 0.26, g); bx(0.012, 0.03, 0.012, black, 0, 0.05, -0.7, g); cyl(0.02, 0.06, dark, 0, 0.01, -0.73, g);
     muzzle = V3(0, 0.01, -0.77);
+  } else if (id === 'knife') {
+    bx(0.036, 0.04, 0.15, dark, 0, 0, 0.04, g);
+    bx(0.04, 0.03, 0.05, 0xf2992e, 0, 0.01, -0.05, g);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.008, 6, 14), mat(steel)); ring.rotation.y = Math.PI / 2; ring.position.set(0, -0.012, 0.135); g.add(ring);
+    let by = 0.012, bz = -0.075, ba = 0;
+    for (let i = 0; i < 6; i++) {
+      const len = 0.062, h = 0.036 - i * 0.0042;
+      const dy = -Math.sin(ba) * len, dz = -Math.cos(ba) * len;
+      const seg = bx(0.007, h, len + 0.012, 0xdfe5ec, 0, by + dy / 2, bz + dz / 2, g); seg.rotation.x = -ba;
+      by += dy; bz += dz; ba += 0.3;
+    }
+    if (!noArms) { bx(0.085, 0.09, 0.13, skin, 0, -0.02, 0.05, g); bx(0.09, 0.09, 0.45, sleeve, 0.05, -0.1, 0.34, g, -0.25); }
+    muzzle = V3(0, -0.12, -0.35);
   } else {
     bx(0.055, 0.09, 0.55, green, 0, 0, 0, g); cyl(0.016, 0.62, dark, 0, 0.015, -0.58, g);
     cyl(0.032, 0.30, black, 0, 0.09, -0.05, g); cyl(0.04, 0.05, black, 0, 0.09, -0.21, g); cyl(0.036, 0.04, black, 0, 0.09, 0.11, g);
@@ -959,7 +1292,7 @@ function buildGun(id, noArms) {
     muzzle = V3(0, 0.015, -0.97);
   }
   const hand = id === 'awp' ? -0.2 : -0.36;
-  if (!noArms) {
+  if (!noArms && id !== 'knife') {
     bx(0.075, 0.075, 0.13, skin, 0, -0.07, hand, g); bx(0.085, 0.085, 0.45, sleeve, -0.08, -0.16, hand + 0.3, g, 0.18);
     bx(0.06, 0.07, 0.09, skin, 0, -0.14, 0.08, g); bx(0.09, 0.09, 0.45, sleeve, 0.06, -0.24, 0.36, g, -0.2);
   }
@@ -1172,18 +1505,21 @@ class InputManager {
     addEventListener('keydown', e => {
       if (!this.locked) return;
       if (e.code !== 'F12') e.preventDefault();
-      if (e.repeat && (e.code.startsWith('Digit') || e.code === 'KeyQ' || e.code === 'KeyR')) return;
-      this.keys[e.code] = true;
-      if (e.code === 'Tab') this.tab = true;
+      const code = Binds.canon(e.code); if (!code) return;
+      if (e.repeat && (code.startsWith('Digit') || code === 'KeyQ' || code === 'KeyR' || code === 'KeyF')) return;
+      this.keys[code] = true;
+      if (code === 'Tab') this.tab = true;
       const w = this.g.weapons;
-      if (e.code === 'Digit1') w.setWeapon(0); if (e.code === 'Digit2') w.setWeapon(1); if (e.code === 'Digit3') w.setWeapon(2);
-      if (e.code === 'KeyQ') w.setWeapon(w.last);
-      if (e.code === 'KeyR') w.startReload();
+      if (code === 'Digit1') w.setWeapon(0); if (code === 'Digit2') w.setWeapon(1); if (code === 'Digit3') w.setWeapon(2); if (code === 'Digit4') w.setWeapon(3);
+      if (code === 'KeyQ') w.setWeapon(w.last);
+      if (code === 'KeyR') w.startReload();
+      if (code === 'KeyF') w.quickMelee();
     });
     addEventListener('keyup', e => {
       if (this.locked && e.code !== 'F12') e.preventDefault();
-      this.keys[e.code] = false;
-      if (e.code === 'Tab') this.tab = false;
+      const code = Binds.canon(e.code); if (!code) return;
+      this.keys[code] = false;
+      if (code === 'Tab') this.tab = false;
     });
     addEventListener('mousedown', e => {
       if (!this.locked) return;
@@ -1191,18 +1527,19 @@ class InputManager {
     });
     addEventListener('mouseup', e => { if (e.button === 0) this.m0 = false; });
     addEventListener('contextmenu', e => e.preventDefault());
-    addEventListener('mousemove', e => { if (this.locked) { this.dx += e.movementX || 0; this.dy += e.movementY || 0; } });
+    addEventListener('mousemove', e => { if (this.locked) { this.dx += e.movementX || 0; this.dy += (e.movementY || 0) * (Settings.invertY ? -1 : 1); } });
     addEventListener('wheel', e => {
       if (!this.locked) return;
       e.preventDefault();
       const w = this.g.weapons;
-      w.setWeapon((w.player.cur + (e.deltaY > 0 ? 1 : 2)) % 3);
+      w.setWeapon((w.player.cur + (e.deltaY > 0 ? 1 : WEAPONS.length - 1)) % WEAPONS.length);
     }, { passive:false });
     addEventListener('selectstart', e => { if (this.locked) e.preventDefault(); });
     addEventListener('dragstart', e => { if (this.locked) e.preventDefault(); });
     addEventListener('blur', () => { this.keys = {}; this.m0 = false; this.tab = false; });
     document.addEventListener('pointerlockchange', () => {
       this.locked = document.pointerLockElement === game.engine.canvas;
+      const lp = document.getElementById('lockPrompt'); if (lp) lp.style.display = 'none';
       if (!this.locked) {
         this.keys = {}; this.m0 = false; this.tab = false;
         if (navigator.keyboard && navigator.keyboard.unlock) {
@@ -1210,28 +1547,28 @@ class InputManager {
         }
         if (!game.matchEnded) game.ui.showMenu(true);
       } else {
+        this.promptN = 0;
         game.ui.showMenu(false);
       }
       if (window.updateCursorState) window.updateCursorState();
     });
     document.addEventListener('pointerlockerror', () => { this.lockFailed = true; });
-    this.fallback = false; this.lockFailed = false;
+    this.fallback = false; this.lockFailed = false; this.promptN = 0;
     addEventListener('keydown', e => {
       if (e.code === 'Escape' && this.fallback) { this.fallback = false; this.locked = false; this.keys = {}; this.m0 = false; this.tab = false; if (!game.matchEnded) game.ui.showMenu(true); }
     });
   }
   lock(fullscreen = false) {
     if (this.g.matchEnded) return;
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
-    if (isTouch) {
-      document.body.classList.add('is-touch');
+    if (isMobileMode()) {
       this.locked = true;
       this.g.ui.showMenu(false);
-      if (fullscreen) this.toggleFullscreen();
+      if (fullscreen && !document.fullscreenElement) this.toggleFullscreen();
+      try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) {}
       if (window.updateCursorState) window.updateCursorState();
       return;
     }
-    const c = this.g.engine.canvas; this.lockFailed = false; this.fallback = false;
+    this.lockFailed = false; this.fallback = false;
     if (fullscreen && document.fullscreenElement == null) {
       const el = document.documentElement;
       const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
@@ -1240,19 +1577,33 @@ class InputManager {
     if (navigator.keyboard && navigator.keyboard.requestKeyboardLock) {
       navigator.keyboard.requestKeyboardLock().catch(() => {});
     }
+    this.tryLock(0);
+    if (window.updateCursorState) window.updateCursorState();
+  }
+  // Chrome refuses to re-lock for ~1s after ESC, so retry instead of falling back to a broken (edge-limited) mouse mode.
+  tryLock(n) {
+    const c = this.g.engine.canvas;
+    if (document.pointerLockElement === c || this.locked) return;
     try {
       c.focus();
-      const r = c.requestPointerLock();
-      if (r && r.catch) r.catch(() => { this.lockFailed = true; });
-    } catch (e) { this.lockFailed = true; }
+      let r;
+      try { r = c.requestPointerLock({ unadjustedMovement:true }); } catch (e) { r = c.requestPointerLock(); }
+      if (r && r.catch) r.catch(() => { try { const r2 = c.requestPointerLock(); if (r2 && r2.catch) r2.catch(() => {}); } catch (e) {} });
+    } catch (e) {}
     setTimeout(() => {
-      if (document.pointerLockElement !== c && !this.locked) {
-        if (this.g.ui.menuOpen || this.g.matchEnded) return;
+      if (document.pointerLockElement === c || this.locked || this.g.matchEnded || !this.g.started) return;
+      if (n < 7) this.tryLock(n + 1);
+      else if (this.promptN >= 2) {
         this.fallback = true; this.locked = true; this.g.ui.showMenu(false);
         this.g.ui.message('POINTER LOCK UNAVAILABLE \u2014 FALLBACK MODE (ESC = MENU)', 3);
-      }
-    }, 600);
-    if (window.updateCursorState) window.updateCursorState();
+      } else this.showLockPrompt();
+    }, 350);
+  }
+  showLockPrompt() { const lp = document.getElementById('lockPrompt'); if (lp) lp.style.display = 'flex'; }
+  promptClick() {
+    this.promptN = (this.promptN || 0) + 1;
+    const lp = document.getElementById('lockPrompt'); if (lp) lp.style.display = 'none';
+    this.tryLock(0);
   }
   unlock() {
     this.locked = false;
@@ -1450,13 +1801,11 @@ class TouchControls {
     if (this.backdrop) this.backdrop.style.display = 'none';
     if (this.container) {
       this.container.classList.remove('editing-hud');
-      const isTouch = document.body.classList.contains('is-touch') || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+      const isTouch = isMobileMode();
       const isPlaying = this.g && this.g.started && !this.g.ui.menuOpen && !this.g.matchEnded;
       this.container.style.display = (isTouch && isPlaying) ? 'block' : 'none';
     }
-    if (this.wasMenuOpen && this.g && this.g.ui) {
-      this.g.ui.showMenu(true);
-    }
+    if (this.wasMenuOpen) { const menuEl = document.getElementById('menu'); if (menuEl) menuEl.style.display = 'flex'; }
     this.applyConfig();
   }
 
@@ -1671,8 +2020,8 @@ class TouchControls {
           const dy = t.clientY - this.lookY;
           this.lookX = t.clientX;
           this.lookY = t.clientY;
-          this.inp.dx += dx * 1.5;
-          this.inp.dy += dy * 1.5;
+          this.inp.dx += dx * 1.5 * Settings.touchSens;
+          this.inp.dy += dy * 1.5 * Settings.touchSens;
           break;
         }
       }
@@ -1712,8 +2061,8 @@ class TouchControls {
             const dy = t.clientY - this.fireY;
             this.fireX = t.clientX;
             this.fireY = t.clientY;
-            this.inp.dx += dx * 1.1;
-            this.inp.dy += dy * 1.1;
+            this.inp.dx += dx * 1.1 * Settings.touchSens;
+            this.inp.dy += dy * 1.1 * Settings.touchSens;
             break;
           }
         }
@@ -1819,7 +2168,7 @@ class WeaponSystem {
     this.fireT = 0; this.drawT = 0.4; this.reloadT = 0; this.reloadLen = 1; this.boltT = 0; this.idx = 0; this.sinceShot = 9;
     this.punch = { p:0, y:0 }; this.target = { p:0, y:0 }; this.scope = 0; this.flashT = 0;
     this.kick = 0; this.bobT = 0; this.swayX = 0; this.swayY = 0;
-    this.base = V3(0.2, -0.2, -0.38);
+    this.base = V3(0.2, -0.2, -0.38); this.swingT = 0; this.swingAlt = 0;
     this.guns[0].visible = true;
   }
   setWeapon(i) {
@@ -1828,6 +2177,7 @@ class WeaponSystem {
     this.drawT = 0.45; this.idx = 0; this.target.p = this.target.y = 0; this.g.sound.click(); this.g.ui.refreshWeaponList();
   }
   cancelReload() { this.reloadT = 0; }
+  quickMelee() { const p = this.player; if (p.cur === 3) this.setWeapon(this.last === 3 ? 0 : this.last); else this.setWeapon(3); }
   startReload() {
     const p = this.player, w = WEAPONS[p.cur], st = p.ws[p.cur];
     if (!p.alive || this.reloadT > 0 || st.ammo >= w.mag || st.reserve <= 0 || this.drawT > 0) return;
@@ -1853,6 +2203,7 @@ class WeaponSystem {
   }
   fire(w, st) {
     const g = this.g, p = this.player, inp = g.input;
+    if (w.melee) { this.fireT = w.interval; this.sinceShot = 0; this.swingT = 0.32; this.swingAlt ^= 1; g.melee(p, p.eyePos(V3(0, 0, 0)), p.yaw, p.pitch, w); return; }
     st.ammo--; this.fireT = w.interval; this.sinceShot = 0;
     const yaw = p.yaw + this.punch.y, pitch = p.pitch + this.punch.p;
     const origin = p.eyePos(V3(0, 0, 0));
@@ -1868,7 +2219,7 @@ class WeaponSystem {
     if (this.boltT > 0) { this.boltT -= dt; if (this.boltT <= 0) g.sound.bolt(); }
     if (p.alive) {
       if (this.reloadT > 0) { this.reloadT -= dt; if (this.reloadT <= 0) { this.reloadT = 0; this.finishReload(); } }
-      if (inp.scopeEdge && this.reloadT <= 0 && this.drawT <= 0) {
+      if (inp.scopeEdge && !w.melee && this.reloadT <= 0 && this.drawT <= 0) {
         if (w.scope) { this.scope = (this.scope + 1) % 3; g.sound.click(); }
         else { this.scope = this.scope ? 0 : 1; g.sound.click(); }
       }
@@ -1899,6 +2250,10 @@ class WeaponSystem {
     let rx = this.kick * 0.09, ry = this.swayX, rz = 0;
     if (this.reloadT > 0) { const pr = 1 - this.reloadT / this.reloadLen, s = Math.sin(pr * Math.PI); oy -= 0.12 * s; rx -= 0.7 * s; rz += 0.4 * s; }
     if (this.drawT > 0) { const d = clamp(this.drawT / 0.45, 0, 1); oy -= d * d * 0.4; rx -= d * 0.6; }
+    if (this.swingT > 0) {
+      this.swingT -= dt; const kk = clamp(1 - this.swingT / 0.32, 0, 1), sw = Math.sin(kk * Math.PI), dr = this.swingAlt ? 1 : -1;
+      rz += dr * sw * 1.0; ry -= dr * sw * 0.8; rx -= sw * 0.35; ox -= dr * sw * 0.12; oz -= sw * 0.18;
+    }
     gun.position.set(ox, oy, oz); gun.rotation.set(rx, ry, rz);
     gun.userData.flash.visible = this.flashT > 0 && this.drawT <= 0;
     if (this.flashT > 0) { this.flashT -= dt; gun.userData.flash.rotation.z = Math.random() * 6; gun.userData.flash.scale.setScalar(rand(0.8, 1.3)); }
@@ -2235,7 +2590,7 @@ class NetworkManager {
       const origin = V3(msg.origin.x, msg.origin.y, msg.origin.z);
       const dir = V3(msg.dir.x, msg.dir.y, msg.dir.z);
       const end = origin.clone().addScaledVector(dir, 100);
-      this.g.fx.tracer(origin, end);
+      if (msg.weaponId !== 'knife') this.g.fx.tracer(origin, end);
       if (rp) {
         rp.flashT = 0.05;
         rp.lastFire = this.g.time;
@@ -2426,8 +2781,9 @@ class UIManager {
   constructor(game) {
     this.g = game; const $ = id => document.getElementById(id); this.$ = $;
     this.radar = $('radar').getContext('2d'); this.menuOpen = true; this.sbT = 0; this.lbT = 0; this.msgT = 0; this.hitT = 0; this.hurtA = 0; this.fpsAcc = 0; this.fpsN = 0;
+    this.sliders = [];
     const bind = (sid, oid, key, fmt, cb) => {
-      const s = $(sid), o = $(oid); s.value = Settings[key]; o.textContent = fmt(Settings[key]);
+      const s = $(sid), o = $(oid); this.sliders.push({ s, o, key, fmt }); s.value = Settings[key]; o.textContent = fmt(Settings[key]);
       s.addEventListener('input', () => { Settings[key] = parseFloat(s.value); o.textContent = fmt(Settings[key]); saveSettings(); if (cb) cb(); this.refreshPreview(); });
     };
     bind('sSens', 'oSens', 'sens', v => v.toFixed(2)); bind('sFov', 'oFov', 'fov', v => v.toFixed(0), () => { this.g.engine.camera.fov = Settings.fov; this.g.engine.camera.updateProjectionMatrix(); });
@@ -2469,7 +2825,7 @@ class UIManager {
           $('createRoomCode').value = code;
         }
         const name = ($('pName').value || 'Player').trim();
-        this.g.startRoom(code, name, false, false);
+        this.g.startRoom(code, name, isMobileMode(), false);
       });
     }
 
@@ -2493,7 +2849,7 @@ class UIManager {
           return;
         }
         const name = ($('pName').value || 'Player').trim();
-        this.g.startRoom(code, name, false, false);
+        this.g.startRoom(code, name, isMobileMode(), false);
       });
     }
 
@@ -2550,6 +2906,104 @@ class UIManager {
     if (pfs) pfs.addEventListener('click', () => this.g.input.toggleFullscreen());
     $('btnRestart').addEventListener('click', () => this.g.restartMatch());
     $('btnEndMenu').addEventListener('click', () => { this.showMatchEndModal(false); this.showMenu(true); });
+    this.initMenu(bind);
+  }
+  setView(v) {
+    this.view = v;
+    this.$('viewHome').style.display = v === 'home' ? 'block' : 'none';
+    this.$('viewProfile').style.display = v === 'profile' ? 'block' : 'none';
+    document.querySelectorAll('#menuSide .m-tab').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+    if (v === 'profile') this.renderProfile();
+  }
+  renderProfile() {
+    const $ = this.$, P = Profile;
+    $('pfName').textContent = ($('pName').value || 'Player').trim() || 'Player';
+    $('pfKills').textContent = P.kills; $('pfDeaths').textContent = P.deaths;
+    $('pfKd').textContent = (P.deaths ? P.kills / P.deaths : P.kills).toFixed(2);
+    $('pfWins').textContent = P.wins; $('pfMatches').textContent = P.matches; $('pfHs').textContent = P.headshots;
+  }
+  closeModals() { ['friendsModal', 'settingsModal'].forEach(id => { const e = this.$(id); if (e) e.style.display = 'none'; }); }
+  openModal(id) { this.closeModals(); this.$(id).style.display = 'flex'; }
+  setSettingsTab(id) {
+    document.querySelectorAll('#settingsModal .s-pane').forEach(p => { p.style.display = p.id === id ? 'block' : 'none'; });
+    document.querySelectorAll('#settingsModal .s-tab').forEach(t => t.classList.toggle('active', t.dataset.stab === id));
+  }
+  syncSettingsUI() {
+    const $ = this.$;
+    this.sliders.forEach(({ s, o, key, fmt }) => { s.value = Settings[key]; o.textContent = fmt(Settings[key]); });
+    $('xColor').value = Settings.xhColor; $('xDot').checked = !!Settings.xhDot;
+    $('sInvert').checked = !!Settings.invertY; $('sGyro').checked = !!Settings.gyro; $('sGyroInv').checked = !!Settings.gyroInv;
+    this.buildBindGrid(); this.refreshPreview();
+  }
+  buildBindGrid() {
+    const g = this.$('bindGrid'); g.innerHTML = '';
+    const add = (label, text, act) => {
+      const row = document.createElement('div'); row.className = 'bind-row';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'key-btn' + (act ? '' : ' fixed'); b.textContent = text;
+      const sp = document.createElement('span'); sp.textContent = label;
+      row.appendChild(b); row.appendChild(sp); g.appendChild(row);
+      if (act) b.addEventListener('click', () => {
+        b.textContent = '...'; b.classList.add('wait');
+        const onKey = e => {
+          e.preventDefault(); e.stopPropagation();
+          if (e.code !== 'Escape') Binds.set(act, e.code);
+          window.removeEventListener('keydown', onKey, true); this.buildBindGrid();
+        };
+        window.addEventListener('keydown', onKey, true);
+      });
+    };
+    BIND_DEFS.forEach(([a, label]) => add(label, keyLabel(Binds.map[a]), a));
+    add('Fire', 'MOUSE 0', null); add('Aim / Scope', 'MOUSE 1', null); add('Menu', 'ESC', null);
+  }
+  startPlay(mode, name) {
+    if (isMobileMode() && Settings.gyro) Gyro.enable();
+    this.g.startRoom(mode === 'bots' ? 'BOTLAR' : 'PUBLIC', name, isMobileMode(), mode === 'bots');
+  }
+  initMenu(bind) {
+    const $ = this.$;
+    this.view = 'home';
+    prepareLogo(); Device.apply();
+    const gate = $('deviceGate');
+    const setDevice = m => {
+      Device.mode = m; try { localStorage.setItem('ps_device', m); } catch (e) {}
+      Device.apply(); gate.style.display = 'none'; if (m !== 'mobile') Gyro.disable();
+      if (window.updateCursorState) window.updateCursorState();
+    };
+    gate.querySelectorAll('[data-dev]').forEach(b => b.addEventListener('click', () => setDevice(b.dataset.dev)));
+    gate.style.display = Device.mode ? 'none' : 'flex';
+    $('btnDevice').addEventListener('click', () => { gate.style.display = 'flex'; });
+    document.querySelectorAll('#menuSide .m-tab').forEach(b => b.addEventListener('click', () => this.setView(b.dataset.view)));
+    $('play').addEventListener('click', () => { this.startPlay($('gameMode').value, ($('pName').value || 'Player').trim()); });
+    $('btnFriends').addEventListener('click', () => this.openModal('friendsModal'));
+    document.querySelectorAll('.m-close').forEach(b => b.addEventListener('click', () => { const e = $(b.dataset.close); if (e) e.style.display = 'none'; }));
+    $('btnSettings').addEventListener('click', () => {
+      this.syncSettingsUI(); this.openModal('settingsModal');
+      this.setSettingsTab(isMobileMode() ? 'sp-mobile' : 'sp-controls'); this.refreshPreview();
+    });
+    $('btnSettingsConfirm').addEventListener('click', () => { $('settingsModal').style.display = 'none'; });
+    document.querySelectorAll('#settingsModal .s-tab').forEach(t => t.addEventListener('click', () => { this.setSettingsTab(t.dataset.stab); this.refreshPreview(); }));
+    $('btnSettingsReset').addEventListener('click', () => {
+      Object.assign(Settings, SETTINGS_DEFAULTS); saveSettings(); Binds.reset();
+      this.g.engine.camera.fov = Settings.fov; this.g.engine.camera.updateProjectionMatrix();
+      if (this.g.sound.master) this.g.sound.master.gain.value = Settings.vol;
+      this.syncSettingsUI();
+    });
+    bind('sTouchSens', 'oTouchSens', 'touchSens', v => v.toFixed(2));
+    bind('sGyroSens', 'oGyroSens', 'gyroSens', v => v.toFixed(2));
+    bind('sVol', 'oVol', 'vol', v => Math.round(v * 100) + '%', () => { if (this.g.sound.master) this.g.sound.master.gain.value = Settings.vol; });
+    $('sInvert').addEventListener('change', e => { Settings.invertY = e.target.checked; saveSettings(); });
+    $('sGyroInv').addEventListener('change', e => { Settings.gyroInv = e.target.checked; saveSettings(); });
+    $('sGyro').addEventListener('change', async e => {
+      if (e.target.checked) {
+        const ok = await Gyro.enable();
+        if (!ok) { e.target.checked = false; Settings.gyro = false; alert('Jiroskop desteklenmiyor veya izin verilmedi.'); }
+        else Settings.gyro = true;
+      } else { Settings.gyro = false; Gyro.disable(); }
+      saveSettings();
+    });
+    $('btnProfileReset').addEventListener('click', () => { if (confirm('Tüm istatistikler sıfırlansın mı?')) { Profile.reset(); this.renderProfile(); } });
+    $('lockPrompt').addEventListener('mousedown', e => { e.preventDefault(); this.g.input.promptClick(); });
+    this.buildBindGrid(); this.renderProfile();
   }
   refreshPreview() { layoutCrosshair(this.$('pxh'), Settings.xhGap, Settings.xhSize, Settings.xhThick, Settings.xhColor, Settings.xhDot); }
   refreshWeaponList() {
@@ -2566,6 +3020,7 @@ class UIManager {
     if (tc) tc.style.display = (isPlaying && document.body.classList.contains('is-touch')) ? 'block' : 'none';
     if (show) {
       this.g.input.unlock();
+      this.closeModals(); this.renderProfile();
       this.showMatchEndModal(false);
       const isPaused = this.g.started && !this.g.matchEnded;
       const actBar = this.$('activeMatchBar');
@@ -2677,7 +3132,7 @@ class UIManager {
     const g = this.g, p = g.player, ws = g.weapons, w = WEAPONS[p.cur], st = p.ws[p.cur], $ = this.$;
     $('hp').textContent = Math.max(0, Math.ceil(p.hp)); $('hp').style.color = p.hp < 30 ? '#ff5050' : '#fff'; $('ar').textContent = Math.ceil(p.armor);
     $('wname').textContent = w.name + (ws.reloadT > 0 ? '  \u00B7 RELOADING' : '');
-    $('ammo').innerHTML = `${st.ammo} <span>/ ${st.reserve}</span>`;
+    $('ammo').innerHTML = w.melee ? '\u2014 <span>MELEE</span>' : `${st.ammo} <span>/ ${st.reserve}</span>`;
     const scoped = ws.scope > 0; $('scope').style.display = scoped && w.scope ? 'block' : 'none'; $('optic').style.display = scoped && !w.scope ? 'block' : 'none'; $('xh').style.display = scoped ? 'none' : 'block';
     if (!scoped) { const px = ws.spread() * (innerHeight / g.engine.camera.fov); layoutCrosshair($('xh'), Settings.xhGap + px, Settings.xhSize, Settings.xhThick, Settings.xhColor, Settings.xhDot); }
     if (this.hitT > 0) { this.hitT -= dt; if (this.hitT <= 0) $('hitmarker').style.opacity = 0; }
@@ -2717,6 +3172,8 @@ class Game {
     const names = ['Viper', 'Ghost', 'Nova', 'Rook', 'Blaze', 'Echo'], cols = [0xb03a3a, 0x3a6ab0, 0x3ab06a, 0xb0803a, 0x8a3ab0, 0x3ab0a8];
     for (let i = 0; i < 6; i++) { const b = new Bot(names[i], cols[i], this, i % 2 ? 'CT' : 'T'); this.bots.push(b); b.model.root.visible = false; b.alive = false; }
     this.ui.showMenu(true);
+    try { this.menuChar = new MenuCharacter(document.getElementById('menuChar')); } catch (e) { this.menuChar = null; }
+    this._pk = this._pd = this._ph = 0;
     this.loop = this.loop.bind(this); requestAnimationFrame(this.loop);
   }
   startRoom(roomCode, playerName, fullscreen = false, isOffline = false) {
@@ -2729,8 +3186,7 @@ class Game {
     this.time = 0;
     this.matchTime = this.matchDuration;
 
-    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
-    if (isTouch) document.body.classList.add('is-touch');
+    const isTouch = isMobileMode();
     const tc = document.getElementById('touchControls');
     if (tc) tc.style.display = isTouch ? 'block' : 'none';
 
@@ -2874,6 +3330,27 @@ class Game {
       this.damage(hitA, actor, dmg, head, w, hitBox.name);
     } else this.fx.burst(end, 7, hitT >= 299 ? 0x000000 : 0xffcc66, 4);
   }
+  melee(actor, origin, yaw, pitch, w) {
+    const fwd = dirFromAngles(yaw, pitch, V3(0, 0, 0)), wallT = castWorld(origin, fwd, w.range);
+    let hitT = w.range, hitA = null, hitBox = null;
+    for (const off of [0, -0.14, 0.14]) {
+      const dir = dirFromAngles(yaw + off, pitch, V3(0, 0, 0));
+      for (const a of this.actors) {
+        if (a === actor || !a.alive) continue;
+        a.refreshHB();
+        for (const hb of a.hb) { const t = rayBox(origin, dir, hb.min, hb.max, Math.min(hitT, wallT)); if (t >= 0 && t < hitT) { hitT = t; hitA = a; hitBox = hb; } }
+      }
+    }
+    actor.lastFire = this.time;
+    if (actor.isPlayer && this.network) this.network.sendShoot(origin, fwd, w.id, origin);
+    this.sound.gun('knife', 1, 0);
+    if (hitA) {
+      const back = Math.abs(wrapAngle(actor.yaw - hitA.yaw)) < 1.05;
+      if (back && actor.isPlayer) this.ui.message('BACKSTAB!', 0.8);
+      this.fx.burst(origin.clone().addScaledVector(fwd, hitT), 8, 0xd02020, 3);
+      this.damage(hitA, actor, back ? w.stab : w.dmg, false, w, hitBox.name);
+    }
+  }
   damage(v, attacker, amount, head, w, part) {
     if (!v.alive || v.invuln > 0) return;
     if (v.isRemote) {
@@ -2905,6 +3382,8 @@ class Game {
     const zoom = this.engine.camera.fov / Settings.fov;
     p.yaw -= inp.dx * Settings.sens * 0.022 * DEG * zoom; p.pitch = clamp(p.pitch - inp.dy * Settings.sens * 0.022 * DEG * zoom, -89 * DEG, 89 * DEG);
     this.lookDX = inp.dx; inp.dx = 0; inp.dy = 0;
+    if (Gyro.on && (Gyro.yaw || Gyro.pitch)) { p.yaw += Gyro.yaw * zoom; p.pitch = clamp(p.pitch + Gyro.pitch * zoom, -89 * DEG, 89 * DEG); }
+    Gyro.yaw = Gyro.pitch = 0;
     if (!p.alive) { p.vel.x *= 0.9; p.vel.z *= 0.9; SourceMove.step(p, 0, 0, 0, false, dt); moveBody(p, dt); p.refreshHB(); return; }
     p.invuln = Math.max(0, p.invuln - dt); p.tagT = Math.max(0, p.tagT - dt);
     const crouch = !!(k.ControlLeft || k.ControlRight || k.KeyC || inp.touchCrouch), walk = !!(k.ShiftLeft || k.ShiftRight);
@@ -2938,6 +3417,7 @@ class Game {
     const rows = [...this.actors].sort((a, b) => b.kills - a.kills || a.deaths - b.deaths);
     const isWin = rows[0] && rows[0].isPlayer;
     this.sound.matchEnd(isWin);
+    Profile.matches++; if (isWin && this.actors.length > 1 && rows[0].kills > 0) Profile.wins++; Profile.save();
     this.ui.showMatchEndModal(true);
   }
   restartMatch() {
@@ -2980,6 +3460,11 @@ class Game {
       this.onMatchEnd();
       return;
     }
+    const pl = this.player;
+    if (pl.kills > this._pk) { Profile.kills += pl.kills - this._pk; Profile.dirty = true; } this._pk = pl.kills;
+    if (pl.deaths > this._pd) { Profile.deaths += pl.deaths - this._pd; Profile.dirty = true; } this._pd = pl.deaths;
+    if ((pl.headshots || 0) > this._ph) { Profile.headshots += pl.headshots - this._ph; Profile.dirty = true; } this._ph = pl.headshots || 0;
+    if (Profile.dirty) Profile.save();
     this.updatePlayer(dt);
     if (this.isOnline && this.network) this.network.update(dt);
     this.weapons.update(dt);
@@ -3008,7 +3493,8 @@ class Game {
       this.updateCamera(dt); this.ui.update(dt);
     } else this.acc = 0;
     const showVM = this.started && this.player.alive && this.weapons.scope === 0 && !this.matchEnded;
-    eng.render(showVM && this.input.locked);
+    if (this.ui.menuOpen) { if (this.menuChar && this.ui.view === 'home') this.menuChar.render(performance.now() / 1000); }
+    else eng.render(showVM && this.input.locked);
   }
 }
 
@@ -3017,17 +3503,14 @@ class Game {
    ===================================================================== */
 const csCur = document.getElementById('csCursor');
 window.updateCursorState = function() {
-  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+  const isTouch = isMobileMode();
   const isPlaying = window.game && window.game.started && window.game.input && window.game.input.locked && !window.game.ui.menuOpen && !window.game.matchEnded;
   if (csCur) csCur.style.display = (isPlaying || isTouch) ? 'none' : 'block';
   document.body.style.cursor = isPlaying ? 'none' : 'default';
 };
-window.addEventListener('touchstart', () => {
-  document.body.classList.add('is-touch');
-  if (window.updateCursorState) window.updateCursorState();
-}, { once: true, passive: true });
+
 window.addEventListener('mousemove', e => {
-  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+  const isTouch = isMobileMode();
   if (isTouch) return;
   if (csCur) {
     csCur.style.transform = 'translate3d(' + e.clientX + 'px, ' + e.clientY + 'px, 0)';
