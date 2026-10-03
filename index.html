@@ -1273,6 +1273,16 @@ class SoundEngine {
     this.noise(d, t + 0.14, 0.22, 'highpass', 2400, 0.9, 0.45, 1400);
     this.tone(d, 'triangle', 880, 440, t + 0.28, 0.08, 0.15);
   }
+  knifeWhoosh(f = 1300) {
+    if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.42, 0);
+    this.noise(d, t, 0.18, 'bandpass', f, 1.1, 0.45, f * 2.2);
+    this.tone(d, 'sine', 520, 200, t, 0.14, 0.14);
+  }
+  knifeCatch() {
+    if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.52, 0);
+    this.tone(d, 'triangle', 960, 480, t, 0.08, 0.25);
+    this.noise(d, t, 0.035, 'highpass', 3000, 1.3, 0.5);
+  }
   empty() { if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.4, 0); this.noise(d, t, 0.025, 'highpass', 3000, 1, 0.8); this.tone(d, 'square', 800, 400, t, 0.03, 0.3); }
   reload(len) {
     if (!this.ctx) return; const t = this.ctx.currentTime, d = this.dest(0.5, 0);
@@ -1305,7 +1315,7 @@ function cyl(r, len, color, x, y, z, parent) {
 }
 function buildGun(id, noArms) {
   const g = new THREE.Group(), dark = 0x25272b, steel = 0x6b7078, wood = 0x7a4a24, skin = 0xd9a37a, sleeve = 0x3b4a3a, black = 0x17181a, green = 0x3f5a3a;
-  let muzzle, spinPivot = null;
+  let muzzle, spinPivot = null, leftArm = null, rightArm = null;
   if (id === 'ak') {
     bx(0.055, 0.085, 0.40, dark, 0, 0, -0.05, g); bx(0.06, 0.06, 0.26, wood, 0, -0.005, -0.38, g);
     cyl(0.014, 0.30, steel, 0, 0.02, -0.55, g); cyl(0.012, 0.22, steel, 0, 0.055, -0.44, g);
@@ -1320,52 +1330,122 @@ function buildGun(id, noArms) {
     muzzle = V3(0, 0.01, -0.77);
   } else if (id === 'knife') {
     spinPivot = new THREE.Group();
-    spinPivot.position.set(0, -0.012, 0.135);
-    g.add(spinPivot);
-
     // Index finger safety ring centered at local (0, 0, 0) of spinPivot
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.0075, 8, 20), mat(steel));
+    // CS2 Case Hardened Blue Gem ring & hawkbill blade
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.0075, 10, 24), mat(0x1976d2));
     ring.rotation.y = Math.PI / 2;
     spinPivot.add(ring);
-    const ringLiner = new THREE.Mesh(new THREE.TorusGeometry(0.024, 0.003, 6, 16), mat(0xf2992e));
+    const ringLiner = new THREE.Mesh(new THREE.TorusGeometry(0.024, 0.0035, 8, 20), mat(0x42a5f5));
     ringLiner.rotation.y = Math.PI / 2;
     spinPivot.add(ringLiner);
+    // Outer pointed retention spur / tooth
+    bx(0.012, 0.016, 0.014, 0x1976d2, 0, 0.038, 0, spinPivot);
 
-    // Pommel ring junction
-    bx(0.032, 0.038, 0.03, dark, 0, 0.004, -0.03, spinPivot);
+    // Pommel junction to handle
+    bx(0.030, 0.038, 0.03, dark, 0, 0.004, -0.03, spinPivot);
 
     // Ergonomic handle shank with finger grooves & textured tactical scales
-    bx(0.034, 0.046, 0.14, dark, 0, 0.012, -0.11, spinPivot);
-    bx(0.036, 0.012, 0.03, black, 0, -0.016, -0.06, spinPivot);
-    bx(0.036, 0.014, 0.03, black, 0, -0.018, -0.10, spinPivot);
-    bx(0.036, 0.012, 0.03, black, 0, -0.016, -0.14, spinPivot);
-    bx(0.038, 0.036, 0.12, 0x1b1c20, 0, 0.012, -0.11, spinPivot);
-    cyl(0.006, 0.04, 0xf2992e, 0, 0.012, -0.08, spinPivot);
-    cyl(0.006, 0.04, 0xf2992e, 0, 0.012, -0.13, spinPivot);
+    bx(0.032, 0.046, 0.14, 0x1b1c20, 0, 0.008, -0.11, spinPivot);
+    bx(0.034, 0.038, 0.12, 0x23252a, 0, 0.008, -0.11, spinPivot);
+    // Finger grip notches
+    bx(0.036, 0.012, 0.03, 0x121316, 0, -0.018, -0.06, spinPivot);
+    bx(0.036, 0.014, 0.03, 0x121316, 0, -0.020, -0.10, spinPivot);
+    bx(0.036, 0.012, 0.03, 0x121316, 0, -0.018, -0.14, spinPivot);
+    // Brass / gold hardware screws
+    cyl(0.005, 0.038, 0xd4af37, 0, 0.008, -0.08, spinPivot);
+    cyl(0.005, 0.038, 0xd4af37, 0, 0.008, -0.13, spinPivot);
 
     // Bolster / guard
-    bx(0.036, 0.042, 0.035, 0xf2992e, 0, 0.018, -0.19, spinPivot);
-    bx(0.024, 0.014, 0.03, steel, 0, 0.042, -0.18, spinPivot);
+    bx(0.034, 0.042, 0.032, 0x3d4e68, 0, 0.012, -0.185, spinPivot);
+    bx(0.036, 0.014, 0.024, 0xb8860b, 0, 0.034, -0.18, spinPivot);
 
-    // Classic CS Hawkbill / Talon Curved Blade (segmented curved claw)
-    let by = 0.018, bz = -0.205, ba = 0.1;
-    for (let i = 0; i < 7; i++) {
-      const len = 0.052, h = 0.038 - i * 0.0046;
-      const dy = -Math.sin(ba) * len, dz = -Math.cos(ba) * len;
-      const seg = bx(0.008, h, len + 0.008, 0xdde4ed, 0, by + dy / 2, bz + dz / 2, spinPivot);
-      seg.rotation.x = -ba;
-      const edge = bx(0.004, h * 0.5, len + 0.008, 0xf4f7fa, 0, by + dy / 2 - h * 0.28, bz + dz / 2, spinPivot);
-      edge.rotation.x = -ba;
-      by += dy; bz += dz; ba += 0.28;
+    // Classic CS Hawkbill / Talon Curved Blade (Case Hardened Blue Gem)
+    // Curving UPWARDS (+y) and FORWARD (-z)
+    let by = 0.014, bz = -0.20, ba = 0.08;
+    for (let i = 0; i < 8; i++) {
+      const len = 0.046, h = 0.038 - i * 0.0040;
+      const dy = Math.sin(ba) * len, dz = -Math.cos(ba) * len;
+      // Color transition from case-hardened steel to radiant blue gem
+      let col = 0x1e88e5;
+      if (i === 0) col = 0x39485d;
+      else if (i === 1) col = 0x245582;
+      else if (i >= 5) col = (i === 7) ? 0x80d8ff : 0x29b6f6;
+
+      const seg = bx(0.008, h, len + 0.008, col, 0, by + dy / 2, bz + dz / 2, spinPivot);
+      seg.rotation.x = ba;
+      // Sharp inner cutting edge (cyan-silver highlight)
+      const edge = bx(0.004, h * 0.45, len + 0.008, (i >= 4) ? 0xe0f7fa : 0x4fc3f7, 0, by + dy / 2 - h * 0.26, bz + dz / 2, spinPivot);
+      edge.rotation.x = ba;
+      by += dy; bz += dz; ba += 0.26;
     }
 
-    if (!noArms) {
-      // Reverse grip holding: palm curled on handle, index finger through the ring
-      bx(0.078, 0.082, 0.12, skin, 0, -0.015, 0.08, g);
-      bx(0.035, 0.03, 0.06, skin, -0.035, 0.015, 0.07, g);
-      bx(0.024, 0.024, 0.05, skin, 0, -0.012, 0.135, g);
-      bx(0.088, 0.088, 0.45, sleeve, 0.04, -0.09, 0.36, g, -0.25);
-      bx(0.092, 0.092, 0.06, 0x1f2228, 0.03, -0.06, 0.16, g, -0.22);
+    leftArm = null; rightArm = null;
+    if (noArms) {
+      // Third-person bot / menu character: only the knife attached to bot hand
+      spinPivot.position.set(0, 0, 0);
+      g.add(spinPivot);
+    } else {
+      // First-person viewmodel: DUAL ARMS with Crimson Kimono tactical gloves matching reference
+      const gDark = 0x18191c, gRed = 0xad1b1f, gPlate = 0x26282e, tSkin = 0xb88358, tWrap = 0x1b1c20;
+
+      // RIGHT ARM (holding Karambit in reverse grip)
+      rightArm = new THREE.Group();
+      // Forearm & wrist wrap
+      bx(0.080, 0.080, 0.38, tSkin, 0.065, -0.095, 0.22, rightArm, -0.25);
+      bx(0.084, 0.084, 0.05, tWrap, 0.045, -0.025, 0.02, rightArm, -0.18);
+      // Glove palm / back of hand
+      bx(0.078, 0.076, 0.12, gDark, 0.045, -0.008, -0.09, rightArm);
+      // Red chevron top panel
+      bx(0.072, 0.015, 0.09, gRed, 0.045, 0.032, -0.09, rightArm);
+      // Knuckle armor plate with red accent
+      bx(0.080, 0.020, 0.026, gPlate, 0.045, 0.034, -0.14, rightArm);
+      bx(0.076, 0.010, 0.010, gRed, 0.045, 0.040, -0.14, rightArm);
+      // Curled fingers holding handle
+      bx(0.024, 0.072, 0.035, gDark, 0.015, -0.012, -0.06, rightArm); // middle finger
+      bx(0.024, 0.072, 0.035, gDark, 0.015, -0.012, -0.10, rightArm); // ring finger
+      bx(0.024, 0.068, 0.032, gDark, 0.015, -0.012, -0.14, rightArm); // pinky
+      // Index finger passing through safety ring (at 0, 0, 0)
+      bx(0.024, 0.024, 0.050, gDark, 0.015, -0.005, 0.02, rightArm);
+      bx(0.020, 0.020, 0.035, gRed, 0.0, -0.005, 0.01, rightArm);
+      // Thumb resting along handle spine
+      bx(0.026, 0.026, 0.06, gRed, 0.065, 0.025, -0.06, rightArm, 0.15);
+      bx(0.024, 0.024, 0.04, gDark, 0.050, 0.030, -0.10, rightArm, 0.35);
+
+      // Attach spinPivot to rightArm right at the index finger!
+      spinPivot.position.set(0, 0, 0);
+      rightArm.add(spinPivot);
+      rightArm.position.set(0.18, -0.04, 0.05);
+      rightArm.rotation.set(0.12, -0.22, 0.16);
+      g.add(rightArm);
+
+      // LEFT ARM (Tactical ready stance as in reference screenshot)
+      leftArm = new THREE.Group();
+      // Forearm & wrist wrap
+      bx(0.080, 0.080, 0.38, tSkin, -0.065, -0.095, 0.22, leftArm, -0.22);
+      bx(0.084, 0.084, 0.05, tWrap, -0.045, -0.025, 0.02, leftArm, -0.15);
+      // Glove palm / back of hand
+      bx(0.076, 0.072, 0.11, gDark, -0.035, -0.005, -0.06, leftArm);
+      // Red chevron top panel
+      bx(0.070, 0.014, 0.08, gRed, -0.035, 0.032, -0.06, leftArm);
+      // Knuckle plate with red trim
+      bx(0.078, 0.020, 0.025, gPlate, -0.035, 0.034, -0.11, leftArm);
+      bx(0.074, 0.010, 0.010, gRed, -0.035, 0.040, -0.11, leftArm);
+      // Curled relaxed fingers in tactical ready pose
+      bx(0.018, 0.020, 0.042, gDark, -0.062, 0.015, -0.14, leftArm, 0.35);
+      bx(0.017, 0.018, 0.035, gDark, -0.062, -0.005, -0.165, leftArm, 0.85);
+      bx(0.018, 0.020, 0.045, gDark, -0.044, 0.015, -0.145, leftArm, 0.35);
+      bx(0.017, 0.018, 0.038, gDark, -0.044, -0.005, -0.170, leftArm, 0.85);
+      bx(0.018, 0.020, 0.042, gDark, -0.026, 0.015, -0.14, leftArm, 0.35);
+      bx(0.017, 0.018, 0.035, gDark, -0.026, -0.005, -0.165, leftArm, 0.85);
+      bx(0.016, 0.018, 0.036, gDark, -0.008, 0.012, -0.135, leftArm, 0.35);
+      bx(0.015, 0.016, 0.030, gDark, -0.008, -0.005, -0.155, leftArm, 0.85);
+      // Thumb
+      bx(0.022, 0.022, 0.045, gRed, -0.010, 0.005, -0.06, leftArm, -0.2);
+      bx(0.020, 0.020, 0.040, gDark, 0.002, 0.000, -0.09, leftArm, 0.4);
+
+      leftArm.position.set(-0.18, -0.06, 0.05);
+      leftArm.rotation.set(0.24, 0.38, -0.32);
+      g.add(leftArm);
     }
     muzzle = V3(0, -0.16, -0.42);
   } else {
@@ -1386,7 +1466,7 @@ function buildGun(id, noArms) {
   const p1 = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.22), fm), p2 = p1.clone(); p2.rotation.z = Math.PI / 4;
   const p3 = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), fm); p3.rotation.y = Math.PI / 2; p3.position.z = 0.04;
   mf.add(p1, p2, p3); g.add(mf);
-  g.userData = { muzzle, flash:mf, spinPivot };
+  g.userData = { muzzle, flash:mf, spinPivot, leftArm, rightArm };
   return g;
 }
 function buildBotModel(color, kind) {
@@ -2271,7 +2351,7 @@ class WeaponSystem {
     this.punch = { p:0, y:0 }; this.target = { p:0, y:0 }; this.scope = 0; this.flashT = 0;
     this.kick = 0; this.bobT = 0; this.swayX = 0; this.swayY = 0;
     this.base = V3(0.2, -0.2, -0.38); this.swingT = 0; this.swingAlt = 0;
-    this.inspectActive = false; this.inspectT = 0;
+    this.inspectActive = false; this.inspectT = 0; this.catchPlayed = false; this.spinSoundStep = -1;
     this.guns[0].visible = true;
   }
   setWeapon(i) {
@@ -2285,8 +2365,10 @@ class WeaponSystem {
     if (!p.alive || this.reloadT > 0 || this.drawT > 0) return;
     this.inspectActive = true;
     this.inspectT = 0;
+    this.catchPlayed = false;
+    this.spinSoundStep = -1;
     if (w.id === 'knife') {
-      this.g.sound.knifeSpin();
+      this.g.sound.knifeWhoosh(1200);
     } else {
       this.g.sound.click();
     }
@@ -2294,9 +2376,21 @@ class WeaponSystem {
   cancelInspect() {
     this.inspectActive = false;
     this.inspectT = 0;
+    this.catchPlayed = false;
+    this.spinSoundStep = -1;
     for (const gun of this.guns) {
-      if (gun.userData && gun.userData.spinPivot) {
-        gun.userData.spinPivot.rotation.x = 0;
+      if (gun.userData) {
+        if (gun.userData.spinPivot) {
+          gun.userData.spinPivot.rotation.set(0, 0, 0);
+        }
+        if (gun.userData.leftArm) {
+          gun.userData.leftArm.position.set(-0.18, -0.06, 0.05);
+          gun.userData.leftArm.rotation.set(0.24, 0.38, -0.32);
+        }
+        if (gun.userData.rightArm) {
+          gun.userData.rightArm.position.set(0.18, -0.04, 0.05);
+          gun.userData.rightArm.rotation.set(0.12, -0.22, 0.16);
+        }
       }
     }
   }
@@ -2372,40 +2466,126 @@ class WeaponSystem {
     this.swayY += (clamp(inp.dy * 0.0006, -0.05, 0.05) - this.swayY) * Math.min(1, dt * 10);
 
     const isKnife = w.id === 'knife';
-    const curBase = isKnife ? V3(0.18, -0.16, -0.30) : this.base;
+    // CS2 Karambit posture: hands held forward into screen, dual-hands framing
+    const curBase = isKnife ? V3(0.0, -0.15, -0.38) : this.base;
     let ox = curBase.x + Math.sin(this.bobT) * 0.012 * bobK + this.swayX * 0.6;
     let oy = curBase.y + Math.abs(Math.cos(this.bobT)) * 0.012 * bobK + Math.sin(this.bobT * 0.35) * 0.002 + this.swayY * 0.6;
     let oz = curBase.z + this.kick * 0.07;
-    let rx = (isKnife ? 0.20 : 0) + this.kick * 0.09;
-    let ry = (isKnife ? 0.44 : 0) + this.swayX;
-    let rz = (isKnife ? -0.30 : 0);
+    let rx = (isKnife ? 0.04 : 0) + this.kick * 0.09;
+    let ry = (isKnife ? 0.0 : 0) + this.swayX;
+    let rz = 0;
 
     if (this.inspectActive) {
       this.inspectT += dt;
       if (isKnife) {
         const spinPivot = gun.userData && gun.userData.spinPivot;
-        const dur = 0.82;
-        if (this.inspectT < dur) {
-          const p = this.inspectT / dur;
-          let rot = 0;
-          if (p < 0.12) {
-            rot = (p / 0.12) * -0.22;
-          } else if (p < 0.74) {
-            const sp = (p - 0.12) / 0.62;
-            rot = -0.22 - sp * Math.PI * 2;
-          } else {
-            const ep = (p - 0.74) / 0.26;
-            rot = (-0.22 - Math.PI * 2) * (1 - ep);
-          }
-          if (spinPivot) spinPivot.rotation.x = rot;
+        const leftArm = gun.userData && gun.userData.leftArm;
+        const totalDur = 8.8; // Authentic ~8-10s Karambit inspection
 
-          const blend = Math.sin(p * Math.PI);
-          ox = lerp(ox, 0.14, blend * 0.65);
-          oy = lerp(oy, -0.13, blend * 0.65);
-          oz = lerp(oz, -0.27, blend * 0.65);
-          rx = lerp(rx, 0.08, blend * 0.75);
-          ry = lerp(ry, 0.22, blend * 0.75);
-          rz = lerp(rz, -0.12, blend * 0.75);
+        if (this.inspectT < totalDur) {
+          const t = this.inspectT;
+          if (t < 2.8) {
+            // PHASE 1: RAPID FINGER SPINS (0.0s - 2.8s) - 4 full 360° revolutions
+            const pSpin = t / 2.8;
+            const revs = 4.0;
+            const rot = -pSpin * Math.PI * 2 * revs;
+            if (spinPivot) spinPivot.rotation.x = rot;
+
+            const curStep = Math.floor(pSpin * revs);
+            if (curStep > this.spinSoundStep && curStep < revs) {
+              this.spinSoundStep = curStep;
+              this.g.sound.knifeWhoosh(1200 + curStep * 180);
+            }
+
+            const spinSway = Math.sin(pSpin * Math.PI * 2 * revs) * 0.008;
+            ox += spinSway * 0.4;
+            oy -= 0.02 * Math.sin(pSpin * Math.PI);
+            rx -= 0.06 * Math.sin(pSpin * Math.PI);
+
+            if (leftArm) {
+              leftArm.position.z = 0.05 + 0.03 * Math.sin(pSpin * Math.PI);
+            }
+          } else if (t < 3.8) {
+            // PHASE 2: CATCH & RISE TO EYE LEVEL (2.8s - 3.8s)
+            if (spinPivot) spinPivot.rotation.x = 0;
+            if (!this.catchPlayed) {
+              this.catchPlayed = true;
+              this.g.sound.knifeCatch();
+            }
+
+            const pCatch = (t - 2.8) / 1.0;
+            const k = pCatch * pCatch * (3 - 2 * pCatch);
+
+            ox = lerp(ox, -0.02, k * 0.85);
+            oy = lerp(oy, 0.04, k * 0.90);
+            oz = lerp(oz, -0.30, k * 0.85);
+            rx = lerp(rx, 0.22, k * 0.85);
+            ry = lerp(ry, 0.32, k * 0.85);
+            rz = lerp(rz, -0.18, k * 0.85);
+
+            if (leftArm) {
+              leftArm.position.y = lerp(-0.06, -0.10, k * 0.7);
+            }
+          } else if (t < 5.6) {
+            // PHASE 3: PLAYSIDE (FRONT) INSPECTION (3.8s - 5.6s)
+            if (spinPivot) spinPivot.rotation.x = 0;
+            const pFront = (t - 3.8) / 1.8;
+            const sway = Math.sin(pFront * Math.PI * 2) * 0.035;
+
+            ox = -0.02 + sway * 0.3;
+            oy = 0.04 + Math.sin(pFront * Math.PI) * 0.012;
+            oz = -0.30;
+            rx = 0.22 + sway * 0.8;
+            ry = 0.32 + sway * 0.6;
+            rz = -0.18 + sway * 0.4;
+
+            if (leftArm) {
+              leftArm.position.y = -0.10;
+            }
+          } else if (t < 7.4) {
+            // PHASE 4: WRIST FLIP & BACKSIDE INSPECTION (5.6s - 7.4s)
+            if (spinPivot) spinPivot.rotation.x = 0;
+            const pFlipTotal = (t - 5.6) / 1.8;
+            let flipK = 1.0;
+            if (pFlipTotal < 0.35) {
+              const pf = pFlipTotal / 0.35;
+              flipK = pf * pf * (3 - 2 * pf);
+            }
+            const swayBack = (pFlipTotal >= 0.35) ? Math.sin((pFlipTotal - 0.35) / 0.65 * Math.PI * 2) * 0.03 : 0;
+
+            ox = lerp(-0.02, 0.02, flipK) + swayBack * 0.2;
+            oy = lerp(0.04, 0.03, flipK) + Math.sin(pFlipTotal * Math.PI) * 0.01;
+            oz = -0.30;
+            rx = lerp(0.22, 0.08, flipK) + swayBack * 0.5;
+            ry = lerp(0.32, -0.42, flipK) + swayBack * 0.7;
+            rz = lerp(-0.18, 0.28, flipK) + swayBack * 0.4;
+
+            if (leftArm) {
+              leftArm.position.y = -0.10;
+            }
+          } else {
+            // PHASE 5: FLOURISH FLICK & RETURN (7.4s - 8.8s)
+            if (spinPivot) spinPivot.rotation.x = 0;
+            const pEnd = (t - 7.4) / 1.4;
+            if (pEnd < 0.25) {
+              const pf = pEnd / 0.25;
+              const flick = Math.sin(pf * Math.PI);
+              rz += flick * 0.35;
+              ry += flick * 0.45;
+            }
+            const kReturn = 1.0 - (pEnd * pEnd * (3 - 2 * pEnd));
+
+            ox = lerp(ox, curBase.x, 1 - kReturn);
+            oy = lerp(oy, curBase.y, 1 - kReturn);
+            oz = lerp(oz, curBase.z, 1 - kReturn);
+            rx = lerp(rx, 0.04, 1 - kReturn);
+            ry = lerp(ry, 0.0, 1 - kReturn);
+            rz = lerp(rz, 0.0, 1 - kReturn);
+
+            if (leftArm) {
+              leftArm.position.y = lerp(-0.06, -0.10, kReturn);
+            }
+          }
         } else {
           this.cancelInspect();
         }
