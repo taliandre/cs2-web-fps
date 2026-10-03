@@ -200,6 +200,18 @@ wss.on('connection', (ws) => {
           matchTime: currentRoom.matchTime
         });
       }
+      else if (msg.type === 'leave' && currentRoom && playerId) {
+        currentRoom.players.delete(playerId);
+        broadcastRoom(currentRoom, { type: 'player_left', id: playerId }, ws);
+        console.log(`[PLAYER LEFT] ${playerData ? playerData.name : playerId} left room ${currentRoom.code} (Remaining: ${currentRoom.players.size})`);
+        if (currentRoom.players.size === 0) {
+          clearInterval(currentRoom.timerInterval);
+          rooms.delete(currentRoom.code);
+          console.log(`[ROOM DELETED] ${currentRoom.code} is now empty.`);
+        }
+        currentRoom = null;
+        playerData = null;
+      }
     } catch (err) {
       console.error('[WS ERROR]', err);
     }

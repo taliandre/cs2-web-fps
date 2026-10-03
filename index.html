@@ -171,7 +171,11 @@
 
 <div id="hud">
   <div id="matchTimer"><small>TIME REMAINING</small><div class="t-val" id="timeStr">05:00</div></div>
-  <div id="hudRoomInfo" style="position:absolute;left:50%;top:64px;transform:translateX(-50%);font-size:10px;letter-spacing:2px;color:var(--cyan);font-weight:700;background:rgba(10,13,18,.75);padding:2px 10px;border-radius:4px;border:1px solid rgba(255,255,255,.08)">ODA: <span id="curRoomLbl">PUBLIC</span></div>
+  <div id="hudRoomInfo" style="position:absolute;left:50%;top:64px;transform:translateX(-50%);font-size:11px;letter-spacing:1px;color:var(--cyan);font-weight:800;background:rgba(10,13,18,.85);padding:4px 12px;border-radius:6px;border:1px solid rgba(63,208,255,.3);display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.5);z-index:90">
+    <span>ODA: <span id="curRoomLbl" style="color:var(--gold);font-weight:900">PUBLIC</span></span>
+    <button id="hudBtnCopy" type="button" title="Davet Linki Kopyala" style="background:rgba(63,208,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer">🔗 LİNK</button>
+    <button id="hudBtnLeave" type="button" title="Farklı Odaya Gir" style="background:rgba(255,80,80,.2);border:1px solid #ff5050;color:#ff8a8a;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer">🚪 ODADAN AYRIL</button>
+  </div>
   <div id="radarWrap"><canvas id="radar" width="176" height="176"></canvas></div>
   <div id="liveLeaderboard">
     <div class="lb-head"><span>MATCH RANKING</span><span id="lbLeaderKills">0 K</span></div>
@@ -203,26 +207,62 @@
     <h1>CS2 <span>LOW-POLY</span> FFA</h1>
     <div class="sub">DEATHMATCH &middot; MULTIPLAYER &amp; PRIVATE ROOMS</div>
 
-    <div class="card" style="margin-bottom:18px;border-left:4px solid var(--cyan);background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(63,208,255,.05))">
-      <h2>🌐 MULTIPLAYER &amp; ÖZEL ODA (ROOM CODE)</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px">
-        <div>
-          <label style="display:block;font-size:11px;color:#9aa4b2;letter-spacing:1px;font-weight:700;margin-bottom:5px">KULLANICI ADIN (NICKNAME)</label>
-          <input id="pName" type="text" maxlength="15" value="Player" placeholder="İsmin" style="width:100%;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;font-weight:700;font-size:14px;outline:none">
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:#9aa4b2;letter-spacing:1px;font-weight:700;margin-bottom:5px">ÖZEL ODA KODU (ROOM CODE)</label>
-          <input id="rCode" type="text" maxlength="14" placeholder="GENEL (Örn: KANKALAR)" style="width:100%;padding:10px 12px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:var(--gold);font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;outline:none">
-        </div>
+    <!-- AKTİF OYUN VARSA GÖRÜNEN DEVAM ET / FARKLI ODAYA GEÇ BARI -->
+    <div id="activeMatchBar" style="display:none;background:linear-gradient(90deg,rgba(63,208,255,.15),rgba(10,13,18,.9));border:1px solid var(--cyan);border-radius:10px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;color:#9aa4b2;letter-spacing:1px;font-weight:700">AKTİF OYUNUNUZ DEVAM EDİYOR</div>
+        <div style="font-size:16px;color:#fff;font-weight:800">ODA: <span id="activeRoomCodeText" style="color:var(--gold)">PUBLIC</span></div>
       </div>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <button id="btnCopyInvite" type="button" style="padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:1px;background:rgba(63,208,255,.12);border:1px solid var(--cyan);color:var(--cyan);border-radius:6px;cursor:pointer;transition:all .15s">🔗 ODA DAVET LİNKİNİ KOPYALA</button>
-        <span id="copyFeedback" style="font-size:11px;color:#3fd0ff;display:none;font-weight:700">✓ Link panoya kopyalandı!</span>
-        <div id="netStatus" style="font-size:12px;color:#9aa4b2;display:flex;align-items:center;gap:6px;margin-left:auto">
-          <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#f5c242;display:inline-block"></span>
-          <span id="netStatusText">Oda: GENEL (Bağlanmaya Hazır)</span>
-        </div>
+      <div style="display:flex;gap:10px">
+        <button id="btnResumeMatch" type="button" style="padding:10px 18px;background:var(--cyan);border:none;border-radius:6px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">▶ OYUNA DÖN (RESUME)</button>
+        <button id="btnLeaveRoom" type="button" style="padding:10px 18px;background:rgba(255,80,80,.2);border:1px solid #ff5050;border-radius:6px;color:#ff8a8a;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer">🚪 FARKLI BİR ODAYA GİR</button>
       </div>
+    </div>
+
+    <!-- OYUNCU ADI & BAĞLANTI DURUMU -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px">
+        <label for="pName" style="font-size:12px;color:var(--cyan);font-weight:800;letter-spacing:1px">OYUNCU ADINIZ:</label>
+        <input id="pName" type="text" maxlength="15" value="Player" placeholder="İsminiz" style="flex:1;padding:8px 12px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-weight:800;font-size:14px;outline:none">
+      </div>
+      <div id="netStatus" style="font-size:12px;color:#9aa4b2;display:flex;align-items:center;gap:6px;margin-left:auto">
+        <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#3fd0ff;display:inline-block"></span>
+        <span id="netStatusText">Lobiye Hazır</span>
+      </div>
+    </div>
+
+    <!-- ODA SEÇİM KARTLARI: ODA OLUŞTUR & KOD İLE KATIL -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <!-- 1. ODA OLUŞTUR KARTI -->
+      <div class="card" style="margin:0;border:1px solid rgba(245,194,66,.35);background:linear-gradient(135deg,rgba(245,194,66,.08),rgba(10,13,18,.9));display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">👑</span>
+          <h2 style="margin:0;color:var(--gold);font-size:14px;letter-spacing:1px">YENİ ODA OLUŞTUR</h2>
+        </div>
+        <div style="font-size:11px;color:#9aa4b2;line-height:1.4">Kendi özel odanı aç. Sen girdiğin anda <b>botlar olmadan</b> arkadaşların beklenir.</div>
+        <div style="display:flex;gap:6px">
+          <input id="createRoomCode" type="text" maxlength="12" placeholder="Oda Adı (Örn: PROS)" style="flex:1;padding:10px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(245,194,66,.4);border-radius:6px;color:var(--gold);font-weight:900;font-size:14px;text-transform:uppercase;outline:none">
+          <button id="btnRandomCode" type="button" title="Rastgele Kod Üret" style="padding:0 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;cursor:pointer;font-size:15px">🎲</button>
+        </div>
+        <button id="btnCreateRoom" type="button" style="padding:12px;background:linear-gradient(90deg,var(--gold),#e09e1a);border:none;border-radius:8px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px rgba(245,194,66,.25);transition:all .15s">🚀 ODA OLUŞTUR &amp; HEMEN GİR</button>
+      </div>
+
+      <!-- 2. KOD İLE KATIL KARTI -->
+      <div class="card" style="margin:0;border:1px solid rgba(63,208,255,.35);background:linear-gradient(135deg,rgba(63,208,255,.08),rgba(10,13,18,.9));display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">⚔️</span>
+          <h2 style="margin:0;color:var(--cyan);font-size:14px;letter-spacing:1px">KOD İLE ODAYA KATIL</h2>
+        </div>
+        <div style="font-size:11px;color:#9aa4b2;line-height:1.4">Arkadaşının sana verdiği oda kodunu yaz ve anında aynı maça katıl.</div>
+        <input id="joinRoomCode" type="text" maxlength="12" placeholder="Oda Kodunu Girin" style="padding:10px 12px;background:rgba(0,0,0,.6);border:1px solid rgba(63,208,255,.4);border-radius:6px;color:var(--cyan);font-weight:900;font-size:14px;text-transform:uppercase;outline:none">
+        <button id="btnJoinRoom" type="button" style="padding:12px;background:linear-gradient(90deg,var(--cyan),#22b4eb);border:none;border-radius:8px;color:#0b1118;font-weight:900;font-size:13px;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px rgba(63,208,255,.25);transition:all .15s">🔗 ODAYA KATIL</button>
+      </div>
+    </div>
+
+    <!-- HIZLI BUTONLAR (DAVET LİNKİ & ÇEVRİMDIŞI BOTLAR) -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <button id="btnCopyInvite" type="button" style="padding:8px 14px;font-size:11px;font-weight:800;letter-spacing:1px;background:rgba(63,208,255,.1);border:1px solid var(--cyan);color:var(--cyan);border-radius:6px;cursor:pointer">🔗 ODA DAVET LİNKİNİ KOPYALA</button>
+      <button id="btnPlaySolo" type="button" style="padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:1px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#d0d7de;border-radius:6px;cursor:pointer">🤖 ÇEVRİMDIŞI TEK BAŞINA OYNA (BOTLARLA)</button>
     </div>
 
     <div class="grid">
@@ -253,9 +293,8 @@
         <div id="err"></div>
       </div>
     </div>
-    <div style="display:flex;gap:12px;margin-top:20px">
-      <button id="play" style="margin-top:0;flex:2">PLAY FFA DEATHMATCH</button>
-      <button id="playFs" style="margin-top:0;flex:1.2;background:linear-gradient(90deg,var(--cyan),#8ae4ff);border:none;border-radius:10px;font-weight:800;font-size:16px;letter-spacing:2px;color:#0b1118;cursor:pointer;box-shadow:0 8px 24px rgba(63,208,255,.3);transition:transform .1s,filter .1s">FULLSCREEN (ÖNERİLEN)</button>
+    <div style="display:flex;gap:12px;margin-top:16px">
+      <button id="playFs" style="margin-top:0;width:100%;background:linear-gradient(90deg,var(--cyan),#8ae4ff);border:none;border-radius:10px;font-weight:800;font-size:14px;letter-spacing:2px;color:#0b1118;cursor:pointer;padding:12px;box-shadow:0 6px 20px rgba(63,208,255,.25)">⛶ TAM EKRAN MODUNU AÇ / KAPAT</button>
     </div>
   </div>
 </div>
@@ -274,9 +313,10 @@
       <thead><tr><th>RANK</th><th>PLAYER</th><th>KILLS</th><th>DEATHS</th><th>K/D</th><th>SCORE</th></tr></thead>
       <tbody id="endTbody"></tbody>
     </table>
-    <div class="btn-bar">
-      <button class="btn-primary" id="btnRestart">PLAY AGAIN</button>
-      <button class="btn-secondary" id="btnEndMenu">MAIN MENU</button>
+    <div class="btn-bar" style="display:flex;gap:12px">
+      <button class="btn-primary" id="btnRestart" style="flex:1">YENİDEN BAŞLAT</button>
+      <button class="btn-secondary" id="btnEndLeave" style="flex:1.2;background:rgba(255,80,80,.2);border:1px solid #ff5050;color:#ff8a8a;font-weight:800;border-radius:8px;cursor:pointer">🚪 FARKLI ODAYA GİR</button>
+      <button class="btn-secondary" id="btnEndMenu" style="flex:1">LOBİ / AYARLAR</button>
     </div>
   </div>
 </div>
@@ -904,6 +944,15 @@ class InputManager {
     document.body.style.cursor = 'default';
     if (window.updateCursorState) window.updateCursorState();
   }
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) req.call(el).catch(() => {});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    }
+  }
   endTick() { this.fireEdge = false; this.scopeEdge = false; }
 }
 
@@ -1259,11 +1308,14 @@ class NetworkManager {
       this.myId = msg.myId;
       this.g.player.name = this.playerName;
       if (msg.matchTime != null) this.g.matchTime = msg.matchTime;
+      // Online odalarda kesinlikle bot bulunmaz
+      for (const b of this.g.bots) {
+        b.model.root.visible = false;
+        b.alive = false;
+      }
+      this.g.actors = [this.g.player];
       for (const p of msg.players) {
         this.addRemotePlayer(p);
-      }
-      if (msg.players.length > 0) {
-        for (const b of this.g.bots) b.model.root.visible = false;
       }
     }
     else if (msg.type === 'player_joined') {
@@ -1437,6 +1489,21 @@ class NetworkManager {
     if (txtEl) txtEl.textContent = text;
     if (dotEl) dotEl.style.background = color || '#3fd0ff';
   }
+
+  disconnect() {
+    if (this.ws) {
+      try {
+        if (this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(JSON.stringify({ type: 'leave' }));
+        }
+        this.ws.close();
+      } catch (e) {}
+      this.ws = null;
+    }
+    this.connected = false;
+    this.myId = null;
+    this.updateStatus('Odadan Ayrıldın (Lobi)', '#9aa4b2');
+  }
 }
 
 /* =====================================================================
@@ -1466,7 +1533,14 @@ class UIManager {
     this.wl = $('wlist'); WEAPONS.forEach((w, i) => { const d = document.createElement('div'); d.textContent = (i + 1) + '  ' + w.name; this.wl.appendChild(d); }); this.refreshWeaponList();
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get('room');
-    if (roomParam && $('rCode')) { $('rCode').value = roomParam.trim().toUpperCase(); }
+    if (roomParam) {
+      if ($('joinRoomCode')) $('joinRoomCode').value = roomParam.trim().toUpperCase();
+      if ($('createRoomCode')) $('createRoomCode').value = roomParam.trim().toUpperCase();
+      if ($('btnJoinRoom')) {
+        $('btnJoinRoom').textContent = '🔗 ' + roomParam.trim().toUpperCase() + ' ODASINA KATIL';
+        $('btnJoinRoom').style.boxShadow = '0 0 16px rgba(63,208,255,.6)';
+      }
+    }
     const savedName = localStorage.getItem('cs2_pname');
     if (savedName && $('pName')) { $('pName').value = savedName; }
     if ($('pName')) {
@@ -1474,36 +1548,101 @@ class UIManager {
         localStorage.setItem('cs2_pname', e.target.value.trim());
       });
     }
-    if ($('rCode')) {
-      $('rCode').addEventListener('input', e => {
-        e.target.value = e.target.value.toUpperCase();
+    const forceUpper = id => {
+      const el = $(id);
+      if (el) el.addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
+    };
+    forceUpper('createRoomCode');
+    forceUpper('joinRoomCode');
+
+    // 1. ODA OLUŞTUR BUTONU
+    if ($('btnCreateRoom')) {
+      $('btnCreateRoom').addEventListener('click', () => {
+        let code = ($('createRoomCode').value || '').trim().toUpperCase();
+        if (!code) {
+          code = 'ROOM-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+          $('createRoomCode').value = code;
+        }
+        const name = ($('pName').value || 'Player').trim();
+        this.g.startRoom(code, name, false, false);
       });
     }
-    const btnCopy = $('btnCopyInvite');
-    if (btnCopy) {
-      btnCopy.addEventListener('click', () => {
-        const code = ($('rCode').value || 'PUBLIC').trim().toUpperCase();
-        const curUrl = new URL(window.location.href);
-        curUrl.searchParams.set('room', code);
-        navigator.clipboard.writeText(curUrl.href).then(() => {
-          const old = btnCopy.textContent;
-          btnCopy.textContent = '✅ LİNK KOPYALANDI!';
-          btnCopy.style.background = 'rgba(76, 209, 55, 0.2)';
-          btnCopy.style.borderColor = '#4cd137';
-          btnCopy.style.color = '#4cd137';
+
+    // 2. RASTGELE KOD BUTONU
+    if ($('btnRandomCode')) {
+      $('btnRandomCode').addEventListener('click', () => {
+        const words = ['PROS', 'DUST', 'MIRAGE', 'AWP', 'TURK', 'ALPHA', 'TEAM', 'CLAN'];
+        const w = words[Math.floor(Math.random() * words.length)];
+        const num = Math.floor(100 + Math.random() * 900);
+        $('createRoomCode').value = `${w}${num}`;
+      });
+    }
+
+    // 3. KOD İLE KATIL BUTONU
+    if ($('btnJoinRoom')) {
+      $('btnJoinRoom').addEventListener('click', () => {
+        const code = ($('joinRoomCode').value || '').trim().toUpperCase();
+        if (!code) {
+          alert('Lütfen katılmak istediğiniz oda kodunu yazın!');
+          if ($('joinRoomCode')) $('joinRoomCode').focus();
+          return;
+        }
+        const name = ($('pName').value || 'Player').trim();
+        this.g.startRoom(code, name, false, false);
+      });
+    }
+
+    // 4. ÇEVRİMDIŞI BOT MODU
+    if ($('btnPlaySolo')) {
+      $('btnPlaySolo').addEventListener('click', () => {
+        const name = ($('pName').value || 'Player').trim();
+        this.g.startRoom('BOTLAR', name, false, true);
+      });
+    }
+
+    // 5. OYUNA DÖN (RESUME)
+    if ($('btnResumeMatch')) {
+      $('btnResumeMatch').addEventListener('click', () => {
+        this.showMenu(false);
+        this.g.input.lock(false);
+      });
+    }
+
+    // 6. ODADAN AYRIL / FARKLI ODAYA GİR BUTONLARI
+    const handleLeave = () => this.g.leaveRoom();
+    if ($('btnLeaveRoom')) $('btnLeaveRoom').addEventListener('click', handleLeave);
+    if ($('hudBtnLeave')) $('hudBtnLeave').addEventListener('click', handleLeave);
+    if ($('btnEndLeave')) $('btnEndLeave').addEventListener('click', handleLeave);
+
+    // 7. DAVET LİNKİ KOPYALA
+    const handleCopy = (btnEl) => {
+      const code = this.g.roomCode || ($('createRoomCode') && $('createRoomCode').value) || 'PUBLIC';
+      const curUrl = new URL(window.location.href);
+      curUrl.searchParams.set('room', code);
+      navigator.clipboard.writeText(curUrl.href).then(() => {
+        const old = btnEl ? btnEl.textContent : '';
+        if (btnEl) {
+          btnEl.textContent = '✅ LİNK KOPYALANDI!';
+          btnEl.style.background = 'rgba(76, 209, 55, 0.2)';
+          btnEl.style.borderColor = '#4cd137';
+          btnEl.style.color = '#4cd137';
           setTimeout(() => {
-            btnCopy.textContent = old;
-            btnCopy.style.background = 'rgba(63,208,255,.12)';
-            btnCopy.style.borderColor = 'var(--cyan)';
-            btnCopy.style.color = 'var(--cyan)';
+            btnEl.textContent = old;
+            btnEl.style.background = '';
+            btnEl.style.borderColor = '';
+            btnEl.style.color = '';
           }, 2500);
-        }).catch(() => {
-          prompt('Oda Davet Linkini Kopyalayın:', curUrl.href);
-        });
+        }
+      }).catch(() => {
+        prompt('Oda Davet Linkini Kopyalayın:', curUrl.href);
       });
-    }
-    $('play').addEventListener('click', () => this.g.start(false));
-    const pfs = $('playFs'); if (pfs) pfs.addEventListener('click', () => this.g.start(true));
+    };
+    if ($('btnCopyInvite')) $('btnCopyInvite').addEventListener('click', () => handleCopy($('btnCopyInvite')));
+    if ($('hudBtnCopy')) $('hudBtnCopy').addEventListener('click', () => handleCopy($('hudBtnCopy')));
+
+    // 8. DİĞER BUTONLAR
+    const pfs = $('playFs');
+    if (pfs) pfs.addEventListener('click', () => this.g.input.toggleFullscreen());
     $('btnRestart').addEventListener('click', () => this.g.restartMatch());
     $('btnEndMenu').addEventListener('click', () => { this.showMatchEndModal(false); this.showMenu(true); });
   }
@@ -1516,8 +1655,14 @@ class UIManager {
     if (show) {
       this.g.input.unlock();
       this.showMatchEndModal(false);
+      const isPaused = this.g.started && !this.g.matchEnded;
+      const actBar = this.$('activeMatchBar');
+      if (actBar) {
+        actBar.style.display = isPaused ? 'flex' : 'none';
+        const txt = this.$('activeRoomCodeText');
+        if (txt) txt.textContent = this.g.roomCode || 'PUBLIC';
+      }
     }
-    this.$('play').textContent = (this.g.started && !this.g.matchEnded) ? 'RESUME' : 'PLAY FFA DEATHMATCH';
     if (window.updateCursorState) window.updateCursorState();
   }
   showMatchEndModal(show) {
@@ -1652,32 +1797,89 @@ class Game {
     this.ui = new UIManager(this); this.input = new InputManager(this); this.weapons = new WeaponSystem(this);
     this.time = 0; this.acc = 0; this.started = false; this.stepAcc = 0; this.deadRoll = 0;
     this.matchDuration = 300; this.matchTime = 300; this.matchEnded = false;
+    this.isOnline = true;
+    this.roomCode = 'PUBLIC';
     const names = ['Viper', 'Ghost', 'Nova', 'Rook', 'Blaze', 'Echo'], cols = [0xb03a3a, 0x3a6ab0, 0x3ab06a, 0xb0803a, 0x8a3ab0, 0x3ab0a8];
-    for (let i = 0; i < 6; i++) { const b = new Bot(names[i], cols[i], this, i % 2 ? 'CT' : 'T'); this.bots.push(b); this.actors.push(b); b.model.root.visible = false; }
+    for (let i = 0; i < 6; i++) { const b = new Bot(names[i], cols[i], this, i % 2 ? 'CT' : 'T'); this.bots.push(b); b.model.root.visible = false; b.alive = false; }
     this.ui.showMenu(true);
     this.loop = this.loop.bind(this); requestAnimationFrame(this.loop);
   }
-  start(fullscreen = false) {
+  startRoom(roomCode, playerName, fullscreen = false, isOffline = false) {
     this.sound.init();
-    if (this.matchEnded) {
-      this.restartMatch();
-      return;
+    this.roomCode = (roomCode || 'PUBLIC').trim().toUpperCase() || 'PUBLIC';
+    this.player.name = (playerName || 'Player').trim().slice(0, 15) || 'Player';
+    this.isOnline = !isOffline;
+    this.started = true;
+    this.matchEnded = false;
+    this.time = 0;
+    this.matchTime = this.matchDuration;
+
+    const curLbl = document.getElementById('curRoomLbl');
+    if (curLbl) curLbl.textContent = this.isOnline ? this.roomCode : 'BOTLAR';
+
+    if (this.isOnline) {
+      // ONLINE ODALARDA KESİNLİKLE BOT OLMAZ!
+      for (const b of this.bots) {
+        b.model.root.visible = false;
+        b.alive = false;
+      }
+      this.actors = [this.player];
+      this.network.connect(this.roomCode, this.player.name);
+      this.ui.message('ODA: ' + this.roomCode + ' (BOTSUZ)', 2.5);
+    } else {
+      // Çevrimdışı Pratik Modu (Botlar)
+      this.actors = [this.player, ...this.bots];
+      for (const b of this.bots) {
+        b.model.root.visible = true;
+        b.alive = true;
+      }
+      this.ui.message('ÇEVRİMDIŞI BOT MODU', 2);
     }
-    if (!this.started) {
-      this.started = true; this.time = 0; this.matchTime = this.matchDuration; this.matchEnded = false;
-      const pNameInput = document.getElementById('pName');
-      const rCodeInput = document.getElementById('rCode');
-      const pName = (pNameInput ? pNameInput.value : 'Player').trim() || 'Player';
-      const rCode = (rCodeInput ? rCodeInput.value : 'PUBLIC').trim().toUpperCase() || 'PUBLIC';
-      this.player.name = pName;
-      const curLbl = document.getElementById('curRoomLbl');
-      if (curLbl) curLbl.textContent = rCode;
-      this.network.connect(rCode, pName);
-      for (const a of this.actors) { a.kills = a.deaths = a.headshots = 0; this.respawn(a); a.invuln = 3; }
-      this.ui.refreshWeaponList();
-      this.ui.updateLiveLeaderboard();
+
+    for (const a of this.actors) {
+      a.kills = a.deaths = a.headshots = 0;
+      this.respawn(a);
+      a.invuln = 3;
     }
+    this.ui.refreshWeaponList();
+    this.ui.updateLiveLeaderboard();
     this.input.lock(fullscreen);
+  }
+  start(fullscreen = false) {
+    this.startRoom(this.roomCode || 'PUBLIC', this.player.name || 'Player', fullscreen, false);
+  }
+  leaveRoom() {
+    this.sound.init();
+    if (this.network) {
+      this.network.disconnect();
+    }
+    this.started = false;
+    this.matchEnded = false;
+    this.isOnline = false;
+
+    // Uzak oyuncuları temizle
+    if (this.network) {
+      for (const [id, rp] of this.network.remotePlayers) {
+        rp.destroy();
+      }
+      this.network.remotePlayers.clear();
+    }
+    // Botları gizle
+    for (const b of this.bots) {
+      b.model.root.visible = false;
+      b.alive = false;
+    }
+    this.actors = [this.player];
+    this.player.kills = this.player.deaths = this.player.headshots = 0;
+    this.respawn(this.player);
+
+    const curLbl = document.getElementById('curRoomLbl');
+    if (curLbl) curLbl.textContent = 'LOBİ';
+
+    this.ui.updateLiveLeaderboard();
+    this.ui.showMatchEndModal(false);
+    this.ui.showMenu(true);
+    this.input.unlock();
   }
   pickSpawn(actor) {
     let best = null, bd = -1;
@@ -1829,9 +2031,11 @@ class Game {
       return;
     }
     this.updatePlayer(dt);
-    if (this.network) this.network.update(dt);
+    if (this.isOnline && this.network) this.network.update(dt);
     this.weapons.update(dt);
-    for (const b of this.bots) b.update(dt);
+    if (!this.isOnline) {
+      for (const b of this.bots) b.update(dt);
+    }
     for (const a of this.actors) if (!a.alive) { a.respawnT -= dt; if (a.respawnT <= 0) this.respawn(a); }
     this.fx.update(dt);
     this.input.endTick();
