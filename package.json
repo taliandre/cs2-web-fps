@@ -1,0 +1,20 @@
+{
+  "name": "cs2-lowpoly-ffa-multiplayer",
+  "version": "1.0.0",
+  "description": "CS2 Low-Poly FFA Multiplayer FPS with Private Room Codes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["cs2", "threejs", "webgl", "fps", "multiplayer", "websocket"],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.16.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
