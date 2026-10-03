@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>CS2 Low-Poly FFA Deathmatch</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;user-select:none}
   html,body{width:100%;height:100%;overflow:hidden;background:#0b0d10;font-family:"Segoe UI","Roboto",Arial,sans-serif;color:#e8ecf1}
@@ -164,6 +164,46 @@
   .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
   .btn-secondary{padding:13px 22px;font-size:14px;font-weight:700;letter-spacing:2px;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;cursor:pointer;transition:background .2s}
   .btn-secondary:hover{background:rgba(255,255,255,.12)}
+  /* ---------- Touch & Mobile Responsive CSS ---------- */
+  #touchControls{position:fixed;inset:0;pointer-events:none;z-index:50;display:none;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  body.is-touch #touchControls{display:block}
+  #touchMoveZone{position:absolute;left:0;top:0;width:50vw;height:100vh;pointer-events:auto;touch-action:none}
+  #vJoyBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:2px solid rgba(245,194,66,.55);background:radial-gradient(circle,rgba(245,194,66,.18) 0%,rgba(10,13,18,.55) 75%);pointer-events:none;display:none;backdrop-filter:blur(3px);box-shadow:0 0 16px rgba(245,194,66,.3)}
+  #vJoyKnob{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d49a20);border:2px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.6);pointer-events:none}
+  #touchLookZone{position:absolute;right:0;top:0;width:50vw;height:100vh;pointer-events:auto;touch-action:none}
+  .t-btn{position:absolute;pointer-events:auto;touch-action:none;border:1px solid rgba(255,255,255,.25);border-radius:50%;color:#fff;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px);box-shadow:0 6px 16px rgba(0,0,0,.5);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .08s,filter .08s}
+  .t-btn:active{transform:scale(.92);filter:brightness(1.25)}
+  .t-btn small{font-size:8px;letter-spacing:1px;opacity:.9;font-weight:700}
+  #btnTFire{right:24px;bottom:72px;width:74px;height:74px;background:linear-gradient(135deg,rgba(255,75,75,.85),rgba(180,20,20,.9));border-color:#ff6b6b;font-size:24px;box-shadow:0 0 22px rgba(255,60,60,.55)}
+  #btnTJump{right:110px;bottom:118px;width:56px;height:56px;background:linear-gradient(135deg,rgba(63,208,255,.55),rgba(15,60,90,.75));border-color:var(--cyan);font-size:20px}
+  #btnTCrouch{right:116px;bottom:48px;width:50px;height:50px;background:rgba(25,32,42,.85);font-size:18px}
+  #btnTCrouch.active{background:var(--gold);color:#111;border-color:#fff;box-shadow:0 0 14px rgba(245,194,66,.6)}
+  #btnTScope{right:32px;bottom:160px;width:54px;height:54px;background:rgba(20,30,45,.85);border-color:var(--cyan);font-size:18px}
+  #btnTReload{right:174px;bottom:64px;width:48px;height:48px;background:rgba(35,40,50,.85);font-size:17px}
+  #touchWeaponBar{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;z-index:60}
+  .t-wep{padding:7px 14px;background:rgba(12,15,20,.85);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#9aa4b2;font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px)}
+  .t-wep.active{background:rgba(245,194,66,.25);border-color:var(--gold);color:#fff;box-shadow:0 0 12px rgba(245,194,66,.45)}
+  #btnTouchMenu{position:absolute;right:14px;top:14px;padding:6px 12px;background:rgba(10,13,18,.85);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:11px;font-weight:800;letter-spacing:1px;pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px);z-index:60}
+  @media(max-width:768px){
+    #panel{padding:18px 14px;width:96vw;max-height:94vh}
+    #panel h1{font-size:26px;letter-spacing:4px}
+    .grid{grid-template-columns:1fr;gap:12px}
+    .room-cards-grid{grid-template-columns:1fr!important;gap:10px}
+    #radarWrap{width:110px;height:110px;top:10px;left:10px}
+    #radar{width:110px;height:110px}
+    #liveLeaderboard{top:126px;left:10px;width:145px;font-size:9px}
+    #stats{left:10px;bottom:76px;gap:6px}
+    .stat{padding:4px 10px;min-width:68px}
+    .stat b{font-size:22px}
+    .stat small{font-size:8px}
+    #ammoBox{right:10px;top:10px;bottom:auto;padding:4px 10px}
+    #ammo{font-size:24px}
+    #ammo small{font-size:9px}
+    #wlist{display:none}
+    #killfeed{top:54px;right:10px;font-size:11px;max-width:55vw}
+    .kf{padding:3px 8px;font-size:11px}
+    #hudRoomInfo{top:50px;padding:3px 8px;font-size:10px}
+  }
 </style>
 </head>
 <body>
@@ -202,6 +242,27 @@
   <div id="fps"></div>
 </div>
 
+<!-- DOKUNMATİK MOBİL KONTROLLER (MOBILE TOUCH CONTROLS) -->
+<div id="touchControls">
+  <div id="touchMoveZone"></div>
+  <div id="vJoyBase"><div id="vJoyKnob"></div></div>
+  <div id="touchLookZone"></div>
+
+  <button id="btnTFire" class="t-btn" type="button" aria-label="Ateş Et">🔥<small>ATEŞ</small></button>
+  <button id="btnTJump" class="t-btn" type="button" aria-label="Zıpla">🦘<small>ZIPLA</small></button>
+  <button id="btnTCrouch" class="t-btn" type="button" aria-label="Eğil">⬇️<small>EĞİL</small></button>
+  <button id="btnTScope" class="t-btn" type="button" aria-label="Dürbün Aç">🎯<small>DÜRBÜN</small></button>
+  <button id="btnTReload" class="t-btn" type="button" aria-label="Mermi Doldur">🔄<small>DOLUM</small></button>
+
+  <div id="touchWeaponBar">
+    <button class="t-wep active" type="button" data-wep="0">1 AK-47</button>
+    <button class="t-wep" type="button" data-wep="1">2 M4A4</button>
+    <button class="t-wep" type="button" data-wep="2">3 AWP</button>
+  </div>
+
+  <button id="btnTouchMenu" type="button">⚙️ MENÜ</button>
+</div>
+
 <div id="menu">
   <div id="panel">
     <h1>CS2 <span>LOW-POLY</span> FFA</h1>
@@ -232,7 +293,7 @@
     </div>
 
     <!-- ODA SEÇİM KARTLARI: ODA OLUŞTUR & KOD İLE KATIL -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="room-cards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
       <!-- 1. ODA OLUŞTUR KARTI -->
       <div class="card" style="margin:0;border:1px solid rgba(245,194,66,.35);background:linear-gradient(135deg,rgba(245,194,66,.08),rgba(10,13,18,.9));display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:8px">
@@ -699,11 +760,13 @@ function buildBotModel(color, kind) {
   part(0.18, 0.12, 0.2, vest, -0.34, 1.5, 0, pivot); part(0.18, 0.12, 0.2, vest, 0.34, 1.5, 0, pivot);
   const armL = limb(0.13, 0.55, 0.15, cloth, -0.33, 1.44, 0), armR = limb(0.13, 0.55, 0.15, cloth, 0.33, 1.44, 0);
   part(0.14, 0.12, 0.16, glove, 0, -0.58, 0, armL); part(0.14, 0.12, 0.16, glove, 0, -0.58, 0, armR);
-  armL.rotation.x = -1.35; armR.rotation.x = -1.25; armL.rotation.y = 0.35; armR.rotation.y = -0.25;
+  armL.rotation.x = 1.35; armR.rotation.x = 1.25;
+  armL.rotation.y = -0.35; armR.rotation.y = 0.25;
+  armL.rotation.z = -0.10; armR.rotation.z = 0.10;
   // weapon models (shared generator, no viewmodel arms)
   const holder = new THREE.Group(); holder.position.set(0.04, 1.22, -0.18); holder.scale.setScalar(0.85); pivot.add(holder);
   const guns = WEAPONS.map(w => { const gn = buildGun(w.id, true); gn.visible = false; holder.add(gn); return gn; });
-  return { root, pivot, legL, legR, mats, guns, flash:{ visible:false } };
+  return { root, pivot, legL, legR, armL, armR, mats, guns, flash:{ visible:false } };
 }
 
 /* =====================================================================
@@ -853,6 +916,7 @@ class FX {
 class InputManager {
   constructor(game) {
     this.g = game; this.keys = {}; this.m0 = false; this.fireEdge = false; this.scopeEdge = false; this.dx = 0; this.dy = 0; this.locked = false; this.tab = false;
+    this.touchFwd = 0; this.touchSide = 0; this.touchCrouch = false; this.touchJump = false;
     addEventListener('keydown', e => {
       if (!this.locked) return;
       if (e.code !== 'F12') e.preventDefault();
@@ -906,6 +970,15 @@ class InputManager {
   }
   lock(fullscreen = false) {
     if (this.g.matchEnded) return;
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+    if (isTouch) {
+      document.body.classList.add('is-touch');
+      this.locked = true;
+      this.g.ui.showMenu(false);
+      if (fullscreen) this.toggleFullscreen();
+      if (window.updateCursorState) window.updateCursorState();
+      return;
+    }
     const c = this.g.engine.canvas; this.lockFailed = false; this.fallback = false;
     if (fullscreen && document.fullscreenElement == null) {
       const el = document.documentElement;
@@ -935,6 +1008,9 @@ class InputManager {
     this.keys = {};
     this.m0 = false;
     this.tab = false;
+    this.touchFwd = 0;
+    this.touchSide = 0;
+    this.touchJump = false;
     if (document.exitPointerLock && document.pointerLockElement) {
       try { document.exitPointerLock(); } catch (e) {}
     }
@@ -954,6 +1030,239 @@ class InputManager {
     }
   }
   endTick() { this.fireEdge = false; this.scopeEdge = false; }
+}
+
+/* =====================================================================
+   TOUCH CONTROLS (Mobile virtual joystick, swipe aim & action buttons)
+   ===================================================================== */
+class TouchControls {
+  constructor(game) {
+    this.g = game;
+    this.inp = game.input;
+    this.moveId = null;
+    this.lookId = null;
+    this.fireId = null;
+    this.startX = 0;
+    this.startY = 0;
+    this.lookX = 0;
+    this.lookY = 0;
+    this.fireX = 0;
+    this.fireY = 0;
+    this.maxR = 48;
+
+    this.zoneMove = document.getElementById('touchMoveZone');
+    this.zoneLook = document.getElementById('touchLookZone');
+    this.base = document.getElementById('vJoyBase');
+    this.knob = document.getElementById('vJoyKnob');
+    this.btnFire = document.getElementById('btnTFire');
+    this.btnJump = document.getElementById('btnTJump');
+    this.btnCrouch = document.getElementById('btnTCrouch');
+    this.btnScope = document.getElementById('btnTScope');
+    this.btnReload = document.getElementById('btnTReload');
+    this.btnMenu = document.getElementById('btnTouchMenu');
+    this.wepBar = document.getElementById('touchWeaponBar');
+
+    this.bindEvents();
+  }
+  bindEvents() {
+    if (!this.zoneMove || !this.zoneLook) return;
+
+    // Movement Joystick (Left zone)
+    this.zoneMove.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (this.moveId !== null) return;
+      const t = e.changedTouches[0];
+      this.moveId = t.identifier;
+      this.startX = t.clientX;
+      this.startY = t.clientY;
+      this.base.style.left = t.clientX + 'px';
+      this.base.style.top = t.clientY + 'px';
+      this.base.style.display = 'block';
+      this.knob.style.transform = 'translate3d(0, 0, 0)';
+      this.inp.touchFwd = 0;
+      this.inp.touchSide = 0;
+    }, { passive: false });
+
+    this.zoneMove.addEventListener('touchmove', e => {
+      e.preventDefault();
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (t.identifier === this.moveId) {
+          let dx = t.clientX - this.startX;
+          let dy = t.clientY - this.startY;
+          const dist = Math.hypot(dx, dy);
+          if (dist > this.maxR) {
+            dx = (dx / dist) * this.maxR;
+            dy = (dy / dist) * this.maxR;
+          }
+          this.knob.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+          this.inp.touchSide = dx / this.maxR;
+          this.inp.touchFwd = -dy / this.maxR;
+          break;
+        }
+      }
+    }, { passive: false });
+
+    const endMove = e => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === this.moveId) {
+          this.moveId = null;
+          this.base.style.display = 'none';
+          this.knob.style.transform = 'translate3d(0, 0, 0)';
+          this.inp.touchFwd = 0;
+          this.inp.touchSide = 0;
+          break;
+        }
+      }
+    };
+    this.zoneMove.addEventListener('touchend', endMove, { passive: false });
+    this.zoneMove.addEventListener('touchcancel', endMove, { passive: false });
+
+    // Look / Aim Swipe (Right zone)
+    this.zoneLook.addEventListener('touchstart', e => {
+      e.preventDefault();
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (this.lookId === null) {
+          this.lookId = t.identifier;
+          this.lookX = t.clientX;
+          this.lookY = t.clientY;
+          break;
+        }
+      }
+    }, { passive: false });
+
+    this.zoneLook.addEventListener('touchmove', e => {
+      e.preventDefault();
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        if (t.identifier === this.lookId) {
+          const dx = t.clientX - this.lookX;
+          const dy = t.clientY - this.lookY;
+          this.lookX = t.clientX;
+          this.lookY = t.clientY;
+          this.inp.dx += dx * 1.5;
+          this.inp.dy += dy * 1.5;
+          break;
+        }
+      }
+    }, { passive: false });
+
+    const endLook = e => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === this.lookId) {
+          this.lookId = null;
+          break;
+        }
+      }
+    };
+    this.zoneLook.addEventListener('touchend', endLook, { passive: false });
+    this.zoneLook.addEventListener('touchcancel', endLook, { passive: false });
+
+    // Fire Button (Press & Hold, with micro-aim drag)
+    if (this.btnFire) {
+      this.btnFire.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const t = e.changedTouches[0];
+        this.fireId = t.identifier;
+        this.fireX = t.clientX;
+        this.fireY = t.clientY;
+        this.inp.m0 = true;
+        this.inp.fireEdge = true;
+      }, { passive: false });
+
+      this.btnFire.addEventListener('touchmove', e => {
+        e.preventDefault();
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          if (t.identifier === this.fireId) {
+            const dx = t.clientX - this.fireX;
+            const dy = t.clientY - this.fireY;
+            this.fireX = t.clientX;
+            this.fireY = t.clientY;
+            this.inp.dx += dx * 1.1;
+            this.inp.dy += dy * 1.1;
+            break;
+          }
+        }
+      }, { passive: false });
+
+      const endFire = e => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === this.fireId) {
+            this.fireId = null;
+            this.inp.m0 = false;
+            break;
+          }
+        }
+      };
+      this.btnFire.addEventListener('touchend', endFire, { passive: false });
+      this.btnFire.addEventListener('touchcancel', endFire, { passive: false });
+    }
+
+    // Jump Button
+    if (this.btnJump) {
+      this.btnJump.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.inp.touchJump = true;
+        this.inp.keys.Space = true;
+      }, { passive: false });
+      const endJump = e => {
+        this.inp.touchJump = false;
+        this.inp.keys.Space = false;
+      };
+      this.btnJump.addEventListener('touchend', endJump, { passive: false });
+      this.btnJump.addEventListener('touchcancel', endJump, { passive: false });
+    }
+
+    // Crouch Button (Toggle)
+    if (this.btnCrouch) {
+      this.btnCrouch.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.inp.touchCrouch = !this.inp.touchCrouch;
+        this.btnCrouch.classList.toggle('active', this.inp.touchCrouch);
+      }, { passive: false });
+    }
+
+    // Scope / Optic Button
+    if (this.btnScope) {
+      this.btnScope.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.inp.scopeEdge = true;
+      }, { passive: false });
+    }
+
+    // Reload Button
+    if (this.btnReload) {
+      this.btnReload.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.g.weapons.startReload();
+      }, { passive: false });
+    }
+
+    // Menu / Pause Button
+    if (this.btnMenu) {
+      const openMenu = e => {
+        e.preventDefault();
+        this.g.input.unlock();
+        this.g.ui.showMenu(true);
+      };
+      this.btnMenu.addEventListener('touchstart', openMenu, { passive: false });
+      this.btnMenu.addEventListener('click', openMenu);
+    }
+
+    // Quick Weapon Selector
+    if (this.wepBar) {
+      this.wepBar.querySelectorAll('.t-wep').forEach((b, i) => {
+        const sel = e => {
+          e.preventDefault();
+          this.g.weapons.setWeapon(i);
+        };
+        b.addEventListener('touchstart', sel, { passive: false });
+        b.addEventListener('click', sel);
+      });
+    }
+  }
 }
 
 /* =====================================================================
@@ -1085,7 +1394,12 @@ class Bot extends Actor {
   face(yawT, dt, rate) { const d = wrapAngle(yawT - this.yaw); this.yaw += clamp(d, -rate * dt, rate * dt); return d; }
   update(dt) {
     const g = this.g;
-    if (!this.alive) { this.model.pivot.rotation.x = Math.max(this.model.pivot.rotation.x - dt * 4, -1.5); this.sync(dt); return; }
+    if (!this.alive) {
+      this.model.pivot.rotation.x = Math.max(this.model.pivot.rotation.x - dt * 4, -1.5);
+      if (this.model.armL && this.model.armR) { this.model.armL.rotation.x = 0.2; this.model.armR.rotation.x = 0.2; }
+      this.sync(dt);
+      return;
+    }
     this.invuln = Math.max(0, this.invuln - dt); this.tagT = Math.max(0, this.tagT - dt);
     this.perT -= dt; if (this.perT <= 0) { this.perT = 0.12; this.perceive(); }
     if (this.reloadT > 0) { this.reloadT -= dt; if (this.reloadT <= 0) this.ws[this.cur].ammo = WEAPONS[this.cur].mag; }
@@ -1155,6 +1469,11 @@ class Bot extends Actor {
     m.root.position.copy(this.pos); m.root.rotation.y = this.yaw;
     this.walkPhase += sp * 0.0016; const sw = Math.sin(this.walkPhase * 6) * Math.min(sp / 200, 1) * 0.8;
     m.legL.rotation.x = sw; m.legR.rotation.x = -sw;
+    if (m.armL && m.armR) {
+      const p = Math.max(-0.6, Math.min(0.6, this.pitch * 0.7));
+      m.armL.rotation.x = 1.35 + p;
+      m.armR.rotation.x = 1.25 + p;
+    }
     m.pivot.scale.y = this.height / 1.8;
     const inv = this.invuln > 0 && Math.floor(this.g.time * 8) % 2 === 0;
     for (const mt of m.mats) mt.emissive.setHex(inv ? 0x1a8fb0 : (this.tagT > 0.3 ? 0x330000 : 0x000000));
@@ -1219,6 +1538,7 @@ class RemotePlayer extends Actor {
   update(dt) {
     if (!this.alive) {
       this.model.pivot.rotation.x = Math.max(this.model.pivot.rotation.x - dt * 4, -1.5);
+      if (this.model.armL && this.model.armR) { this.model.armL.rotation.x = 0.2; this.model.armR.rotation.x = 0.2; }
       return;
     }
     this.pos.lerp(this.targetPos, Math.min(1, dt * 22));
@@ -1232,6 +1552,11 @@ class RemotePlayer extends Actor {
     const sw = Math.sin(this.walkPhase * 6) * Math.min(sp / 200, 1) * 0.8;
     this.model.legL.rotation.x = sw;
     this.model.legR.rotation.x = -sw;
+    if (this.model.armL && this.model.armR) {
+      const p = Math.max(-0.6, Math.min(0.6, this.pitch * 0.7));
+      this.model.armL.rotation.x = 1.35 + p;
+      this.model.armR.rotation.x = 1.25 + p;
+    }
     this.model.pivot.scale.y = this.height / 1.8;
     this.model.guns.forEach((gn, i) => { gn.visible = i === this.cur; });
     const cg = this.model.guns[this.cur];
@@ -1647,11 +1972,18 @@ class UIManager {
     $('btnEndMenu').addEventListener('click', () => { this.showMatchEndModal(false); this.showMenu(true); });
   }
   refreshPreview() { layoutCrosshair(this.$('pxh'), Settings.xhGap, Settings.xhSize, Settings.xhThick, Settings.xhColor, Settings.xhDot); }
-  refreshWeaponList() { [...this.wl.children].forEach((d, i) => d.classList.toggle('on', i === this.g.player.cur)); }
+  refreshWeaponList() {
+    [...this.wl.children].forEach((d, i) => d.classList.toggle('on', i === this.g.player.cur));
+    const tWeps = document.querySelectorAll('#touchWeaponBar .t-wep');
+    tWeps.forEach((btn, i) => btn.classList.toggle('active', i === this.g.player.cur));
+  }
   showMenu(show) {
     this.menuOpen = show;
     this.$('menu').style.display = show ? 'flex' : 'none';
-    this.$('hud').style.display = (this.g.started && !show && !this.g.matchEnded) ? 'block' : 'none';
+    const isPlaying = (this.g.started && !show && !this.g.matchEnded);
+    this.$('hud').style.display = isPlaying ? 'block' : 'none';
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = (isPlaying && document.body.classList.contains('is-touch')) ? 'block' : 'none';
     if (show) {
       this.g.input.unlock();
       this.showMatchEndModal(false);
@@ -1671,6 +2003,8 @@ class UIManager {
       this.menuOpen = false;
       this.$('menu').style.display = 'none';
       this.$('hud').style.display = 'none';
+      const tc = document.getElementById('touchControls');
+      if (tc) tc.style.display = 'none';
       this.updateMatchEndStats();
     }
     if (window.updateCursorState) window.updateCursorState();
@@ -1795,6 +2129,7 @@ class Game {
     this.player = new Actor('You', true); this.actors = [this.player]; this.bots = [];
     this.network = new NetworkManager(this);
     this.ui = new UIManager(this); this.input = new InputManager(this); this.weapons = new WeaponSystem(this);
+    this.touch = new TouchControls(this);
     this.time = 0; this.acc = 0; this.started = false; this.stepAcc = 0; this.deadRoll = 0;
     this.matchDuration = 300; this.matchTime = 300; this.matchEnded = false;
     this.isOnline = true;
@@ -1813,6 +2148,11 @@ class Game {
     this.matchEnded = false;
     this.time = 0;
     this.matchTime = this.matchDuration;
+
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+    if (isTouch) document.body.classList.add('is-touch');
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = isTouch ? 'block' : 'none';
 
     const curLbl = document.getElementById('curRoomLbl');
     if (curLbl) curLbl.textContent = this.isOnline ? this.roomCode : 'BOTLAR';
@@ -1875,6 +2215,17 @@ class Game {
 
     const curLbl = document.getElementById('curRoomLbl');
     if (curLbl) curLbl.textContent = 'LOBİ';
+
+    if (this.input) {
+      this.input.touchCrouch = false;
+      this.input.touchJump = false;
+      this.input.touchFwd = 0;
+      this.input.touchSide = 0;
+    }
+    const btnCr = document.getElementById('btnTCrouch');
+    if (btnCr) btnCr.classList.remove('active');
+    const tc = document.getElementById('touchControls');
+    if (tc) tc.style.display = 'none';
 
     this.ui.updateLiveLeaderboard();
     this.ui.showMatchEndModal(false);
@@ -1972,14 +2323,17 @@ class Game {
     this.lookDX = inp.dx; inp.dx = 0; inp.dy = 0;
     if (!p.alive) { p.vel.x *= 0.9; p.vel.z *= 0.9; SourceMove.step(p, 0, 0, 0, false, dt); moveBody(p, dt); p.refreshHB(); return; }
     p.invuln = Math.max(0, p.invuln - dt); p.tagT = Math.max(0, p.tagT - dt);
-    const crouch = !!(k.ControlLeft || k.ControlRight || k.KeyC), walk = !!(k.ShiftLeft || k.ShiftRight);
+    const crouch = !!(k.ControlLeft || k.ControlRight || k.KeyC || inp.touchCrouch), walk = !!(k.ShiftLeft || k.ShiftRight);
     const tgtEye = crouch ? CFG.eyeCrouch : CFG.eyeStand; p.eye += (tgtEye - p.eye) * Math.min(1, dt * 10); p.height = p.eye + 0.2;
-    const fwd = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0), side = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
+    const fwdKey = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0);
+    const sideKey = (k.KeyD ? 1 : 0) - (k.KeyA ? 1 : 0);
+    const fwd = clamp(fwdKey + (inp.touchFwd || 0), -1, 1);
+    const side = clamp(sideKey + (inp.touchSide || 0), -1, 1);
     const fx = -Math.sin(p.yaw), fz = -Math.cos(p.yaw), rx = Math.cos(p.yaw), rz = -Math.sin(p.yaw);
     let wx = fx * fwd + rx * side, wz = fz * fwd + rz * side;
     let maxS = CFG.maxSpeed; if (walk) maxS = CFG.walkSpeed; if (crouch) maxS = Math.min(maxS, CFG.crouchSpeed);
     if (this.weapons.scope > 0) maxS *= 0.6; if (p.tagT > 0) maxS *= 0.65;
-    SourceMove.step(p, wx, wz, maxS, !!k.Space, dt); moveBody(p, dt); p.refreshHB();
+    SourceMove.step(p, wx, wz, maxS, !!(k.Space || inp.touchJump), dt); moveBody(p, dt); p.refreshHB();
     const sp = Math.hypot(p.vel.x, p.vel.z);
     if (p.onGround && !walk && !crouch && sp > 140) {
       this.stepAcc += sp * U * dt;
@@ -2006,6 +2360,14 @@ class Game {
     this.matchTime = this.matchDuration;
     this.matchEnded = false;
     this.started = true;
+    if (this.input) {
+      this.input.touchCrouch = false;
+      this.input.touchJump = false;
+      this.input.touchFwd = 0;
+      this.input.touchSide = 0;
+    }
+    const btnCr = document.getElementById('btnTCrouch');
+    if (btnCr) btnCr.classList.remove('active');
     if (this.network && this.network.connected && this.network.ws) {
       this.network.ws.send(JSON.stringify({ type: 'restart_match' }));
     }
@@ -2060,11 +2422,18 @@ class Game {
    ===================================================================== */
 const csCur = document.getElementById('csCursor');
 window.updateCursorState = function() {
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
   const isPlaying = window.game && window.game.started && window.game.input && window.game.input.locked && !window.game.ui.menuOpen && !window.game.matchEnded;
-  if (csCur) csCur.style.display = isPlaying ? 'none' : 'block';
+  if (csCur) csCur.style.display = (isPlaying || isTouch) ? 'none' : 'block';
   document.body.style.cursor = isPlaying ? 'none' : 'default';
 };
+window.addEventListener('touchstart', () => {
+  document.body.classList.add('is-touch');
+  if (window.updateCursorState) window.updateCursorState();
+}, { once: true, passive: true });
 window.addEventListener('mousemove', e => {
+  const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(pointer: coarse)').matches;
+  if (isTouch) return;
   if (csCur) {
     csCur.style.transform = 'translate3d(' + e.clientX + 'px, ' + e.clientY + 'px, 0)';
     const isPlaying = window.game && window.game.started && window.game.input && window.game.input.locked && !window.game.ui.menuOpen && !window.game.matchEnded;
