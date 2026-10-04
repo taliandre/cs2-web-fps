@@ -683,7 +683,16 @@
 
   <!-- PROFİL -->
   <div id="viewProfile" class="m-view" style="display:none">
-    <div class="pf-head"><div class="pf-avatar">👤</div><div><div id="pfName" class="pf-name">Player</div><div class="pf-sub">TÜM ZAMANLAR İSTATİSTİKLERİ</div></div></div>
+    <div class="pf-head">
+      <div class="pf-avatar">👤</div>
+      <div>
+        <div id="pfName" class="pf-name">Player</div>
+        <div class="pf-sub">TÜM ZAMANLAR İSTATİSTİKLERİ</div>
+        <div id="cloudStatusBadge" style="margin-top:4px; font-size:11px; font-weight:800; letter-spacing:1px">
+          <span style="color:#f5c242">💾 YEREL KAYIT (LOKAL)</span>
+        </div>
+      </div>
+    </div>
     <div class="pf-grid">
       <div class="pf-box"><small>TOPLAM KILL</small><b id="pfKills">0</b></div>
       <div class="pf-box"><small>TOPLAM ÖLÜM</small><b id="pfDeaths">0</b></div>
@@ -692,7 +701,21 @@
       <div class="pf-box"><small>OYNANAN MAÇ</small><b id="pfMatches">0</b></div>
       <div class="pf-box"><small>HEADSHOT</small><b id="pfHs">0</b></div>
     </div>
-    <button id="btnProfileReset" type="button" class="btn3d red small">İSTATİSTİKLERİ SIFIRLA</button>
+
+    <!-- GLOBAL DÜNYA SIRALAMASI (FIRESTORE) -->
+    <div style="margin-top:20px; background:rgba(10,13,18,0.85); border:1px solid rgba(245,194,66,0.3); border-radius:10px; padding:14px; max-width:540px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-weight:900; color:var(--gold); font-size:13px; letter-spacing:1px">🏆 DÜNYA LİDERLİK TABLOSU (TOP 10)</span>
+        <button id="btnRefreshLb" type="button" style="background:none; border:none; color:var(--cyan); font-size:11px; font-weight:800; cursor:pointer">↻ Yenile</button>
+      </div>
+      <div id="globalLeaderboardList" style="max-height:220px; overflow-y:auto;">
+        <div style="font-size:11px; color:#888; text-align:center; padding:12px;">Yükleniyor veya yerel mod aktif...</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button id="btnProfileReset" type="button" class="btn3d red small">İSTATİSTİKLERİ SIFIRLA</button>
+    </div>
   </div>
 
   <!-- ARKADAŞLARLA OYNA -->
@@ -842,6 +865,11 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Firebase Google Cloud SDK (Compat CDN) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script>
 'use strict';
 /* =====================================================================
@@ -939,11 +967,133 @@ const Gyro = {
   }
 };
 
+/* =====================================================================
+   FIREBASE MANAGER: GOOGLE CLOUD STATS & GLOBAL LEADERBOARD
+   ===================================================================== */
+const CloudDB = {
+  connected: false,
+  uid: null,
+  db: null,
+  auth: null,
+  syncTimer: null,
+  leaderboard: [],
+  init() {
+    if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || window.FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+      console.log('[FIREBASE] Yerel depolama modu aktif (Lokal profil).');
+      this.updateStatusUI(false);
+      return;
+    }
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(window.FIREBASE_CONFIG);
+      }
+      this.auth = firebase.auth();
+      this.db = firebase.firestore();
+
+      this.auth.signInAnonymously().then(cred => {
+        this.uid = cred.user.uid;
+        this.connected = true;
+        this.updateStatusUI(true);
+        console.log('[FIREBASE CLOUD] Aktif! Oyuncu UID:', this.uid);
+        this.loadCloudProfile();
+        this.fetchGlobalLeaderboard();
+      }).catch(err => {
+        console.warn('[FIREBASE AUTH ERROR]', err.message);
+        this.updateStatusUI(false);
+      });
+    } catch(err) {
+      console.warn('[FIREBASE INIT ERROR]', err.message);
+      this.updateStatusUI(false);
+    }
+  },
+  loadCloudProfile() {
+    if (!this.connected || !this.uid || !this.db) return;
+    this.db.collection('players').doc(this.uid).get().then(doc => {
+      if (doc.exists) {
+        const d = doc.data();
+        Profile.kills = Math.max(Profile.kills, d.kills || 0);
+        Profile.deaths = Math.max(Profile.deaths, d.deaths || 0);
+        Profile.wins = Math.max(Profile.wins, d.wins || 0);
+        Profile.matches = Math.max(Profile.matches, d.matches || 0);
+        Profile.headshots = Math.max(Profile.headshots, d.headshots || 0);
+        Profile.saveLocal();
+        if (window.game && window.game.ui) window.game.ui.renderProfile();
+      } else {
+        this.syncProfile();
+      }
+    }).catch(e => console.warn('[FIREBASE LOAD ERROR]', e));
+  },
+  syncProfile() {
+    if (!this.connected || !this.uid || !this.db) return;
+    clearTimeout(this.syncTimer);
+    this.syncTimer = setTimeout(() => {
+      const pName = (document.getElementById('pName') && document.getElementById('pName').value.trim()) || 'Player';
+      this.db.collection('players').doc(this.uid).set({
+        name: pName,
+        kills: Profile.kills,
+        deaths: Profile.deaths,
+        wins: Profile.wins,
+        matches: Profile.matches,
+        headshots: Profile.headshots,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).then(() => {
+        console.log('[FIREBASE SYNC] İstatistikler buluta kaydedildi.');
+      }).catch(e => console.warn('[FIREBASE SYNC ERROR]', e));
+    }, 1200);
+  },
+  fetchGlobalLeaderboard(cb) {
+    if (!this.connected || !this.db) return;
+    this.db.collection('players').orderBy('kills', 'desc').limit(10).get().then(snapshot => {
+      this.leaderboard = [];
+      snapshot.forEach(doc => { this.leaderboard.push(doc.data()); });
+      if (cb) cb(this.leaderboard);
+      this.renderGlobalLeaderboardUI();
+    }).catch(e => console.warn('[LEADERBOARD ERROR]', e));
+  },
+  updateStatusUI(isOnline) {
+    const el = document.getElementById('cloudStatusBadge');
+    if (el) {
+      el.innerHTML = isOnline 
+        ? `<span style="color:#4cd137">☁️ GOOGLE CLOUD SENKRONİZASYONU: AKTİF</span>` 
+        : `<span style="color:#f5c242" title="firebase-config.js dosyasına bilgileri girerek aktifleştirebilirsiniz">💾 YEREL KAYIT (LOKAL)</span>`;
+    }
+  },
+  renderGlobalLeaderboardUI() {
+    const listEl = document.getElementById('globalLeaderboardList');
+    if (!listEl) return;
+    if (!this.leaderboard.length) {
+      listEl.innerHTML = `<div style="font-size:11px;color:#888;text-align:center;padding:12px;">Henüz liderlik kaydı bulunamadı.</div>`;
+      return;
+    }
+    const badges = ['🥇', '🥈', '🥉', '4.', '5.', '6.', '7.', '8.', '9.', '10.'];
+    listEl.innerHTML = this.leaderboard.map((p, i) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:7px 10px; background:rgba(255,255,255,${i % 2 ? '0.04' : '0.02'}); border-radius:6px; margin-bottom:4px; font-size:12px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-weight:900; width:20px;">${badges[i] || (i+1)+'.'}</span>
+          <span style="font-weight:700; color:#fff">${p.name || 'Oyuncu'}</span>
+        </div>
+        <div style="display:flex; gap:14px; font-family:monospace; font-size:11px;">
+          <span style="color:var(--cyan); font-weight:800;">${p.kills || 0} K</span>
+          <span style="color:var(--gold); font-weight:800;">${p.wins || 0} ZAFER</span>
+        </div>
+      </div>
+    `).join('');
+  }
+};
+
 const Profile = {
   kills: 0, deaths: 0, wins: 0, matches: 0, headshots: 0, dirty: false,
   load() { try { const s = JSON.parse(localStorage.getItem('ps_profile') || '{}'); ['kills','deaths','wins','matches','headshots'].forEach(k => { this[k] = +s[k] || 0; }); } catch (e) {} },
-  save() { try { localStorage.setItem('ps_profile', JSON.stringify({ kills:this.kills, deaths:this.deaths, wins:this.wins, matches:this.matches, headshots:this.headshots })); } catch (e) {} this.dirty = false; },
-  reset() { this.kills = this.deaths = this.wins = this.matches = this.headshots = 0; this.save(); }
+  saveLocal() { try { localStorage.setItem('ps_profile', JSON.stringify({ kills:this.kills, deaths:this.deaths, wins:this.wins, matches:this.matches, headshots:this.headshots })); } catch (e) {} this.dirty = false; },
+  save() {
+    this.saveLocal();
+    CloudDB.syncProfile();
+  },
+  reset() {
+    this.kills = this.deaths = this.wins = this.matches = this.headshots = 0;
+    this.saveLocal();
+    CloudDB.syncProfile();
+  }
 };
 Profile.load();
 
@@ -2820,7 +2970,12 @@ class RemotePlayer extends Actor {
       return;
     }
     this.invuln = Math.max(0, this.invuln - dt);
-    this.pos.lerp(this.targetPos, Math.min(1, dt * 22));
+    // Dead reckoning: predict forward movement based on velocity to smooth out network packet jitter
+    const predX = this.targetPos.x + (this.vel.x || 0) * U * 0.035;
+    const predZ = this.targetPos.z + (this.vel.z || 0) * U * 0.035;
+    this.pos.x += (predX - this.pos.x) * Math.min(1, dt * 20);
+    this.pos.y += (this.targetPos.y - this.pos.y) * Math.min(1, dt * 24);
+    this.pos.z += (predZ - this.pos.z) * Math.min(1, dt * 20);
     this.yaw += wrapAngle(this.targetYaw - this.yaw) * Math.min(1, dt * 25);
     this.pitch += (this.targetPitch - this.pitch) * Math.min(1, dt * 25);
     this.refreshHB();
@@ -2936,6 +3091,7 @@ class NetworkManager {
       const rp = this.remotePlayers.get(msg.id);
       if (rp) {
         rp.targetPos.set(msg.pos.x, msg.pos.y, msg.pos.z);
+        if (msg.vel) rp.vel.set(msg.vel.x, msg.vel.y, msg.vel.z);
         rp.targetYaw = msg.yaw;
         rp.targetPitch = msg.pitch;
         rp.cur = msg.weapon;
@@ -3277,6 +3433,8 @@ class UIManager {
     $('pfKills').textContent = P.kills; $('pfDeaths').textContent = P.deaths;
     $('pfKd').textContent = (P.deaths ? P.kills / P.deaths : P.kills).toFixed(2);
     $('pfWins').textContent = P.wins; $('pfMatches').textContent = P.matches; $('pfHs').textContent = P.headshots;
+    CloudDB.updateStatusUI(CloudDB.connected);
+    CloudDB.renderGlobalLeaderboardUI();
   }
   closeModals() { ['friendsModal', 'settingsModal'].forEach(id => { const e = this.$(id); if (e) e.style.display = 'none'; }); }
   openModal(id) { this.closeModals(); this.$(id).style.display = 'flex'; }
@@ -3358,6 +3516,8 @@ class UIManager {
       saveSettings();
     });
     $('btnProfileReset').addEventListener('click', () => { if (confirm('Tüm istatistikler sıfırlansın mı?')) { Profile.reset(); this.renderProfile(); } });
+    const btnRef = $('btnRefreshLb');
+    if (btnRef) btnRef.addEventListener('click', () => { CloudDB.fetchGlobalLeaderboard(); });
     $('lockPrompt').addEventListener('mousedown', e => { e.preventDefault(); this.g.input.promptClick(); });
     this.buildBindGrid(); this.renderProfile();
   }
@@ -3896,6 +4056,7 @@ document.addEventListener('mouseup', () => {
 window.addEventListener('error', e => { const el = document.getElementById('err'); if (el) el.textContent = 'Error: ' + e.message + ' (line ' + e.lineno + ')'; });
 window.addEventListener('load', () => {
   if (typeof THREE === 'undefined') { document.getElementById('err').textContent = 'Three.js failed to load from CDN. Check your internet connection.'; document.getElementById('play').disabled = true; return; }
+  try { CloudDB.init(); } catch (e) { console.warn('CloudDB init failed', e); }
   window.game = new Game();
   window.updateCursorState();
 });

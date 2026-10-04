@@ -245,4 +245,19 @@ server.listen(PORT, () => {
   console.log(`  Local URL:   http://localhost:${PORT}        `);
   console.log(`  Deploy:      Ready for Render.com / Railway `);
   console.log(`===============================================`);
+
+  // Render Keep-Alive: Ping itself every 9 minutes to avoid free-tier spin down
+  const renderUrl = process.env.RENDER_EXTERNAL_URL;
+  if (renderUrl) {
+    const pingProto = renderUrl.startsWith('https') ? require('https') : require('http');
+    setInterval(() => {
+      pingProto.get(`${renderUrl}/health`, (res) => {
+        console.log(`[KEEP-ALIVE] Pinged ${renderUrl}/health (${res.statusCode})`);
+      }).on('error', (err) => {
+        console.warn('[KEEP-ALIVE WARN]', err.message);
+      });
+    }, 9 * 60 * 1000);
+    console.log(`[KEEP-ALIVE] Auto-ping active for ${renderUrl}`);
+  }
 });
+
