@@ -1452,13 +1452,14 @@ class EngineCore {
     this.renderer.setSize(innerWidth, innerHeight);
     this.renderer.autoClear = false;
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x9ec8e6);
-    this.scene.fog = new THREE.Fog(0xc9d9e2, 40, 130);
+    this.scene.background = new THREE.Color(0x6eb0e6);
+    this.scene.fog = new THREE.Fog(0xdfc08a, 50, 150);
     this.camera = new THREE.PerspectiveCamera(Settings.fov, innerWidth / innerHeight, 0.05, 300);
     this.camera.rotation.order = 'YXZ';
     this.scene.add(this.camera);
-    this.scene.add(new THREE.HemisphereLight(0xdfeeff, 0xb59a6a, 0.85));
-    const sun = new THREE.DirectionalLight(0xfff0d0, 0.85); sun.position.set(30, 50, 20); this.scene.add(sun);
+    this.scene.add(new THREE.HemisphereLight(0xbde0fe, 0xd4ab62, 0.75));
+    const sun = new THREE.DirectionalLight(0xfff0cc, 0.95); sun.position.set(35, 60, 25); this.scene.add(sun);
+    this.ambientLight = new THREE.AmbientLight(0xffe6b8, 0.32); this.scene.add(this.ambientLight);
     this.flashLight = new THREE.PointLight(0xffaa44, 0, 14); this.scene.add(this.flashLight);
     // viewmodel pass
     this.vmScene = new THREE.Scene();
@@ -1807,52 +1808,122 @@ class MapBuilder {
     this.waypoints = [];
     this.currentMapId = 'shortdust2';
 
-    // Procedural sand ground texture
-    const cv = document.createElement('canvas'); cv.width = cv.height = 128; const cx = cv.getContext('2d');
-    for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { cx.fillStyle = (x + y) % 2 ? '#cdb98a' : '#c4af7e'; cx.fillRect(x * 16, y * 16, 16, 16); }
-    this.groundTex = new THREE.CanvasTexture(cv); this.groundTex.wrapS = this.groundTex.wrapT = THREE.RepeatWrapping; this.groundTex.repeat.set(20, 20); this.groundTex.magFilter = THREE.NearestFilter;
+    // =========================================================================
+    // HIGH-QUALITY PROCEDURAL DESERT TEXTURES (Zero load time, 100% reliable, sunny CS2 / Standoff 2)
+    // =========================================================================
 
-    // Procedural wood-plank crate texture
-    const wc = document.createElement('canvas'); wc.width = wc.height = 64; const wx = wc.getContext('2d');
-    wx.fillStyle = '#9c6b3a'; wx.fillRect(0, 0, 64, 64);
-    for (let i = 0; i < 4; i++) { wx.fillStyle = i % 2 ? '#a5733f' : '#8f6034'; wx.fillRect(0, i * 16, 64, 15); wx.fillStyle = '#5a3a1c'; wx.fillRect(0, i * 16 + 15, 64, 1); }
-    wx.strokeStyle = '#5a3a1c'; wx.lineWidth = 4; wx.strokeRect(2, 2, 60, 60); wx.beginPath(); wx.moveTo(4, 4); wx.lineTo(60, 60); wx.moveTo(60, 4); wx.lineTo(4, 60); wx.stroke();
-    this.crateTex = new THREE.CanvasTexture(wc); this.crateTex.magFilter = THREE.NearestFilter;
-
-    // Sketchfab Short Dust 2 Texture Atlases & Materials
-    try {
-      const tl = new THREE.TextureLoader();
-      this.atlasGround = tl.load('textures/shortdust/atlas1.jpeg');
-      this.atlasGround.wrapS = this.atlasGround.wrapT = THREE.RepeatWrapping;
-      this.atlasGround.repeat.set(6, 6);
-
-      this.atlasDark = tl.load('textures/shortdust/atlas2.jpeg');
-      this.atlasDark.wrapS = this.atlasDark.wrapT = THREE.RepeatWrapping;
-
-      this.atlasWall = tl.load('textures/shortdust/atlas3.jpeg');
-      this.atlasWall.wrapS = this.atlasWall.wrapT = THREE.RepeatWrapping;
-      this.atlasWall.repeat.set(3, 3);
-
-      this.atlasFacade = tl.load('textures/shortdust/atlas4.jpeg');
-      this.atlasFacade.wrapS = this.atlasFacade.wrapT = THREE.RepeatWrapping;
-      this.atlasFacade.repeat.set(2, 2);
-
-      this.matShortGround = new THREE.MeshLambertMaterial({ map: this.atlasGround, color: 0xe0d4bc });
-      this.matShortWall = new THREE.MeshLambertMaterial({ map: this.atlasWall, color: 0xdfd2be });
-      this.matShortFacade = new THREE.MeshLambertMaterial({ map: this.atlasFacade, color: 0xdbd0bc });
-      this.matShortDark = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x7c6952 });
-      this.matShortCrate = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0xb58450 });
-      this.matShortWood = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x6e4e2c });
-      this.matDome = new THREE.MeshLambertMaterial({ color: 0x1d72a8 });
-      this.matDomeGold = new THREE.MeshLambertMaterial({ color: 0xf0b830 });
-      this.matTire = new THREE.MeshLambertMaterial({ color: 0x222222 });
-      this.matRustyMetal = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x6e5242 });
-    } catch (e) {
-      console.warn('Shortdust textures init error:', e);
+    // 1. Warm Golden Desert Sand Ground Texture (256x256)
+    const gCv = document.createElement('canvas'); gCv.width = gCv.height = 256; const gCtx = gCv.getContext('2d');
+    gCtx.fillStyle = '#d4b068'; gCtx.fillRect(0, 0, 256, 256);
+    // Subtle desert wind waves
+    for (let y = 0; y < 256; y += 4) {
+      const wave = Math.sin(y * 0.08) * 0.06;
+      gCtx.fillStyle = wave > 0 ? 'rgba(240, 204, 130, 0.5)' : 'rgba(182, 142, 72, 0.45)';
+      gCtx.fillRect(0, y, 256, 3);
     }
+    // Fine sand grains & pebbles
+    for (let i = 0; i < 1000; i++) {
+      const px = Math.random() * 256, py = Math.random() * 256, s = Math.random() > 0.85 ? 2 : 1;
+      gCtx.fillStyle = Math.random() > 0.5 ? 'rgba(248, 220, 150, 0.65)' : 'rgba(160, 122, 58, 0.6)';
+      gCtx.fillRect(px, py, s, s);
+    }
+    this.groundTex = new THREE.CanvasTexture(gCv);
+    this.groundTex.wrapS = this.groundTex.wrapT = THREE.RepeatWrapping;
+    this.groundTex.repeat.set(16, 16);
+
+    // 2. Sandstone Fortress Brick / Masonry Wall Texture (256x256)
+    const wCv = document.createElement('canvas'); wCv.width = wCv.height = 256; const wCtx = wCv.getContext('2d');
+    wCtx.fillStyle = '#c5a25d'; wCtx.fillRect(0, 0, 256, 256);
+    const rowH = 32, rows = 8;
+    for (let r = 0; r < rows; r++) {
+      const y = r * rowH;
+      const offset = (r % 2) * 32;
+      for (let bx = -32; bx < 288; bx += 64) {
+        const x = bx + offset;
+        const tones = ['#cfaa66', '#c49e54', '#d9b772', '#be984d', '#c9a55c'];
+        wCtx.fillStyle = tones[(r * 5 + Math.floor(bx / 64) + 10) % tones.length];
+        wCtx.fillRect(x + 2, y + 2, 60, rowH - 4);
+        // Bevel highlight
+        wCtx.fillStyle = 'rgba(255, 238, 185, 0.4)';
+        wCtx.fillRect(x + 2, y + 2, 60, 2);
+        wCtx.fillRect(x + 2, y + 2, 2, rowH - 4);
+        // Bevel shadow
+        wCtx.fillStyle = 'rgba(138, 104, 46, 0.45)';
+        wCtx.fillRect(x + 2, y + rowH - 4, 60, 2);
+        wCtx.fillRect(x + 60, y + 2, 2, rowH - 4);
+      }
+      // Mortar groove lines
+      wCtx.fillStyle = '#9e7c3e';
+      wCtx.fillRect(0, y, 256, 2);
+    }
+    // Sandstone weathering speckles
+    for (let i = 0; i < 400; i++) {
+      wCtx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 240, 195, 0.35)' : 'rgba(140, 105, 48, 0.3)';
+      wCtx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+    }
+    this.wallTex = new THREE.CanvasTexture(wCv);
+    this.wallTex.wrapS = this.wallTex.wrapT = THREE.RepeatWrapping;
+    this.wallTex.repeat.set(4, 2);
+
+    // 3. Desert Paved Pathway & Platform Tile Texture (128x128)
+    const fCv = document.createElement('canvas'); fCv.width = fCv.height = 128; const fCtx = fCv.getContext('2d');
+    fCtx.fillStyle = '#9e7c3e'; fCtx.fillRect(0, 0, 128, 128); // mortar bed
+    const tileS = 32;
+    for (let ty = 0; ty < 4; ty++) {
+      for (let tx = 0; tx < 4; tx++) {
+        const tones = ['#c7a35c', '#d0ae68', '#be9850', '#d6b571'];
+        fCtx.fillStyle = tones[(tx * 3 + ty * 2) % tones.length];
+        fCtx.fillRect(tx * tileS + 2, ty * tileS + 2, tileS - 4, tileS - 4);
+        fCtx.fillStyle = 'rgba(255, 235, 180, 0.35)';
+        fCtx.fillRect(tx * tileS + 2, ty * tileS + 2, tileS - 4, 2);
+      }
+    }
+    this.facadeTex = new THREE.CanvasTexture(fCv);
+    this.facadeTex.wrapS = this.facadeTex.wrapT = THREE.RepeatWrapping;
+    this.facadeTex.repeat.set(3, 3);
+
+    // 4. Warm Ochre / Sandstone Border Trim Texture (128x128)
+    const dCv = document.createElement('canvas'); dCv.width = dCv.height = 128; const dCtx = dCv.getContext('2d');
+    dCtx.fillStyle = '#8f6c31'; dCtx.fillRect(0, 0, 128, 128);
+    for (let y = 0; y < 128; y += 16) {
+      dCtx.fillStyle = y % 32 === 0 ? '#997538' : '#826027';
+      dCtx.fillRect(0, y, 128, 14);
+      dCtx.fillStyle = '#634516';
+      dCtx.fillRect(0, y + 14, 128, 2);
+    }
+    this.darkTex = new THREE.CanvasTexture(dCv);
+    this.darkTex.wrapS = this.darkTex.wrapT = THREE.RepeatWrapping;
+    this.darkTex.repeat.set(2, 2);
+
+    // 5. Desert Military Wood Crate Texture (128x128)
+    const cCv = document.createElement('canvas'); cCv.width = cCv.height = 128; const cCtx = cCv.getContext('2d');
+    cCtx.fillStyle = '#b6834c'; cCtx.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 4; i++) {
+      cCtx.fillStyle = i % 2 ? '#be8c53' : '#ad7b45';
+      cCtx.fillRect(0, i * 32, 128, 30);
+      cCtx.fillStyle = '#6b4720'; cCtx.fillRect(0, i * 32 + 30, 128, 2);
+    }
+    cCtx.strokeStyle = '#6b4720'; cCtx.lineWidth = 8; cCtx.strokeRect(4, 4, 120, 120);
+    cCtx.beginPath(); cCtx.moveTo(8, 8); cCtx.lineTo(120, 120); cCtx.moveTo(120, 8); cCtx.lineTo(8, 120); cCtx.stroke();
+    cCtx.fillStyle = '#42372c';
+    cCtx.fillRect(4, 4, 18, 18); cCtx.fillRect(106, 4, 18, 18);
+    cCtx.fillRect(4, 106, 18, 18); cCtx.fillRect(106, 106, 18, 18);
+    this.crateTex = new THREE.CanvasTexture(cCv);
+
+    // Short Dust 2 Materials - Rich Warm Golden Desert Sand Theme
+    this.matShortGround = new THREE.MeshLambertMaterial({ map: this.groundTex, color: 0xffffff });
+    this.matShortWall = new THREE.MeshLambertMaterial({ map: this.wallTex, color: 0xffffff });
+    this.matShortFacade = new THREE.MeshLambertMaterial({ map: this.facadeTex, color: 0xffffff });
+    this.matShortDark = new THREE.MeshLambertMaterial({ map: this.darkTex, color: 0xffffff });
+    this.matShortCrate = new THREE.MeshLambertMaterial({ map: this.crateTex });
+    this.matShortWood = new THREE.MeshLambertMaterial({ color: 0x8a5d32 });
+    this.matDome = new THREE.MeshLambertMaterial({ color: 0x1d7bbd });
+    this.matDomeGold = new THREE.MeshLambertMaterial({ color: 0xf5be2a });
+    this.matTire = new THREE.MeshLambertMaterial({ color: 0x242424 });
+    this.matRustyMetal = new THREE.MeshLambertMaterial({ color: 0x7e5f46 });
 
     // Distant background desert mountains and sun
-    const hillM = new THREE.MeshLambertMaterial({ color: 0xb39a6b });
+    const hillM = new THREE.MeshLambertMaterial({ color: 0xbf9b54 });
     for (let i = 0; i < 18; i++) {
       const a = i / 18 * Math.PI * 2, r = 85 + (i % 3) * 8, h = 12 + (i * 7 % 10);
       const m = new THREE.Mesh(new THREE.ConeGeometry(14 + (i % 4) * 3, h, 5), hillM);
@@ -1860,7 +1931,7 @@ class MapBuilder {
       m.rotation.y = i;
       this.scene.add(m);
     }
-    const sunM = new THREE.Mesh(new THREE.SphereGeometry(7, 12, 8), new THREE.MeshBasicMaterial({ color: 0xfff2b0, fog: false }));
+    const sunM = new THREE.Mesh(new THREE.SphereGeometry(8, 14, 10), new THREE.MeshBasicMaterial({ color: 0xfff5c0, fog: false }));
     sunM.position.set(110, 90, 70);
     this.scene.add(sunM);
 
@@ -2182,12 +2253,12 @@ class MapBuilder {
   }
 
   buildShortDust2() {
-    const wallM = this.matShortWall || new THREE.MeshLambertMaterial({ color: 0xb89b64 });
+    const wallM = this.matShortWall || new THREE.MeshLambertMaterial({ color: 0xd9bf87 });
     const groundM = this.matShortGround || new THREE.MeshLambertMaterial({ map: this.groundTex });
-    const facadeM = this.matShortFacade || new THREE.MeshLambertMaterial({ color: 0x9a9a94 });
-    const darkM = this.matShortDark || new THREE.MeshLambertMaterial({ color: 0x8d7a52 });
-    const crateM = this.matShortCrate || new THREE.MeshLambertMaterial({ color: 0x9c6b3a });
-    const greenCrate = 0x3d5238, sandbag = 0xa89868;
+    const facadeM = this.matShortFacade || new THREE.MeshLambertMaterial({ color: 0xdbc189 });
+    const darkM = this.matShortDark || new THREE.MeshLambertMaterial({ color: 0xa68752 });
+    const crateM = this.matShortCrate || new THREE.MeshLambertMaterial({ color: 0xb6834c });
+    const greenCrate = 0x4d6342, sandbag = 0xd4c28c;
 
     // 1. GROUND & COBBLESTONE PATHWAYS (88x88)
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(88, 88), groundM);
@@ -2209,7 +2280,7 @@ class MapBuilder {
     });
 
     // Outer wall decorative stone trim
-    const cap = new THREE.MeshLambertMaterial({ color: 0x5a4830 });
+    const cap = new THREE.MeshLambertMaterial({ color: 0x8e7146 });
     [
       [0, -42.5, 72, 1.4],
       [0, 42.5, 72, 1.4],
