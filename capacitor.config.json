@@ -1,0 +1,15 @@
+{
+  "appId": "com.pixelshooters.fps",
+  "appName": "Pixel Shooters",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true,
+    "backgroundColor": "#0b0e14"
+  },
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}

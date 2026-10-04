@@ -5,12 +5,24 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "mobile:sync": "npx cap sync android",
+    "mobile:open": "npx cap open android"
   },
-  "keywords": ["cs2", "threejs", "webgl", "fps", "multiplayer", "websocket"],
+  "keywords": [
+    "cs2",
+    "threejs",
+    "webgl",
+    "fps",
+    "multiplayer",
+    "websocket"
+  ],
   "author": "Antigravity",
   "license": "MIT",
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "express": "^4.19.2",
     "ws": "^8.16.0"
   },
