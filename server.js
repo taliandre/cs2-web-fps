@@ -19,11 +19,12 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 const rooms = new Map();
 let nextPlayerId = 1;
 
-function getOrCreateRoom(roomCode) {
+function getOrCreateRoom(roomCode, requestedMap = 'shortdust2') {
   const code = (roomCode || 'PUBLIC').trim().toUpperCase();
   if (!rooms.has(code)) {
     const room = {
       code,
+      map: requestedMap || 'shortdust2',
       players: new Map(),
       matchDuration: 300,
       matchTime: 300,
@@ -43,7 +44,7 @@ function getOrCreateRoom(roomCode) {
     }, 1000);
 
     rooms.set(code, room);
-    console.log(`[ROOM CREATED] ${code}`);
+    console.log(`[ROOM CREATED] ${code} (Map: ${room.map})`);
   }
   return rooms.get(code);
 }
@@ -69,7 +70,10 @@ wss.on('connection', (ws) => {
       if (msg.type === 'join') {
         const roomCode = (msg.room || 'PUBLIC').trim().toUpperCase();
         const playerName = (msg.name || ('Player ' + playerId.slice(2))).trim().slice(0, 16);
-        currentRoom = getOrCreateRoom(roomCode);
+        currentRoom = getOrCreateRoom(roomCode, msg.map);
+        if (msg.map && currentRoom.players.size === 0) {
+          currentRoom.map = msg.map;
+        }
 
         playerData = {
           id: playerId,
@@ -104,6 +108,7 @@ wss.on('connection', (ws) => {
           type: 'joined',
           myId: playerId,
           room: currentRoom.code,
+          map: currentRoom.map || 'shortdust2',
           matchTime: currentRoom.matchTime,
           players: existingList
         }));

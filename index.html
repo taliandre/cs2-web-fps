@@ -439,6 +439,8 @@
   <div id="matchTimer"><small>TIME REMAINING</small><div class="t-val" id="timeStr">05:00</div></div>
   <div id="hudRoomInfo" style="position:absolute;left:50%;top:64px;transform:translateX(-50%);font-size:11px;letter-spacing:1px;color:var(--cyan);font-weight:800;background:rgba(10,13,18,.85);padding:4px 12px;border-radius:6px;border:1px solid rgba(63,208,255,.3);display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.5);z-index:90">
     <span>ODA: <span id="curRoomLbl" style="color:var(--gold);font-weight:900">PUBLIC</span></span>
+    <span style="color:rgba(255,255,255,0.25)">|</span>
+    <span>MAP: <span id="curMapLbl" style="color:#4cd137;font-weight:900">SHORT DUST 2</span></span>
     <button id="hudBtnCopy" type="button" title="Davet Linki Kopyala" style="background:rgba(63,208,255,.15);border:1px solid var(--cyan);color:var(--cyan);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer">🔗 LİNK</button>
     <button id="hudBtnLeave" type="button" title="Farklı Odaya Gir" style="background:rgba(255,80,80,.2);border:1px solid #ff5050;color:#ff8a8a;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:800;cursor:pointer">🚪 ODADAN AYRIL</button>
   </div>
@@ -678,6 +680,13 @@
           <option value="bots">PRACTICE · BOTS (OFFLINE)</option>
         </select>
       </div>
+      <div id="mapBox" style="display:flex; flex-direction:column; gap:3px; background:rgba(10,13,18,0.85); border:1px solid rgba(245,194,66,0.3); border-radius:8px; padding:6px 12px; box-shadow:0 4px 12px rgba(0,0,0,0.5)">
+        <small style="color:var(--gold); font-size:10px; font-weight:800; letter-spacing:1px">HARİTA SEÇİMİ</small>
+        <select id="selectedMap" style="background:#151a24; color:#fff; border:1px solid var(--border); border-radius:6px; padding:5px 8px; font-size:12px; font-weight:800; outline:none; cursor:pointer">
+          <option value="shortdust2">🏜️ SHORT DUST 2 (STANDOFF 2)</option>
+          <option value="dust2">🏛️ DUST II (KLASİK ARENA)</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -730,6 +739,13 @@
           <div class="f-row">
             <input id="createRoomCode" type="text" maxlength="12" placeholder="Oda Kodu (Örn: PROS)">
             <button id="btnRandomCode" type="button" class="btn3d blue small" title="Rastgele kod">🎲</button>
+          </div>
+          <div style="margin:8px 0; display:flex; flex-direction:column; gap:3px">
+            <small style="color:var(--gold); font-size:10px; font-weight:800">HARİTA SEÇ:</small>
+            <select id="createRoomMap" style="background:#151a24; color:#fff; border:1px solid var(--border); border-radius:6px; padding:6px 8px; font-size:12px; font-weight:700">
+              <option value="shortdust2">🏜️ SHORT DUST 2 (STANDOFF 2)</option>
+              <option value="dust2">🏛️ DUST II (KLASİK ARENA)</option>
+            </select>
           </div>
           <button id="btnCreateRoom" type="button" class="btn3d orange">🚀 OLUŞTUR &amp; GİR</button>
         </div>
@@ -1670,53 +1686,162 @@ function buildBotModel(color, kind) {
 }
 
 /* =====================================================================
-   MAP BUILDER (Dust II-inspired low-poly arena, AABB colliders)
+   MAP BUILDER (Dust II & Standoff 2 Short Dust 2 Multi-Map Engine)
    ===================================================================== */
 class MapBuilder {
   constructor(scene) {
-    this.scene = scene; this.spawns = []; this.waypoints = [];
+    this.scene = scene;
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+    this.spawns = [];
+    this.waypoints = [];
+    this.currentMapId = 'shortdust2';
+
+    // Procedural sand ground texture
     const cv = document.createElement('canvas'); cv.width = cv.height = 128; const cx = cv.getContext('2d');
     for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { cx.fillStyle = (x + y) % 2 ? '#cdb98a' : '#c4af7e'; cx.fillRect(x * 16, y * 16, 16, 16); }
-    const tex = new THREE.CanvasTexture(cv); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(20, 20); tex.magFilter = THREE.NearestFilter;
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshLambertMaterial({ map:tex }));
-    ground.rotation.x = -Math.PI / 2; scene.add(ground);
-    // procedural wood-plank crate texture
+    this.groundTex = new THREE.CanvasTexture(cv); this.groundTex.wrapS = this.groundTex.wrapT = THREE.RepeatWrapping; this.groundTex.repeat.set(20, 20); this.groundTex.magFilter = THREE.NearestFilter;
+
+    // Procedural wood-plank crate texture
     const wc = document.createElement('canvas'); wc.width = wc.height = 64; const wx = wc.getContext('2d');
     wx.fillStyle = '#9c6b3a'; wx.fillRect(0, 0, 64, 64);
     for (let i = 0; i < 4; i++) { wx.fillStyle = i % 2 ? '#a5733f' : '#8f6034'; wx.fillRect(0, i * 16, 64, 15); wx.fillStyle = '#5a3a1c'; wx.fillRect(0, i * 16 + 15, 64, 1); }
     wx.strokeStyle = '#5a3a1c'; wx.lineWidth = 4; wx.strokeRect(2, 2, 60, 60); wx.beginPath(); wx.moveTo(4, 4); wx.lineTo(60, 60); wx.moveTo(60, 4); wx.lineTo(4, 60); wx.stroke();
     this.crateTex = new THREE.CanvasTexture(wc); this.crateTex.magFilter = THREE.NearestFilter;
-    // dirt paths
-    const pathM = new THREE.MeshLambertMaterial({ color:0xa8946a });
-    [[0, 0, 5, 80], [0, 0, 80, 5], [-24, 0, 4, 80], [31, 0, 8, 80]].forEach(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(p[2], p[3]), pathM); m.rotation.x = -Math.PI / 2; m.position.set(p[0], 0.01, p[1]); scene.add(m); });
-    // distant low-poly hills and sun
-    const hillM = new THREE.MeshLambertMaterial({ color:0xb39a6b, flatShading:true });
+
+    // Distant background desert mountains and sun
+    const hillM = new THREE.MeshLambertMaterial({ color: 0xb39a6b, flatShading: true });
     for (let i = 0; i < 18; i++) {
       const a = i / 18 * Math.PI * 2, r = 85 + (i % 3) * 8, h = 12 + (i * 7 % 10);
-      const m = new THREE.Mesh(new THREE.ConeGeometry(14 + (i % 4) * 3, h, 5), hillM); m.position.set(Math.cos(a) * r, h / 2 - 1, Math.sin(a) * r); m.rotation.y = i; scene.add(m);
+      const m = new THREE.Mesh(new THREE.ConeGeometry(14 + (i % 4) * 3, h, 5), hillM);
+      m.position.set(Math.cos(a) * r, h / 2 - 1, Math.sin(a) * r);
+      m.rotation.y = i;
+      this.scene.add(m);
     }
-    const sunM = new THREE.Mesh(new THREE.SphereGeometry(7, 12, 8), new THREE.MeshBasicMaterial({ color:0xfff2b0, fog:false })); sunM.position.set(110, 90, 70); scene.add(sunM);
-    // outer wall cap trim
-    const cap = new THREE.MeshLambertMaterial({ color:0x6e5d3c });
-    [[0, -40.5, 82, 1.4], [0, 40.5, 82, 1.4], [-40.5, 0, 1.4, 82], [40.5, 0, 1.4, 82]].forEach(c => { const m = new THREE.Mesh(new THREE.BoxGeometry(c[2], 0.4, c[3]), cap); m.position.set(c[0], 6.2, c[1]); scene.add(m); });
-    this.build();
+    const sunM = new THREE.Mesh(new THREE.SphereGeometry(7, 12, 8), new THREE.MeshBasicMaterial({ color: 0xfff2b0, fog: false }));
+    sunM.position.set(110, 90, 70);
+    this.scene.add(sunM);
+
+    const initMap = localStorage.getItem('ps_map') || 'shortdust2';
+    this.load(initMap);
   }
+
+  clear() {
+    while (this.group.children.length > 0) {
+      const obj = this.group.children[0];
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        else obj.material.dispose();
+      }
+      this.group.remove(obj);
+    }
+    World.boxes = [];
+    this.spawns = [];
+    this.waypoints = [];
+  }
+
+  load(mapId) {
+    this.clear();
+    this.currentMapId = (mapId === 'dust2' ? 'dust2' : 'shortdust2');
+    try { localStorage.setItem('ps_map', this.currentMapId); } catch(e) {}
+    if (this.currentMapId === 'dust2') {
+      this.buildDust2();
+    } else {
+      this.buildShortDust2();
+    }
+  }
+
   aabb(x0, x1, z0, z1, y0, y1, color) {
     const w = x1 - x0, h = y1 - y0, d = z1 - z0;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial(color === 0x9c6b3a ? { map:this.crateTex, flatShading:true } : { color, flatShading:true }));
-    m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); this.scene.add(m);
-    const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color:0x3b3326, transparent:true, opacity:0.55 })); e.position.copy(m.position); this.scene.add(e);
-    World.boxes.push({ min:V3(x0, y0, z0), max:V3(x1, y1, z1) });
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial(color === 0x9c6b3a ? { map: this.crateTex, flatShading: true } : { color, flatShading: true }));
+    m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    this.group.add(m);
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x3b3326, transparent: true, opacity: 0.55 }));
+    e.position.copy(m.position);
+    this.group.add(e);
+    World.boxes.push({ min: V3(x0, y0, z0), max: V3(x1, y1, z1) });
   }
-  box(cx, cz, w, d, h, y0 = 0, color = 0xbfa571) { this.aabb(cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y0, y0 + h, color); }
+
+  box(cx, cz, w, d, h, y0 = 0, color = 0xbfa571) {
+    this.aabb(cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y0, y0 + h, color);
+  }
+
   stairsX(xEdge, dir, z0, z1, n, h, run, color) {
     for (let i = 0; i < n; i++) {
       const len = (n - i) * run;
-      if (dir > 0) this.aabb(xEdge, xEdge + len, z0, z1, 0, (i + 1) * h, color); else this.aabb(xEdge - len, xEdge, z0, z1, 0, (i + 1) * h, color);
+      if (dir > 0) this.aabb(xEdge, xEdge + len, z0, z1, 0, (i + 1) * h, color);
+      else this.aabb(xEdge - len, xEdge, z0, z1, 0, (i + 1) * h, color);
     }
   }
-  build() {
+
+  stairsZ(zEdge, dir, x0, x1, n, h, run, color) {
+    for (let i = 0; i < n; i++) {
+      const len = (n - i) * run;
+      if (dir > 0) this.aabb(x0, x1, zEdge, zEdge + len, 0, (i + 1) * h, color);
+      else this.aabb(x0, x1, zEdge - len, zEdge, 0, (i + 1) * h, color);
+    }
+  }
+
+  barrel(x, z, col) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.0, 10), new THREE.MeshLambertMaterial({ color: col, flatShading: true }));
+    m.position.set(x, 0.5, z);
+    this.group.add(m);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.08, 10), new THREE.MeshLambertMaterial({ color: 0x222222 }));
+    band.position.set(x, 0.5, z);
+    this.group.add(band);
+    World.boxes.push({ min: V3(x - 0.34, 0, z - 0.34), max: V3(x + 0.34, 1.0, z + 0.34) });
+  }
+
+  silo(x, z, r, h, col = 0x828b94) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), new THREE.MeshLambertMaterial({ color: col, flatShading: true }));
+    m.position.set(x, h / 2, z);
+    this.group.add(m);
+    [-h * 0.35, 0, h * 0.35].forEach(oy => {
+      const ring = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.03, r * 1.03, 0.22, 16), new THREE.MeshLambertMaterial({ color: 0x3d4348 }));
+      ring.position.set(x, h / 2 + oy, z);
+      this.group.add(ring);
+    });
+    const dome = new THREE.Mesh(new THREE.ConeGeometry(r * 1.02, 0.8, 16), new THREE.MeshLambertMaterial({ color: 0x616a70, flatShading: true }));
+    dome.position.set(x, h + 0.4, z);
+    this.group.add(dome);
+    World.boxes.push({ min: V3(x - r * 0.95, 0, z - r * 0.95), max: V3(x + r * 0.95, h + 1, z + r * 0.95) });
+  }
+
+  palm(x, z) {
+    const trunkM = new THREE.MeshLambertMaterial({ color: 0x6e4e2a, flatShading: true });
+    const frondM = new THREE.MeshLambertMaterial({ color: 0x2e6b36, flatShading: true });
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 7.0, 7), trunkM);
+    t.position.set(x, 3.5, z);
+    t.rotation.z = (Math.random() - 0.5) * 0.15;
+    this.group.add(t);
+    for (let i = 0; i < 5; i++) {
+      const ang = i * (Math.PI * 2 / 5);
+      const frond = new THREE.Mesh(new THREE.ConeGeometry(1.6, 3.2, 5), frondM);
+      frond.position.set(x + Math.cos(ang) * 1.5, 7.0, z + Math.sin(ang) * 1.5);
+      frond.rotation.x = Math.sin(ang) * 0.9;
+      frond.rotation.z = -Math.cos(ang) * 0.9;
+      this.group.add(frond);
+    }
+  }
+
+  buildDust2() {
     const wall = 0xb89b64, dark = 0x8d7a52, crate = 0x9c6b3a, conc = 0x9a9a94, blue = 0x4a6a86;
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshLambertMaterial({ map: this.groundTex }));
+    ground.rotation.x = -Math.PI / 2; this.group.add(ground);
+
+    const pathM = new THREE.MeshLambertMaterial({ color: 0xa8946a });
+    [[0, 0, 5, 80], [0, 0, 80, 5], [-24, 0, 4, 80], [31, 0, 8, 80]].forEach(p => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(p[2], p[3]), pathM);
+      m.rotation.x = -Math.PI / 2; m.position.set(p[0], 0.01, p[1]); this.group.add(m);
+    });
+
+    const cap = new THREE.MeshLambertMaterial({ color: 0x6e5d3c });
+    [[0, -40.5, 82, 1.4], [0, 40.5, 82, 1.4], [-40.5, 0, 1.4, 82], [40.5, 0, 1.4, 82]].forEach(c => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(c[2], 0.4, c[3]), cap);
+      m.position.set(c[0], 6.2, c[1]); this.group.add(m);
+    });
+
     // outer walls
     this.aabb(-41, 41, -41, -40, 0, 6, wall); this.aabb(-41, 41, 40, 41, 0, 6, wall);
     this.aabb(-41, -40, -41, 41, 0, 6, wall); this.aabb(40, 41, -41, 41, 0, 6, wall);
@@ -1743,9 +1868,8 @@ class MapBuilder {
     this.box(-14, -14, 1, 1, 2.4, 0, wall); this.box(-10, -14, 1, 1, 2.4, 0, wall); this.aabb(-14.5, -9.5, -14.5, -13.5, 2.4, 3.2, wall);
     // Buildings
     this.box(-20, -28, 12, 10, 4, 0, dark); this.aabb(13.5, 14.5, -34, -22, 0, 4, wall); this.box(-30, 22, 6, 5, 3, 0, dark);
-    // Building trim (roof lips) for a more architectural look
-    this.aabb(-26.3, -13.7, -33.3, -22.7, 4, 4.3, 0x6e5d3c); this.aabb(13.3, 14.7, -34.2, -21.8, 4.5 - 0.5, 4.3, 0x6e5d3c);
-    // ---- OBSERVATION TOWER (north-mid): legs, platform, rails, roof, staircase ----
+    this.aabb(-26.3, -13.7, -33.3, -22.7, 4, 4.3, 0x6e5d3c); this.aabb(13.3, 14.7, -34.2, -21.8, 4.0, 4.3, 0x6e5d3c);
+    // Observation Tower
     const wood = 0x7a5a36, tdark = 0x4d3b26, metal = 0x5d6670;
     this.aabb(2, 2.6, 22, 22.6, 0, 3, tdark); this.aabb(7.4, 8, 22, 22.6, 0, 3, tdark);
     this.aabb(2, 2.6, 27.4, 28, 0, 3, tdark); this.aabb(7.4, 8, 27.4, 28, 0, 3, tdark);
@@ -1756,18 +1880,211 @@ class MapBuilder {
     this.aabb(2, 2.3, 27.7, 28, 4.4, 6.0, tdark); this.aabb(7.7, 8, 27.7, 28, 4.4, 6.0, tdark);
     this.aabb(1.5, 8.5, 21.5, 28.5, 6.0, 6.3, 0x8a3a2a);
     this.stairsX(2, -1, 24, 26, 8, 0.425, 0.8, wood);
-    this.aabb(-4.5, 2, 23.8, 24, 0, 0.4, metal); // stair stringer accent
-    // ---- Props: barrels, sandbags and low cover ----
-    const barrel = (x, z, col) => {
-      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.0, 10), new THREE.MeshLambertMaterial({ color:col, flatShading:true })); m.position.set(x, 0.5, z); this.scene.add(m);
-      const band = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.08, 10), new THREE.MeshLambertMaterial({ color:0x222222 })); band.position.set(x, 0.5, z); this.scene.add(band);
-      World.boxes.push({ min:V3(x - 0.34, 0, z - 0.34), max:V3(x + 0.34, 1.0, z + 0.34) });
-    };
-    barrel(-3, 4, 0x3d5a80); barrel(-2.2, 4.5, 0x9b3a2a); barrel(25, 10, 0x3d5a80); barrel(26, 10.6, 0x3d5a80); barrel(-24, 14, 0x9b3a2a); barrel(-9, -10, 0x3d5a80); barrel(18, -18, 0x9b3a2a);
+    this.aabb(-4.5, 2, 23.8, 24, 0, 0.4, metal);
+    // Props
+    this.barrel(-3, 4, 0x3d5a80); this.barrel(-2.2, 4.5, 0x9b3a2a); this.barrel(25, 10, 0x3d5a80); this.barrel(26, 10.6, 0x3d5a80); this.barrel(-24, 14, 0x9b3a2a); this.barrel(-9, -10, 0x3d5a80); this.barrel(18, -18, 0x9b3a2a);
     this.box(18, 12, 3, 0.9, 0.9, 0, 0xa89868); this.box(-16, 28, 3, 0.9, 0.9, 0, 0xa89868); this.box(34, -12, 0.9, 3, 0.9, 0, 0xa89868);
     this.spawns = [V3(0, 0, 32), V3(-30, 0, 35), V3(30, 0, 34), V3(-34, 0, 20), V3(36, 0, -34), V3(-36, 0, -34), V3(0, 0, -35), V3(18, 0, 0), V3(-18, 0, -8), V3(5, 3.4, 25)];
     this.waypoints = this.spawns.concat([V3(0, 0, -15), V3(12, 0, -6), V3(-10, 0, 0), V3(31, 0, 0), V3(31, 0, -10), V3(-32, 0, 0), V3(-20, 0, 15), V3(20, 0, 25),
       V3(-12, 0, -17), V3(-4, 0, 8), V3(24, 0, -30), V3(36, 0, -30), V3(31, 0, -36), V3(26, 0, -20), V3(-34, 0, 8), V3(8, 0, 20), V3(-4.5, 0, 25), V3(5, 3.4, 25)]);
+  }
+
+  buildShortDust2() {
+    const wall = 0xb89b64, dark = 0x8d7a52, crate = 0x9c6b3a, conc = 0x9a9a94, greenCrate = 0x42523b, sandbag = 0xa89868;
+
+    // 1. Ground & Pathways (86x88)
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(86, 88), new THREE.MeshLambertMaterial({ map: this.groundTex }));
+    ground.rotation.x = -Math.PI / 2;
+    this.group.add(ground);
+
+    const pathM = new THREE.MeshLambertMaterial({ color: 0xaa9468 });
+    [
+      [-20, 0, 8, 80],      // Long corridor path
+      [0, 0, 7, 76],        // Central underpass path
+      [16, 0, 7, 76],       // Silo alley path
+      [0, -30, 42, 10],     // Bombsite plaza
+      [0, 28, 44, 8]        // South courtyard crossway
+    ].forEach(p => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(p[2], p[3]), pathM);
+      m.rotation.x = -Math.PI / 2;
+      m.position.set(p[0], 0.015, p[1]);
+      this.group.add(m);
+    });
+
+    // Outer wall decorative stone trim
+    const cap = new THREE.MeshLambertMaterial({ color: 0x6e5d3c });
+    [
+      [0, -42.5, 58, 1.4],
+      [0, 42.5, 58, 1.4],
+      [-28.5, 0, 1.4, 86],
+      [27.5, 0, 1.4, 86]
+    ].forEach(c => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(c[2], 0.4, c[3]), cap);
+      m.position.set(c[0], 6.7, c[1]);
+      this.group.add(m);
+    });
+
+    // 2. PERIMETER FORTRESS WALLS (Height: 6.5)
+    this.aabb(-29, 28, -43, -41.5, 0, 6.5, wall); // North Backwall (Palace/CT)
+    this.aabb(-29, 28, 41.5, 43, 0, 6.5, wall);   // South Wall (T)
+    this.aabb(-29.5, -28, -43, 43, 0, 6.5, wall); // West Outer Wall (Long)
+    this.aabb(26.5, 28, -43, 43, 0, 6.5, wall);   // East Outer Wall (Silo boundary)
+
+    // 3. WEST LANE ("LONG" CORRIDOR / ALLEY)
+    // Divider wall separating Long from Center
+    this.aabb(-14.5, -13, 10, 24, 0, 5.0, wall); // South section
+    this.aabb(-14.5, -13, 4, 10, 3.2, 5.0, wall); // Arch over doorway into Central Building
+    this.aabb(-14.5, -13, -22, 4, 0, 5.0, wall); // Mid section
+    this.aabb(-14.5, -13, -30, -22, 0, 4.0, wall); // North section to bombsite
+    this.aabb(-28, -13, -26.5, -25.5, 3.4, 5.0, wall); // Arched entrance into Bombsite from Long
+
+    // Long Lane Cover & Crates
+    this.box(-20.5, 0, 2.4, 2.4, 1.4, 0, crate);       // Mid-Long base double crate
+    this.box(-20.5, 0, 1.4, 1.4, 1.2, 1.4, crate);     // Mid-Long top crate
+    this.box(-16.5, 14, 2.0, 1.2, 1.3, 0, conc);       // Peek block
+    this.box(-22.5, -16, 2.2, 2.2, 1.3, 0, crate);     // North Long crate
+    this.barrel(-25.5, 6, 0x3d5a80);                   // Blue barrel
+    this.barrel(-24.7, 6.8, 0x9b3a2a);                 // Red barrel
+
+    // 4. CENTRAL BUILDING / PALACE INTERIOR (Underpass & Connector)
+    // North Wall with Underpass Exit at z = -18
+    this.aabb(-13, -2, -18.5, -17, 0, 5.0, wall);
+    this.aabb(-2, 4, -18.5, -17, 3.2, 5.0, wall); // Arch header
+    this.aabb(4, 7.5, -18.5, -17, 0, 5.0, wall);
+
+    // South Wall with T Courtyard Entrance at z = 16
+    this.aabb(-13, -3, 15, 16.5, 0, 5.0, wall);
+    this.aabb(-3, 3, 15, 16.5, 3.2, 5.0, wall); // Arch header
+    this.aabb(3, 7.5, 15, 16.5, 0, 5.0, wall);
+
+    // East Wall with Opening to Silo Alley at z = -4..2
+    this.aabb(6.5, 8.0, -17, -4, 0, 5.0, wall);
+    this.aabb(6.5, 8.0, -4, 2, 3.2, 5.0, wall); // Arch header
+    this.aabb(6.5, 8.0, 2, 15, 0, 5.0, wall);
+
+    // Interior Architecture & Ambushes
+    this.box(-2, 0, 1.6, 1.6, 4.2, 0, conc);           // Center pillar
+    this.box(-8, -6, 2.0, 2.0, 1.3, 0, dark);          // Inside dark crate
+    this.box(2, 8, 2.2, 2.2, 1.3, 0, crate);           // Inside wood crate
+    this.aabb(-6, 2, -15, -9, 0, 0.9, conc);           // Interior raised landing
+    this.stairsZ(-9, 1, -6, 2, 3, 0.3, 0.7, conc);     // Interior steps
+
+    // Exposed roof beams (vegas) over building
+    for (let bz = -14; bz <= 12; bz += 4.5) {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(21.5, 0.3, 0.3), new THREE.MeshLambertMaterial({ color: 0x5a3d24 }));
+      beam.position.set(-2.5, 5.1, bz);
+      this.group.add(beam);
+    }
+
+    // 5. EAST FLANK: SILO ALLEYWAY (The 3 Silos from the minimap!)
+    this.silo(21.0, -22.0, 2.4, 6.2, 0x828b94); // Silo 1 (North)
+    this.silo(21.0, -5.0, 2.4, 6.2, 0x828b94);  // Silo 2 (Mid)
+    this.silo(21.0, 12.0, 2.4, 6.2, 0x828b94);   // Silo 3 (South)
+
+    // Overhead Connecting Archway at z = 2
+    this.aabb(8.0, 26.5, 1.2, 2.8, 3.5, 4.8, dark);
+
+    // Silo Alley Tactical Cover
+    this.box(12.5, 5, 2.4, 1.8, 1.2, 0, greenCrate);   // Military supply crate
+    this.box(12, -12, 1.0, 3.2, 1.1, 0, sandbag);      // Sandbag barricade
+    this.barrel(21.5, 3.5, 0x3d5a80);
+    this.barrel(21.5, -13.5, 0x9b3a2a);
+
+    // 6. NORTH BOMBSITE A & CT SPAWN
+    // Elevated Bombsite Platform (y = 1.2)
+    this.aabb(-9, 6, -36, -24, 0, 1.2, conc);
+    this.stairsZ(-24, 1, -3, 3, 4, 0.3, 0.7, conc);   // Steps from South Underpass
+    this.stairsX(-9, -1, -32, -26, 4, 0.3, 0.7, conc); // Steps from West Long
+    this.stairsX(6, 1, -32, -26, 4, 0.3, 0.7, conc);   // Steps from East Silo flank
+    this.aabb(4.5, 6.0, -36, -28, 1.2, 2.6, wall);     // Half-wall cover on site
+
+    // Bombsite A Target Decal
+    const targetC = document.createElement('canvas'); targetC.width = targetC.height = 128;
+    const tcx = targetC.getContext('2d');
+    tcx.fillStyle = 'rgba(0,0,0,0)'; tcx.fillRect(0, 0, 128, 128);
+    tcx.strokeStyle = '#b82828'; tcx.lineWidth = 10;
+    tcx.beginPath(); tcx.arc(64, 64, 48, 0, Math.PI * 2); tcx.stroke();
+    tcx.beginPath(); tcx.arc(64, 64, 24, 0, Math.PI * 2); tcx.stroke();
+    tcx.fillStyle = '#b82828'; tcx.font = 'bold 36px Arial'; tcx.textAlign = 'center'; tcx.textBaseline = 'middle';
+    tcx.fillText('A', 64, 64);
+    const targetTex = new THREE.CanvasTexture(targetC);
+    const targetMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), new THREE.MeshBasicMaterial({ map: targetTex, transparent: true, opacity: 0.85 }));
+    targetMesh.rotation.x = -Math.PI / 2;
+    targetMesh.position.set(-1.5, 1.215, -30);
+    this.group.add(targetMesh);
+
+    // Bombsite Plant Crates
+    this.box(-1.5, -30, 2.4, 2.4, 1.4, 1.2, crate);
+    this.box(-1.5, -30, 1.4, 1.4, 1.2, 2.6, crate);
+    this.box(2.2, -31, 2.0, 1.8, 1.3, 1.2, greenCrate);
+
+    // CT Spawn Area (z = -37..-41)
+    [-5, 3, 11].forEach(colX => {
+      this.box(colX, -40.5, 1.4, 1.4, 5.0, 0, wall);
+    });
+    this.box(10, -36, 2.2, 2.2, 1.3, 0, crate);
+    this.barrel(14, -38, 0x3d5a80);
+    this.barrel(14.8, -37.3, 0x9b3a2a);
+
+    // 7. SOUTH T-SPAWN & COURTYARD (z = 20..42)
+    this.aabb(-16, -4, 34, 35.5, 0, 2.6, wall);
+    this.aabb(4, 16, 34, 35.5, 0, 2.6, wall);
+    this.box(-10, 38.5, 2.4, 2.4, 1.3, 0, crate);
+    this.box(10, 38.5, 2.4, 2.4, 1.3, 0, crate);
+
+    // The Famous L-Shaped Wall (from the Standoff 2 minimap!)
+    this.aabb(-14, -8, 22, 23.5, 0, 2.6, wall);
+    this.aabb(-14, -12.5, 23.5, 28, 0, 2.6, wall);
+
+    // Mid Courtyard Crates & Sandbags
+    this.box(1.5, 26, 2.2, 2.2, 1.3, 0, crate);
+    this.box(12.5, 24, 0.9, 3.2, 1.0, 0, sandbag);
+
+    // 8. SCENIC DESERT PALMS
+    this.palm(-33, -15);
+    this.palm(-34, 15);
+    this.palm(-32, 32);
+    this.palm(31, -28);
+    this.palm(32, 5);
+    this.palm(31, 28);
+
+    // 9. SHORT DUST 2 SPAWN POINTS
+    this.spawns = [
+      // T-Side Spawns (South)
+      V3(0, 0, 38),
+      V3(-8, 0, 37),
+      V3(8, 0, 37),
+      V3(-16, 0, 30),
+      V3(16, 0, 28),
+      // CT-Side Spawns (North)
+      V3(0, 0, -39),
+      V3(8, 0, -37),
+      V3(-2, 1.2, -32),
+      V3(-16, 0, -34),
+      V3(14, 0, -32)
+    ];
+
+    // 10. BOT WAYPOINTS (AI Navigation)
+    this.waypoints = this.spawns.concat([
+      V3(-20, 0, 22),
+      V3(-20, 0, 10),
+      V3(-20, 0, 0),
+      V3(-20, 0, -10),
+      V3(-20, 0, -22),
+      V3(0, 0, 10),
+      V3(0, 0, 0),
+      V3(-5, 0, 0),
+      V3(0, 0, -10),
+      V3(14, 0, 20),
+      V3(14, 0, 5),
+      V3(14, 0, -8),
+      V3(14, 0, -22),
+      V3(-12, 0, 6),
+      V3(7, 0, 0),
+      V3(-1, 1.2, -28),
+      V3(-6, 1.2, -30),
+      V3(4, 1.2, -30)
+    ]);
   }
 }
 
@@ -3046,6 +3363,7 @@ class NetworkManager {
         type: 'join',
         room: this.roomCode,
         name: this.playerName,
+        map: this.g.currentMapId || 'shortdust2',
         pos: { x: p.pos.x, y: p.pos.y, z: p.pos.z }
       }));
     };
@@ -3073,6 +3391,9 @@ class NetworkManager {
       this.myId = msg.myId;
       this.g.player.name = this.playerName;
       if (msg.matchTime != null) this.g.matchTime = msg.matchTime;
+      if (msg.map && msg.map !== this.g.currentMapId) {
+        this.g.setMap(msg.map);
+      }
       // Online odalarda kesinlikle bot bulunmaz
       for (const b of this.g.bots) {
         b.model.root.visible = false;
@@ -3337,7 +3658,8 @@ class UIManager {
           $('createRoomCode').value = code;
         }
         const name = ($('pName').value || 'Player').trim();
-        this.g.startRoom(code, name, isMobileMode(), false);
+        const map = ($('createRoomMap') ? $('createRoomMap').value : ($('selectedMap') ? $('selectedMap').value : 'shortdust2'));
+        this.g.startRoom(code, name, isMobileMode(), false, map);
       });
     }
 
@@ -3361,7 +3683,8 @@ class UIManager {
           return;
         }
         const name = ($('pName').value || 'Player').trim();
-        this.g.startRoom(code, name, isMobileMode(), false);
+        const map = $('selectedMap') ? $('selectedMap').value : 'shortdust2';
+        this.g.startRoom(code, name, isMobileMode(), false, map);
       });
     }
 
@@ -3369,7 +3692,8 @@ class UIManager {
     if ($('btnPlaySolo')) {
       $('btnPlaySolo').addEventListener('click', () => {
         const name = ($('pName').value || 'Player').trim();
-        this.g.startRoom('BOTLAR', name, false, true);
+        const map = $('selectedMap') ? $('selectedMap').value : 'shortdust2';
+        this.g.startRoom('BOTLAR', name, false, true, map);
       });
     }
 
@@ -3471,7 +3795,8 @@ class UIManager {
   }
   startPlay(mode, name) {
     if (isMobileMode() && Settings.gyro) Gyro.enable();
-    this.g.startRoom(mode === 'bots' ? 'BOTLAR' : 'PUBLIC', name, isMobileMode(), mode === 'bots');
+    const map = this.$('selectedMap') ? this.$('selectedMap').value : 'shortdust2';
+    this.g.startRoom(mode === 'bots' ? 'BOTLAR' : 'PUBLIC', name, isMobileMode(), mode === 'bots', map);
   }
   initMenu(bind) {
     const $ = this.$;
@@ -3487,6 +3812,23 @@ class UIManager {
     gate.style.display = Device.mode ? 'none' : 'flex';
     $('btnDevice').addEventListener('click', () => { gate.style.display = 'flex'; });
     document.querySelectorAll('#menuSide .m-tab').forEach(b => b.addEventListener('click', () => this.setView(b.dataset.view)));
+
+    if ($('selectedMap')) {
+      const savedMap = localStorage.getItem('ps_map') || 'shortdust2';
+      $('selectedMap').value = savedMap;
+      if ($('createRoomMap')) $('createRoomMap').value = savedMap;
+      $('selectedMap').addEventListener('change', (e) => {
+        this.g.setMap(e.target.value);
+        if ($('createRoomMap')) $('createRoomMap').value = e.target.value;
+      });
+    }
+    if ($('createRoomMap')) {
+      $('createRoomMap').addEventListener('change', (e) => {
+        this.g.setMap(e.target.value);
+        if ($('selectedMap')) $('selectedMap').value = e.target.value;
+      });
+    }
+
     $('play').addEventListener('click', () => { this.startPlay($('gameMode').value, ($('pName').value || 'Player').trim()); });
     $('btnFriends').addEventListener('click', () => this.openModal('friendsModal'));
     document.querySelectorAll('.m-close').forEach(b => b.addEventListener('click', () => { const e = $(b.dataset.close); if (e) e.style.display = 'none'; }));
@@ -3677,6 +4019,7 @@ class Game {
   constructor() {
     this.engine = new EngineCore(); this.scene = this.engine.scene; this.sound = new SoundEngine();
     this.map = new MapBuilder(this.scene); this.fx = new FX(this.scene);
+    this.currentMapId = (this.map && this.map.currentMapId) ? this.map.currentMapId : 'shortdust2';
     this.player = new Actor('You', true); this.actors = [this.player]; this.bots = [];
     this.network = new NetworkManager(this);
     this.ui = new UIManager(this); this.input = new InputManager(this); this.weapons = new WeaponSystem(this);
@@ -3692,7 +4035,23 @@ class Game {
     this._pk = this._pd = this._ph = 0;
     this.loop = this.loop.bind(this); requestAnimationFrame(this.loop);
   }
-  startRoom(roomCode, playerName, fullscreen = false, isOffline = false) {
+  setMap(mapId) {
+    if (!mapId) mapId = 'shortdust2';
+    this.currentMapId = mapId;
+    if (this.map) this.map.load(mapId);
+    if (this.map && this.map.spawns && this.map.spawns.length) {
+      this.player.pos.copy(this.map.spawns[0]);
+      this.player.vel.set(0, 0, 0);
+    }
+    const curMapLbl = document.getElementById('curMapLbl');
+    if (curMapLbl) curMapLbl.textContent = mapId === 'shortdust2' ? 'SHORT DUST 2' : 'DUST II';
+    const selMap = document.getElementById('selectedMap');
+    if (selMap && selMap.value !== mapId) selMap.value = mapId;
+    const crMap = document.getElementById('createRoomMap');
+    if (crMap && crMap.value !== mapId) crMap.value = mapId;
+    try { localStorage.setItem('ps_map', mapId); } catch(e) {}
+  }
+  startRoom(roomCode, playerName, fullscreen = false, isOffline = false, mapId = null) {
     this.sound.init();
     this.roomCode = (roomCode || 'PUBLIC').trim().toUpperCase() || 'PUBLIC';
     this.player.name = (playerName || 'Player').trim().slice(0, 15) || 'Player';
@@ -3701,6 +4060,11 @@ class Game {
     this.matchEnded = false;
     this.time = 0;
     this.matchTime = this.matchDuration;
+
+    // Harita ayarı
+    const selEl = document.getElementById('selectedMap');
+    const targetMap = mapId || (selEl ? selEl.value : (this.currentMapId || 'shortdust2'));
+    this.setMap(targetMap);
 
     const isTouch = isMobileMode();
     const tc = document.getElementById('touchControls');
