@@ -1793,6 +1793,38 @@ class MapBuilder {
     wx.strokeStyle = '#5a3a1c'; wx.lineWidth = 4; wx.strokeRect(2, 2, 60, 60); wx.beginPath(); wx.moveTo(4, 4); wx.lineTo(60, 60); wx.moveTo(60, 4); wx.lineTo(4, 60); wx.stroke();
     this.crateTex = new THREE.CanvasTexture(wc); this.crateTex.magFilter = THREE.NearestFilter;
 
+    // Sketchfab Short Dust 2 Texture Atlases & Materials
+    try {
+      const tl = new THREE.TextureLoader();
+      this.atlasGround = tl.load('textures/shortdust/atlas1.jpeg');
+      this.atlasGround.wrapS = this.atlasGround.wrapT = THREE.RepeatWrapping;
+      this.atlasGround.repeat.set(6, 6);
+
+      this.atlasDark = tl.load('textures/shortdust/atlas2.jpeg');
+      this.atlasDark.wrapS = this.atlasDark.wrapT = THREE.RepeatWrapping;
+
+      this.atlasWall = tl.load('textures/shortdust/atlas3.jpeg');
+      this.atlasWall.wrapS = this.atlasWall.wrapT = THREE.RepeatWrapping;
+      this.atlasWall.repeat.set(3, 3);
+
+      this.atlasFacade = tl.load('textures/shortdust/atlas4.jpeg');
+      this.atlasFacade.wrapS = this.atlasFacade.wrapT = THREE.RepeatWrapping;
+      this.atlasFacade.repeat.set(2, 2);
+
+      this.matShortGround = new THREE.MeshLambertMaterial({ map: this.atlasGround, color: 0xe0d4bc });
+      this.matShortWall = new THREE.MeshLambertMaterial({ map: this.atlasWall, color: 0xdfd2be });
+      this.matShortFacade = new THREE.MeshLambertMaterial({ map: this.atlasFacade, color: 0xdbd0bc });
+      this.matShortDark = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x7c6952 });
+      this.matShortCrate = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0xb58450 });
+      this.matShortWood = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x6e4e2c });
+      this.matDome = new THREE.MeshLambertMaterial({ color: 0x1d72a8 });
+      this.matDomeGold = new THREE.MeshLambertMaterial({ color: 0xf0b830 });
+      this.matTire = new THREE.MeshLambertMaterial({ color: 0x222222 });
+      this.matRustyMetal = new THREE.MeshLambertMaterial({ map: this.atlasDark, color: 0x6e5242 });
+    } catch (e) {
+      console.warn('Shortdust textures init error:', e);
+    }
+
     // Distant background desert mountains and sun
     const hillM = new THREE.MeshLambertMaterial({ color: 0xb39a6b });
     for (let i = 0; i < 18; i++) {
@@ -1836,19 +1868,30 @@ class MapBuilder {
     }
   }
 
-  aabb(x0, x1, z0, z1, y0, y1, color) {
+  aabb(x0, x1, z0, z1, y0, y1, colorOrMat, collide = true) {
     const w = x1 - x0, h = y1 - y0, d = z1 - z0;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial(color === 0x9c6b3a ? { map: this.crateTex } : { color }));
+    let mat;
+    if (colorOrMat && typeof colorOrMat === 'object' && colorOrMat.isMaterial) {
+      mat = colorOrMat;
+    } else if (colorOrMat === 0x9c6b3a) {
+      mat = new THREE.MeshLambertMaterial({ map: this.crateTex });
+    } else {
+      mat = new THREE.MeshLambertMaterial({ color: colorOrMat });
+    }
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
     m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
     this.group.add(m);
-    const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x3b3326, transparent: true, opacity: 0.55 }));
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x3b3326, transparent: true, opacity: 0.35 }));
     e.position.copy(m.position);
     this.group.add(e);
-    World.boxes.push({ min: V3(x0, y0, z0), max: V3(x1, y1, z1) });
+    if (collide) {
+      World.boxes.push({ min: V3(x0, y0, z0), max: V3(x1, y1, z1) });
+    }
+    return m;
   }
 
-  box(cx, cz, w, d, h, y0 = 0, color = 0xbfa571) {
-    this.aabb(cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y0, y0 + h, color);
+  box(cx, cz, w, d, h, y0 = 0, colorOrMat = 0xbfa571, collide = true) {
+    return this.aabb(cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y0, y0 + h, colorOrMat, collide);
   }
 
   stairsX(xEdge, dir, z0, z1, n, h, run, color) {
@@ -1907,6 +1950,145 @@ class MapBuilder {
       frond.rotation.z = -Math.cos(ang) * 0.9;
       this.group.add(frond);
     }
+  }
+
+  wire(p1, p2, sag = 0.8) {
+    const mid = new THREE.Vector3((p1.x + p2.x) / 2, Math.min(p1.y, p2.y) - sag, (p1.z + p2.z) / 2);
+    const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+    const pts = curve.getPoints(14);
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x181818, linewidth: 2 }));
+    this.group.add(line);
+  }
+
+  utilityPole(x, z, h = 8.5) {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, h, 8), this.matShortWood);
+    pole.position.set(x, h / 2, z);
+    this.group.add(pole);
+    World.boxes.push({ min: V3(x - 0.25, 0, z - 0.25), max: V3(x + 0.25, h, z + 0.25) });
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.16, 0.18), this.matShortWood);
+    arm.position.set(x, h - 0.5, z);
+    this.group.add(arm);
+    const insM = new THREE.MeshLambertMaterial({ color: 0xeeeeee });
+    [-0.9, -0.3, 0.3, 0.9].forEach(ox => {
+      const ins = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.2, 6), insM);
+      ins.position.set(x + ox, h - 0.35, z);
+      this.group.add(ins);
+    });
+    return V3(x, h - 0.35, z);
+  }
+
+  mosqueDome(cx, cz, baseR = 2.8, baseH = 2.2, roofY = 6.8) {
+    const drum = new THREE.Mesh(new THREE.CylinderGeometry(baseR, baseR * 1.05, baseH, 16), this.matShortFacade);
+    drum.position.set(cx, roofY + baseH / 2, cz);
+    this.group.add(drum);
+
+    const ring = new THREE.Mesh(new THREE.CylinderGeometry(baseR * 1.08, baseR * 1.08, 0.28, 16), this.matShortDark);
+    ring.position.set(cx, roofY + baseH, cz);
+    this.group.add(ring);
+
+    const bulbGeo = new THREE.SphereGeometry(baseR * 1.06, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62);
+    const bulb = new THREE.Mesh(bulbGeo, this.matDome);
+    bulb.position.set(cx, roofY + baseH, cz);
+    this.group.add(bulb);
+
+    const coneGeo = new THREE.ConeGeometry(baseR * 0.72, baseH * 1.35, 20);
+    const cone = new THREE.Mesh(coneGeo, this.matDome);
+    cone.position.set(cx, roofY + baseH + baseR * 0.75, cz);
+    this.group.add(cone);
+
+    const spireY = roofY + baseH + baseR * 0.75 + baseH * 0.75;
+    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 2.0, 8), this.matDomeGold);
+    spire.position.set(cx, spireY, cz);
+    this.group.add(spire);
+
+    const ball1 = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), this.matDomeGold);
+    ball1.position.set(cx, spireY - 0.4, cz);
+    this.group.add(ball1);
+
+    const ball2 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 8), this.matDomeGold);
+    ball2.position.set(cx, spireY + 0.5, cz);
+    this.group.add(ball2);
+
+    const cresc = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.05, 8, 16, Math.PI * 1.4), this.matDomeGold);
+    cresc.position.set(cx, spireY + 1.0, cz);
+    cresc.rotation.z = Math.PI / 2;
+    this.group.add(cresc);
+  }
+
+  crenellations(x0, x1, z0, z1, y) {
+    if (Math.abs(x1 - x0) >= Math.abs(z1 - z0)) {
+      const minX = Math.min(x0, x1), maxX = Math.max(x0, x1);
+      for (let x = minX; x < maxX - 0.8; x += 1.8) {
+        this.aabb(x, x + 1.0, z0 - 0.25, z0 + 0.25, y, y + 0.7, this.matShortFacade, false);
+      }
+    } else {
+      const minZ = Math.min(z0, z1), maxZ = Math.max(z0, z1);
+      for (let z = minZ; z < maxZ - 0.8; z += 1.8) {
+        this.aabb(x0 - 0.25, x0 + 0.25, z, z + 1.0, y, y + 0.7, this.matShortFacade, false);
+      }
+    }
+  }
+
+  woodBalcony(cx, cz, w, d, y) {
+    this.aabb(cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2, y, y + 0.2, this.matShortWood, true);
+    this.aabb(cx - w / 2, cx + w / 2, cz + d / 2 - 0.1, cz + d / 2 + 0.05, y + 0.2, y + 1.0, this.matShortDark, true);
+    this.aabb(cx - w / 2 - 0.05, cx - w / 2 + 0.1, cz - d / 2, cz + d / 2, y + 0.2, y + 1.0, this.matShortDark, true);
+    this.aabb(cx + w / 2 - 0.1, cx + w / 2 + 0.05, cz - d / 2, cz + d / 2, y + 0.2, y + 1.0, this.matShortDark, true);
+    for (let bx = cx - w / 2 + 0.3; bx <= cx + w / 2 - 0.2; bx += 0.9) {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.4, d + 0.4), this.matShortWood);
+      beam.position.set(bx, y - 0.2, cz);
+      this.group.add(beam);
+    }
+  }
+
+  arabicAwning(cx, cz, w, d, y, angle = 0.35, text = 'فرص') {
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#235035'; ctx.fillRect(0, 0, 256, 128);
+    ctx.strokeStyle = '#c4a242'; ctx.lineWidth = 6; ctx.strokeRect(6, 6, 244, 116);
+    ctx.fillStyle = '#fae19c'; ctx.font = 'bold 54px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 128, 64);
+    const tex = new THREE.CanvasTexture(cv);
+    const mat = new THREE.MeshLambertMaterial({ map: tex });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat);
+    mesh.position.set(cx, y, cz);
+    mesh.rotation.x = -Math.PI / 2 + angle;
+    this.group.add(mesh);
+  }
+
+  tireStack(x, z, count = 3) {
+    for (let i = 0; i < count; i++) {
+      const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.26, 12), this.matTire);
+      tire.position.set(x + (Math.random() - 0.5) * 0.05, 0.13 + i * 0.26, z + (Math.random() - 0.5) * 0.05);
+      this.group.add(tire);
+      const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.27, 10), this.matShortDark);
+      hole.position.copy(tire.position);
+      this.group.add(hole);
+    }
+    World.boxes.push({ min: V3(x - 0.44, 0, z - 0.44), max: V3(x + 0.44, count * 0.26, z + 0.44) });
+  }
+
+  woodBarrel(x, z, y0 = 0) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.4, 1.05, 12), this.matShortWood);
+    m.position.set(x, y0 + 0.525, z);
+    this.group.add(m);
+    [-0.28, 0.28].forEach(oy => {
+      const band = new THREE.Mesh(new THREE.CylinderGeometry(0.435, 0.435, 0.07, 12), new THREE.MeshLambertMaterial({ color: 0x1f1f1f }));
+      band.position.set(x, y0 + 0.525 + oy, z);
+      this.group.add(band);
+    });
+    World.boxes.push({ min: V3(x - 0.4, y0, z - 0.4), max: V3(x + 0.4, y0 + 1.05, z + 0.4) });
+  }
+
+  oilDrumHazard(x, z, y0 = 0) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.0, 12), new THREE.MeshLambertMaterial({ color: 0x2e4256 }));
+    m.position.set(x, y0 + 0.5, z);
+    this.group.add(m);
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.39, 0.24, 12), new THREE.MeshLambertMaterial({ color: 0xb52b2b }));
+    stripe.position.set(x, y0 + 0.5, z);
+    this.group.add(stripe);
+    World.boxes.push({ min: V3(x - 0.36, y0, z - 0.36), max: V3(x + 0.36, y0 + 1.0, z + 0.36) });
   }
 
   buildDust2() {
@@ -1974,200 +2156,261 @@ class MapBuilder {
   }
 
   buildShortDust2() {
-    const wall = 0xb89b64, dark = 0x8d7a52, crate = 0x9c6b3a, conc = 0x9a9a94, greenCrate = 0x42523b, sandbag = 0xa89868;
+    const wallM = this.matShortWall || new THREE.MeshLambertMaterial({ color: 0xb89b64 });
+    const groundM = this.matShortGround || new THREE.MeshLambertMaterial({ map: this.groundTex });
+    const facadeM = this.matShortFacade || new THREE.MeshLambertMaterial({ color: 0x9a9a94 });
+    const darkM = this.matShortDark || new THREE.MeshLambertMaterial({ color: 0x8d7a52 });
+    const crateM = this.matShortCrate || new THREE.MeshLambertMaterial({ color: 0x9c6b3a });
+    const greenCrate = 0x3d5238, sandbag = 0xa89868;
 
-    // 1. Ground & Pathways (86x88)
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(86, 88), new THREE.MeshLambertMaterial({ map: this.groundTex }));
+    // 1. GROUND & COBBLESTONE PATHWAYS (88x88)
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(88, 88), groundM);
     ground.rotation.x = -Math.PI / 2;
     this.group.add(ground);
 
-    const pathM = new THREE.MeshLambertMaterial({ color: 0xaa9468 });
+    // Decorative pathway layers
     [
-      [-20, 0, 8, 80],      // Long corridor path
-      [0, 0, 7, 76],        // Central underpass path
-      [16, 0, 7, 76],       // Silo alley path
-      [0, -30, 42, 10],     // Bombsite plaza
-      [0, 28, 44, 8]        // South courtyard crossway
+      [-22, 0, 8, 80],      // Long corridor path
+      [0, 0, 8, 76],        // Central underpass path
+      [14, 0, 7, 76],       // Silo / Flank path
+      [0, -26, 42, 16],     // Bombsite plaza
+      [0, 28, 44, 10]       // South courtyard crossway
     ].forEach(p => {
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(p[2], p[3]), pathM);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(p[2], p[3]), facadeM);
       m.rotation.x = -Math.PI / 2;
       m.position.set(p[0], 0.015, p[1]);
       this.group.add(m);
     });
 
     // Outer wall decorative stone trim
-    const cap = new THREE.MeshLambertMaterial({ color: 0x6e5d3c });
+    const cap = new THREE.MeshLambertMaterial({ color: 0x5a4830 });
     [
-      [0, -42.5, 58, 1.4],
-      [0, 42.5, 58, 1.4],
-      [-28.5, 0, 1.4, 86],
-      [27.5, 0, 1.4, 86]
+      [0, -42.5, 72, 1.4],
+      [0, 42.5, 72, 1.4],
+      [-36.5, 0, 1.4, 86],
+      [36.5, 0, 1.4, 86]
     ].forEach(c => {
       const m = new THREE.Mesh(new THREE.BoxGeometry(c[2], 0.4, c[3]), cap);
-      m.position.set(c[0], 6.7, c[1]);
+      m.position.set(c[0], 6.9, c[1]);
       this.group.add(m);
     });
 
-    // 2. PERIMETER FORTRESS WALLS (Height: 6.5)
-    this.aabb(-29, 28, -43, -41.5, 0, 6.5, wall); // North Backwall (Palace/CT)
-    this.aabb(-29, 28, 41.5, 43, 0, 6.5, wall);   // South Wall (T)
-    this.aabb(-29.5, -28, -43, 43, 0, 6.5, wall); // West Outer Wall (Long)
-    this.aabb(26.5, 28, -43, 43, 0, 6.5, wall);   // East Outer Wall (Silo boundary)
+    // 2. PERIMETER FORTRESS WALLS (Height: 6.8m)
+    this.aabb(-36, 36, -43, -41.5, 0, 6.8, wallM); // North Backwall (Palace/CT)
+    this.aabb(-36, 36, 41.5, 43, 0, 6.8, wallM);   // South Wall (T)
+    this.aabb(-37, -35.5, -43, 43, 0, 6.8, wallM); // West Outer Wall (Long)
+    this.aabb(35.5, 37, -43, 43, 0, 6.8, wallM);   // East Outer Wall
 
-    // 3. WEST LANE ("LONG" CORRIDOR / ALLEY)
-    // Divider wall separating Long from Center
-    this.aabb(-14.5, -13, 10, 24, 0, 5.0, wall); // South section
-    this.aabb(-14.5, -13, 4, 10, 3.2, 5.0, wall); // Arch over doorway into Central Building
-    this.aabb(-14.5, -13, -22, 4, 0, 5.0, wall); // Mid section
-    this.aabb(-14.5, -13, -30, -22, 0, 4.0, wall); // North section to bombsite
-    this.aabb(-28, -13, -26.5, -25.5, 3.4, 5.0, wall); // Arched entrance into Bombsite from Long
+    // 3. BOMBSITE A ELEVATED PLATFORM & RAMPS (Right / Center-North)
+    // Elevated stone platform (y = 1.4)
+    this.aabb(-7, 18, -36, -14, 0, 1.4, facadeM);
+    // Platform protective border curb
+    this.aabb(-7.2, 18.2, -14.2, -13.8, 1.4, 1.6, darkM, false);
+    this.aabb(-7.2, -6.8, -36.2, -14.0, 1.4, 1.6, darkM, false);
 
-    // Long Lane Cover & Crates
-    this.box(-20.5, 0, 2.4, 2.4, 1.4, 0, crate);       // Mid-Long base double crate
-    this.box(-20.5, 0, 1.4, 1.4, 1.2, 1.4, crate);     // Mid-Long top crate
-    this.box(-16.5, 14, 2.0, 1.2, 1.3, 0, conc);       // Peek block
-    this.box(-22.5, -16, 2.2, 2.2, 1.3, 0, crate);     // North Long crate
-    this.barrel(-25.5, 6, 0x3d5a80);                   // Blue barrel
-    this.barrel(-24.7, 6.8, 0x9b3a2a);                 // Red barrel
+    // SHORT CATWALK RAMP (South access from Underpass to Site A)
+    // Smooth 5-step gradual rise with curb (0.28m each)
+    this.stairsZ(-4, -1, -3, 3, 5, 0.28, 2.0, facadeM);
+    // Ramp side curbs
+    this.aabb(-3.4, -3.0, -14, -4, 0, 1.5, darkM);
+    this.aabb(3.0, 3.4, -14, -4, 0, 1.5, darkM);
 
-    // 4. CENTRAL BUILDING / PALACE INTERIOR (Underpass & Connector)
-    // North Wall with Underpass Exit at z = -18
-    this.aabb(-13, -2, -18.5, -17, 0, 5.0, wall);
-    this.aabb(-2, 4, -18.5, -17, 3.2, 5.0, wall); // Arch header
-    this.aabb(4, 7.5, -18.5, -17, 0, 5.0, wall);
+    // WIDE STONE STAIRCASE (North/CT Underpass access to Site A)
+    // Stairs from z = -36 up to z = -30, climbing to y = 1.4
+    this.stairsZ(-36, 1, -2, 6, 5, 0.28, 1.2, facadeM);
+    this.aabb(-2.5, -2.0, -36, -30, 0, 1.5, darkM);
+    this.aabb(6.0, 6.5, -36, -30, 0, 1.5, darkM);
 
-    // South Wall with T Courtyard Entrance at z = 16
-    this.aabb(-13, -3, 15, 16.5, 0, 5.0, wall);
-    this.aabb(-3, 3, 15, 16.5, 3.2, 5.0, wall); // Arch header
-    this.aabb(3, 7.5, 15, 16.5, 0, 5.0, wall);
-
-    // East Wall with Opening to Silo Alley at z = -4..2
-    this.aabb(6.5, 8.0, -17, -4, 0, 5.0, wall);
-    this.aabb(6.5, 8.0, -4, 2, 3.2, 5.0, wall); // Arch header
-    this.aabb(6.5, 8.0, 2, 15, 0, 5.0, wall);
-
-    // Interior Architecture & Ambushes
-    this.box(-2, 0, 1.6, 1.6, 4.2, 0, conc);           // Center pillar
-    this.box(-8, -6, 2.0, 2.0, 1.3, 0, dark);          // Inside dark crate
-    this.box(2, 8, 2.2, 2.2, 1.3, 0, crate);           // Inside wood crate
-    this.aabb(-6, 2, -15, -9, 0, 0.9, conc);           // Interior raised landing
-    this.stairsZ(-9, 1, -6, 2, 3, 0.3, 0.7, conc);     // Interior steps
-
-    // Exposed roof beams (vegas) over building
-    for (let bz = -14; bz <= 12; bz += 4.5) {
-      const beam = new THREE.Mesh(new THREE.BoxGeometry(21.5, 0.3, 0.3), new THREE.MeshLambertMaterial({ color: 0x5a3d24 }));
-      beam.position.set(-2.5, 5.1, bz);
-      this.group.add(beam);
-    }
-
-    // 5. EAST FLANK: SILO ALLEYWAY (The 3 Silos from the minimap!)
-    this.silo(21.0, -22.0, 2.4, 6.2, 0x828b94); // Silo 1 (North)
-    this.silo(21.0, -5.0, 2.4, 6.2, 0x828b94);  // Silo 2 (Mid)
-    this.silo(21.0, 12.0, 2.4, 6.2, 0x828b94);   // Silo 3 (South)
-
-    // Overhead Connecting Archway at z = 2
-    this.aabb(8.0, 26.5, 1.2, 2.8, 3.5, 4.8, dark);
-
-    // Silo Alley Tactical Cover
-    this.box(12.5, 5, 2.4, 1.8, 1.2, 0, greenCrate);   // Military supply crate
-    this.box(12, -12, 1.0, 3.2, 1.1, 0, sandbag);      // Sandbag barricade
-    this.barrel(21.5, 3.5, 0x3d5a80);
-    this.barrel(21.5, -13.5, 0x9b3a2a);
-
-    // 6. NORTH BOMBSITE A & CT SPAWN
-    // Elevated Bombsite Platform (y = 1.2)
-    this.aabb(-9, 6, -36, -24, 0, 1.2, conc);
-    this.stairsZ(-24, 1, -3, 3, 4, 0.3, 0.7, conc);   // Steps from South Underpass
-    this.stairsX(-9, -1, -32, -26, 4, 0.3, 0.7, conc); // Steps from West Long
-    this.stairsX(6, 1, -32, -26, 4, 0.3, 0.7, conc);   // Steps from East Silo flank
-    this.aabb(4.5, 6.0, -36, -28, 1.2, 2.6, wall);     // Half-wall cover on site
+    // Tactical parapet half-walls on Bombsite A
+    this.aabb(6, 16, -14.5, -13.5, 1.4, 2.6, wallM);      // Front parapet cover
+    this.aabb(-7.2, -6.0, -32, -20, 1.4, 2.6, wallM);      // West parapet cover (facing Long)
 
     // Bombsite A Target Decal
     const targetC = document.createElement('canvas'); targetC.width = targetC.height = 128;
     const tcx = targetC.getContext('2d');
     tcx.fillStyle = 'rgba(0,0,0,0)'; tcx.fillRect(0, 0, 128, 128);
-    tcx.strokeStyle = '#b82828'; tcx.lineWidth = 10;
+    tcx.strokeStyle = '#c42828'; tcx.lineWidth = 10;
     tcx.beginPath(); tcx.arc(64, 64, 48, 0, Math.PI * 2); tcx.stroke();
     tcx.beginPath(); tcx.arc(64, 64, 24, 0, Math.PI * 2); tcx.stroke();
-    tcx.fillStyle = '#b82828'; tcx.font = 'bold 36px Arial'; tcx.textAlign = 'center'; tcx.textBaseline = 'middle';
+    tcx.fillStyle = '#c42828'; tcx.font = 'bold 38px Arial'; tcx.textAlign = 'center'; tcx.textBaseline = 'middle';
     tcx.fillText('A', 64, 64);
     const targetTex = new THREE.CanvasTexture(targetC);
-    const targetMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), new THREE.MeshBasicMaterial({ map: targetTex, transparent: true, opacity: 0.85 }));
+    const targetMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), new THREE.MeshBasicMaterial({ map: targetTex, transparent: true, opacity: 0.9 }));
     targetMesh.rotation.x = -Math.PI / 2;
-    targetMesh.position.set(-1.5, 1.215, -30);
+    targetMesh.position.set(3.0, 1.415, -24);
     this.group.add(targetMesh);
 
-    // Bombsite Plant Crates
-    this.box(-1.5, -30, 2.4, 2.4, 1.4, 1.2, crate);
-    this.box(-1.5, -30, 1.4, 1.4, 1.2, 2.6, crate);
-    this.box(2.2, -31, 2.0, 1.8, 1.3, 1.2, greenCrate);
+    // Bombsite A Plant Crates & Props
+    // The famous Goose / Default double crate stack
+    this.box(-2, -25, 2.4, 2.4, 1.4, 1.4, crateM);
+    this.box(-2, -25, 1.6, 1.6, 1.2, 2.8, crateM);
+
+    // Top-of-stairs wooden barrels (from the Sketchfab model!)
+    this.woodBarrel(-3.6, -15.8, 1.4);
+    this.woodBarrel(-2.5, -16.0, 1.4);
+
+    // Steel oil drum with red hazard band (from the Sketchfab model!)
+    this.oilDrumHazard(5.5, -16.5, 1.4);
+
+    // Olive military ammo crates
+    this.box(9.5, -24, 2.0, 1.4, 0.9, 1.4, greenCrate);
+    this.box(9.5, -24, 1.4, 1.0, 0.8, 2.3, greenCrate);
 
     // CT Spawn Area (z = -37..-41)
-    [-5, 3, 11].forEach(colX => {
-      this.box(colX, -40.5, 1.4, 1.4, 5.0, 0, wall);
+    [-4, 4, 12].forEach(colX => {
+      this.box(colX, -40.5, 1.4, 1.4, 5.2, 0, wallM);
     });
-    this.box(10, -36, 2.2, 2.2, 1.3, 0, crate);
-    this.barrel(14, -38, 0x3d5a80);
-    this.barrel(14.8, -37.3, 0x9b3a2a);
+    this.box(11, -36, 2.2, 2.2, 1.3, 0, crateM);
+    this.barrel(15, -38, 0x3d5a80);
+    this.barrel(15.8, -37.3, 0x9b3a2a);
 
-    // 7. SOUTH T-SPAWN & COURTYARD (z = 20..42)
-    this.aabb(-16, -4, 34, 35.5, 0, 2.6, wall);
-    this.aabb(4, 16, 34, 35.5, 0, 2.6, wall);
-    this.box(-10, 38.5, 2.4, 2.4, 1.3, 0, crate);
-    this.box(10, 38.5, 2.4, 2.4, 1.3, 0, crate);
+    // 4. THE BLUE MOSQUE & MOSQUE WALL (East Side, Bombsite A Backdrop)
+    // High Mosque castle wall (y = 0 to 6.8)
+    this.aabb(18, 34, -38, -10, 0, 6.8, wallM);
+    // Mosque decorative crenellations
+    this.crenellations(18, 34, -38, -38, 6.8);
+    this.crenellations(18, 18, -38, -10, 6.8);
+    this.crenellations(18, 34, -10, -10, 6.8);
+
+    // TWO ICONIC PERSIAN-BLUE ONION DOMES WITH GOLDEN CRESCENTS
+    this.mosqueDome(25, -29, 2.8, 2.2, 6.8); // Dome 1 (North)
+    this.mosqueDome(25, -17, 2.8, 2.2, 6.8); // Dome 2 (South)
+
+    // Arched Grand Mosque Facade Doorway
+    this.aabb(17.4, 18.6, -25.5, -21.5, 0, 4.2, darkM);
+    this.aabb(17.2, 18.8, -26.0, -21.0, 4.2, 4.8, facadeM, false);
+
+    // 5. CENTRAL 2-STORY MIDDLE EASTERN BUILDING COMPLEX (Short / Underpass)
+    // West Building Block
+    this.aabb(-16, -6, -12, 16, 0, 6.2, wallM);
+    // East Building Block
+    this.aabb(2, 12, -12, 16, 0, 6.2, wallM);
+
+    // Archway spanning across, forming the Underpass tunnel (clearance: 3.8m)
+    this.aabb(-6, 2, -12, 16, 3.8, 6.2, wallM);
+    // Wooden structural crossbeams along the tunnel ceiling
+    for (let bz = -10; bz <= 14; bz += 4.0) {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.3, 0.3), this.matShortWood);
+      beam.position.set(-2, 3.65, bz);
+      this.group.add(beam);
+    }
+
+    // Wooden Mashrabiya Balconies on 2nd Floor
+    this.woodBalcony(-11, 16.5, 3.6, 1.5, 4.0); // Facing Courtyard
+    this.woodBalcony(-16.5, 2, 1.5, 3.8, 4.0);  // Facing Long Alley
+
+    // Authentic Green Arabic Market Canopies & Signs
+    this.arabicAwning(-11, 16.2, 3.8, 1.5, 2.8, 0.35, 'فرص');
+    this.arabicAwning(7, 16.2, 3.6, 1.5, 2.8, 0.35, 'سوق');
+
+    // Corrugated rusty sheet metal awning over North underpass exit
+    this.box(-2, -12.5, 5.4, 1.6, 0.15, 3.5, this.matRustyMetal);
+
+    // Underpass interior cover
+    this.box(-2, 2, 1.6, 1.6, 3.8, 0, facadeM);           // Center stone pillar
+    this.box(-5.2, -6, 1.8, 1.8, 1.2, 0, darkM);           // Ambush crate
+
+    // 6. WEST LANE ("LONG A" CORRIDOR / ALLEY)
+    // Outer/divider walls
+    this.aabb(-17.5, -16.0, 16, 32, 0, 5.0, wallM);
+    this.aabb(-17.5, -16.0, -28, -12, 0, 5.0, wallM);
+    this.aabb(-36, -16, -30, -29, 3.4, 5.2, wallM); // Arch entrance into Bombsite from Long
+
+    // Long Lane tactical cover & props
+    this.box(-25, 0, 2.4, 2.4, 1.4, 0, crateM);       // Mid-Long base double crate
+    this.box(-25, 0, 1.5, 1.5, 1.2, 1.4, crateM);     // Mid-Long top crate
+    this.box(-21, 14, 2.2, 1.2, 1.3, 0, facadeM);     // Peek block
+    this.box(-26, -18, 2.2, 2.2, 1.3, 0, crateM);     // North Long crate
+    this.barrel(-30, 4, 0x3d5a80);                     // Blue barrel
+    this.barrel(-29.2, 4.8, 0x9b3a2a);                   // Red barrel
+    this.tireStack(-33, 12, 3);                         // Stacked car tires
+    this.tireStack(-33, -12, 4);                        // Stacked car tires
+
+    // 7. EAST FLANK ALLEY (SILOS & FLANK PATH)
+    this.silo(25.0, 4.0, 2.2, 6.2, 0x828b94);
+    this.silo(25.0, 18.0, 2.2, 6.2, 0x828b94);
+    this.box(16, 8, 2.2, 1.8, 1.2, 0, greenCrate);
+    this.box(16, -4, 1.0, 3.2, 1.1, 0, sandbag);
+    this.barrel(21.5, 10, 0x3d5a80);
+
+    // 8. SOUTH T-SPAWN & COURTYARD (z = 18..42)
+    this.aabb(-16, -4, 34, 35.5, 0, 2.6, wallM);
+    this.aabb(4, 16, 34, 35.5, 0, 2.6, wallM);
+    this.box(-10, 38.5, 2.4, 2.4, 1.3, 0, crateM);
+    this.box(10, 38.5, 2.4, 2.4, 1.3, 0, crateM);
 
     // The Famous L-Shaped Wall (from the Standoff 2 minimap!)
-    this.aabb(-14, -8, 22, 23.5, 0, 2.6, wall);
-    this.aabb(-14, -12.5, 23.5, 28, 0, 2.6, wall);
+    this.aabb(-14, -8, 24, 25.5, 0, 2.6, wallM);
+    this.aabb(-14, -12.5, 25.5, 30, 0, 2.6, wallM);
 
-    // Mid Courtyard Crates & Sandbags
-    this.box(1.5, 26, 2.2, 2.2, 1.3, 0, crate);
-    this.box(12.5, 24, 0.9, 3.2, 1.0, 0, sandbag);
+    // Mid Courtyard Crates, Sandbags & Tires
+    this.box(2, 28, 2.2, 2.2, 1.3, 0, crateM);
+    this.box(14, 26, 0.9, 3.2, 1.1, 0, sandbag);
+    this.tireStack(-22, 34, 3);
+    this.barrel(18, 34, 0x9b3a2a);
 
-    // 8. SCENIC DESERT PALMS
-    this.palm(-33, -15);
-    this.palm(-34, 15);
-    this.palm(-32, 32);
-    this.palm(31, -28);
-    this.palm(32, 5);
-    this.palm(31, 28);
+    // 9. OVERHEAD UTILITY POLES & REALISTIC SAGGING 3D WIRES
+    const p1 = this.utilityPole(-24, 18, 8.5);
+    const p2 = this.utilityPole(14, 18, 8.5);
+    const p3 = this.utilityPole(-24, -18, 8.5);
+    const p4 = this.utilityPole(16, -8, 8.5);
 
-    // 9. SHORT DUST 2 SPAWN POINTS
+    // Sagging overhead cables connecting poles and buildings
+    this.wire(p1, p2, 0.9);
+    this.wire(p1, p3, 1.2);
+    this.wire(p2, p4, 1.1);
+    this.wire(p3, p4, 1.3);
+    this.wire(p1, V3(-11, 6.2, 16), 0.5);
+    this.wire(p2, V3(7, 6.2, 16), 0.5);
+    this.wire(p4, V3(18, 6.8, -20), 0.6);
+
+    // 10. SCENIC DESERT PALMS
+    this.palm(-39, -15);
+    this.palm(-39, 15);
+    this.palm(-39, 32);
+    this.palm(39, -28);
+    this.palm(39, 5);
+    this.palm(39, 28);
+
+    // 11. SHORT DUST 2 TACTICAL SPAWN POINTS
     this.spawns = [
-      // T-Side Spawns (South)
-      V3(0, 0, 38),
-      V3(-8, 0, 37),
-      V3(8, 0, 37),
-      V3(-16, 0, 30),
-      V3(16, 0, 28),
-      // CT-Side Spawns (North)
-      V3(0, 0, -39),
-      V3(8, 0, -37),
-      V3(-2, 1.2, -32),
-      V3(-16, 0, -34),
-      V3(14, 0, -32)
+      // Terrorist Spawns (South / Courtyard)
+      V3(0, 0, 36),
+      V3(-10, 0, 34),
+      V3(10, 0, 34),
+      V3(-24, 0, 26),
+      V3(16, 0, 26),
+      // Counter-Terrorist Spawns (Bombsite A, Goose & CT Alley)
+      V3(2, 1.4, -26),
+      V3(10, 1.4, -24),
+      V3(-4, 1.4, -30),
+      V3(0, 0, -38),
+      V3(-22, 0, -32)
     ];
 
-    // 10. BOT WAYPOINTS (AI Navigation)
+    // 12. BOT WAYPOINTS (AI Multi-Level Navigation Network)
     this.waypoints = this.spawns.concat([
-      V3(-20, 0, 22),
-      V3(-20, 0, 10),
-      V3(-20, 0, 0),
-      V3(-20, 0, -10),
-      V3(-20, 0, -22),
-      V3(0, 0, 10),
+      // Long Corridor
+      V3(-24, 0, 14),
+      V3(-24, 0, 0),
+      V3(-24, 0, -14),
+      // South Courtyard & Underpass
+      V3(0, 0, 26),
+      V3(0, 0, 12),
       V3(0, 0, 0),
-      V3(-5, 0, 0),
-      V3(0, 0, -10),
-      V3(14, 0, 20),
-      V3(14, 0, 5),
-      V3(14, 0, -8),
-      V3(14, 0, -22),
-      V3(-12, 0, 6),
-      V3(7, 0, 0),
-      V3(-1, 1.2, -28),
-      V3(-6, 1.2, -30),
-      V3(4, 1.2, -30)
+      // Short Catwalk Ramp (Navigation onto platform)
+      V3(0, 0.7, -6),
+      V3(0, 1.4, -12),
+      // On Bombsite A Platform
+      V3(2, 1.4, -18),
+      V3(6, 1.4, -22),
+      V3(0, 1.4, -28),
+      // CT Stone Stairs (Navigation from CT onto platform)
+      V3(2, 0.7, -33),
+      V3(2, 0, -36),
+      // East Flank Alley
+      V3(14, 0, 10),
+      V3(14, 0, -4)
     ]);
   }
 }
