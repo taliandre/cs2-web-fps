@@ -5,7 +5,18 @@
 <title>Pixel Shooters</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<script>
+  (function() {
+    try {
+      var d = localStorage.getItem('ps_device');
+      if (d) {
+        document.documentElement.classList.add('has-device', d === 'mobile' ? 'is-touch' : 'is-pc');
+      }
+    } catch(e) {}
+  })();
+</script>
 <style>
+  html.has-device #deviceGate { display: none !important; }
   *{box-sizing:border-box;margin:0;padding:0;user-select:none}
   html,body{width:100%;height:100%;overflow:hidden;background:#0b0d10;font-family:"Segoe UI","Roboto",Arial,sans-serif;color:#e8ecf1}
   canvas#gl{position:fixed;inset:0;display:block}
@@ -631,11 +642,51 @@
   <img class="ps-logo" alt="Pixel Shooters" style="height:min(30vh,220px)">
   <h2>NASIL OYNUYORSUN?</h2>
   <div class="dg-cards">
-    <button type="button" class="dg-card" data-dev="pc"><span class="dg-ico">🖥️</span><b>BİLGİSAYAR</b><small>Klavye + Fare</small></button>
-    <button type="button" class="dg-card" data-dev="mobile"><span class="dg-ico">📱</span><b>MOBİL</b><small>Dokunmatik + Jiroskop</small></button>
+    <button type="button" class="dg-card" data-dev="pc" onclick="selectDeviceDirect('pc')"><span class="dg-ico">🖥️</span><b>BİLGİSAYAR</b><small>Klavye + Fare</small></button>
+    <button type="button" class="dg-card" data-dev="mobile" onclick="selectDeviceDirect('mobile')"><span class="dg-ico">📱</span><b>MOBİL</b><small>Dokunmatik + Jiroskop</small></button>
   </div>
   <div class="dg-note">Sonradan sağ üstteki cihaz butonundan değiştirebilirsin.</div>
 </div>
+<script>
+  window.selectDeviceDirect = function(m) {
+    try { localStorage.setItem('ps_device', m); } catch(e) {}
+    document.documentElement.classList.add('has-device');
+    document.documentElement.classList.toggle('is-touch', m === 'mobile');
+    document.documentElement.classList.toggle('is-pc', m === 'pc');
+    if (document.body) {
+      document.body.classList.toggle('is-touch', m === 'mobile');
+      document.body.classList.toggle('is-pc', m === 'pc');
+    }
+    var gate = document.getElementById('deviceGate');
+    if (gate) {
+      gate.style.setProperty('display', 'none', 'important');
+    }
+    if (window.Device) {
+      window.Device.mode = m;
+      if (window.Device.apply) window.Device.apply();
+    }
+    if (window.Gyro && m !== 'mobile') window.Gyro.disable();
+    if (window.updateCursorState) window.updateCursorState();
+    if (window.game && window.game.ui && window.game.ui.setSettingsTab) {
+      window.game.ui.setSettingsTab(m === 'mobile' ? 'sp-mobile' : 'sp-controls');
+    }
+  };
+  (function() {
+    var gate = document.getElementById('deviceGate');
+    if (gate) {
+      gate.querySelectorAll('[data-dev]').forEach(function(b) {
+        var dev = b.dataset.dev;
+        var handler = function(e) {
+          if (e) e.preventDefault();
+          selectDeviceDirect(dev);
+        };
+        b.addEventListener('click', handler);
+        b.addEventListener('touchend', handler);
+        b.addEventListener('pointerup', handler);
+      });
+    }
+  })();
+</script>
 
 <!-- TIKLA VE DEVAM ET (fare kilidi) -->
 <div id="lockPrompt"><div><b>OYUNA DEVAM ETMEK İÇİN TIKLA</b><small>Fare imleci oyuna kilitlenecek</small></div></div>
@@ -880,7 +931,12 @@
   </svg>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="three.min.js"></script>
+<script>
+  if (typeof THREE === 'undefined') {
+    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+  }
+</script>
 <!-- Firebase Google Cloud SDK (Compat CDN) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -910,8 +966,19 @@ const World = { boxes: [] };
    ===================================================================== */
 const Device = {
   mode: (() => { try { return localStorage.getItem('ps_device') || ''; } catch (e) { return ''; } })(),
-  apply() { document.body.classList.toggle('is-touch', this.mode === 'mobile'); document.body.classList.toggle('is-pc', this.mode === 'pc'); }
+  apply() {
+    if (document.body) {
+      document.body.classList.toggle('is-touch', this.mode === 'mobile');
+      document.body.classList.toggle('is-pc', this.mode === 'pc');
+    }
+    if (document.documentElement) {
+      if (this.mode) document.documentElement.classList.add('has-device');
+      document.documentElement.classList.toggle('is-touch', this.mode === 'mobile');
+      document.documentElement.classList.toggle('is-pc', this.mode === 'pc');
+    }
+  }
 };
+window.Device = Device;
 const isMobileMode = () => Device.mode === 'mobile';
 
 const BIND_DEFS = [
@@ -982,6 +1049,7 @@ const Gyro = {
     this.yaw += yawRate * s * dt; this.pitch += pitchRate * s * dt;
   }
 };
+window.Gyro = Gyro;
 
 /* =====================================================================
    FIREBASE MANAGER: GOOGLE CLOUD STATS & GLOBAL LEADERBOARD
@@ -1148,26 +1216,42 @@ function prepareLogo() {
 /* ---- 3D character displayed above the PLAY button ---- */
 class MenuCharacter {
   constructor(canvas) {
+    if (!canvas) return;
     this.cv = canvas; this.mx = 0; this.sel = 0;
-    this.r = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
-    this.r.setPixelRatio(1); this.r.setSize(480, 600, false); this.r.setClearColor(0x000000, 0);
-    this.scene = new THREE.Scene();
-    this.cam = new THREE.PerspectiveCamera(28, 480 / 600, 0.1, 40); this.cam.position.set(0, 1.12, 4.7); this.cam.lookAt(0, 0.98, 0);
-    this.scene.add(new THREE.HemisphereLight(0xdfeeff, 0x8a7a60, 1.0));
-    const sun = new THREE.DirectionalLight(0xfff0d0, 0.9); sun.position.set(2, 4, 4); this.scene.add(sun);
-    const rim = new THREE.DirectionalLight(0xf2992e, 0.5); rim.position.set(-3, 2, -2); this.scene.add(rim);
-    this.m = buildBotModel(0xf2992e, 'CT'); this.scene.add(this.m.root);
-    this.setGun(0);
-    addEventListener('mousemove', e => { this.mx = (e.clientX / innerWidth - 0.5) * 2; }, { passive:true });
-    canvas.addEventListener('click', () => this.setGun((this.sel + 1) % this.m.guns.length));
+    try {
+      this.r = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      this.r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      this.r.setSize(480, 600, false);
+      this.r.setClearColor(0x000000, 0);
+      this.scene = new THREE.Scene();
+      this.cam = new THREE.PerspectiveCamera(28, 480 / 600, 0.1, 40);
+      this.cam.position.set(0, 1.12, 4.7);
+      this.cam.lookAt(0, 0.98, 0);
+      this.scene.add(new THREE.HemisphereLight(0xdfeeff, 0x8a7a60, 1.0));
+      const sun = new THREE.DirectionalLight(0xfff0d0, 0.9); sun.position.set(2, 4, 4); this.scene.add(sun);
+      const rim = new THREE.DirectionalLight(0xf2992e, 0.5); rim.position.set(-3, 2, -2); this.scene.add(rim);
+      this.m = buildBotModel(0xf2992e, 'CT'); this.scene.add(this.m.root);
+      this.setGun(0);
+      addEventListener('mousemove', e => { this.mx = (e.clientX / innerWidth - 0.5) * 2; }, { passive:true });
+      canvas.addEventListener('click', () => { if (this.m && this.m.guns) this.setGun((this.sel + 1) % this.m.guns.length); });
+    } catch(err) {
+      console.warn('MenuCharacter WebGL context creation failed:', err);
+    }
   }
-  setGun(i) { this.sel = i; this.m.guns.forEach((g, k) => { g.visible = k === i; }); }
+  setGun(i) {
+    if (!this.m || !this.m.guns) return;
+    this.sel = i;
+    this.m.guns.forEach((g, k) => { g.visible = k === i; });
+  }
   render(t) {
-    const m = this.m;
-    m.root.rotation.y = Math.PI - 0.5 + this.mx * 0.45;
-    m.root.position.y = Math.sin(t * 1.6) * 0.012;
-    m.upperBody.rotation.x = Math.sin(t * 1.6) * 0.012 - 0.02;
-    this.r.render(this.scene, this.cam);
+    if (!this.r || !this.m || !this.scene || !this.cam) return;
+    try {
+      const m = this.m;
+      m.root.rotation.y = Math.PI - 0.5 + this.mx * 0.45;
+      m.root.position.y = Math.sin(t * 1.6) * 0.012;
+      m.upperBody.rotation.x = Math.sin(t * 1.6) * 0.012 - 0.02;
+      this.r.render(this.scene, this.cam);
+    } catch(e) {}
   }
 }
 
@@ -1472,7 +1556,7 @@ class SoundEngine {
 /* =====================================================================
    PROCEDURAL GEOMETRY HELPERS (viewmodels, bots)
    ===================================================================== */
-function mat(color) { return new THREE.MeshLambertMaterial({ color, flatShading:true }); }
+function mat(color) { return new THREE.MeshLambertMaterial({ color }); }
 function bx(w, h, d, color, x, y, z, parent, rx) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); if (rx) m.rotation.x = rx; parent.add(m); return m;
 }
@@ -1637,7 +1721,7 @@ function buildGun(id, noArms) {
 }
 function buildBotModel(color, kind) {
   const root = new THREE.Group(), pivot = new THREE.Group(); root.add(pivot);
-  const M = (c) => new THREE.MeshLambertMaterial({ color:c, flatShading:true });
+  const M = (c) => new THREE.MeshLambertMaterial({ color:c });
   const isCT = kind === 'CT';
   const skin = M(0xd9a37a), cloth = M(isCT ? 0x24324a : 0x6b5a3a), vest = M(isCT ? 0x3a4350 : 0x2b2a28), pants = M(isCT ? 0x1f2a3d : 0x4a4333);
   const darkM = M(0x16171a), boot = M(0x1a1410), accent = M(color), glove = M(0x222222), headgear = M(isCT ? 0x2e3744 : color), cloth2 = M(isCT ? 0x2d3d5a : 0x7a6842);
@@ -1710,7 +1794,7 @@ class MapBuilder {
     this.crateTex = new THREE.CanvasTexture(wc); this.crateTex.magFilter = THREE.NearestFilter;
 
     // Distant background desert mountains and sun
-    const hillM = new THREE.MeshLambertMaterial({ color: 0xb39a6b, flatShading: true });
+    const hillM = new THREE.MeshLambertMaterial({ color: 0xb39a6b });
     for (let i = 0; i < 18; i++) {
       const a = i / 18 * Math.PI * 2, r = 85 + (i % 3) * 8, h = 12 + (i * 7 % 10);
       const m = new THREE.Mesh(new THREE.ConeGeometry(14 + (i % 4) * 3, h, 5), hillM);
@@ -1754,7 +1838,7 @@ class MapBuilder {
 
   aabb(x0, x1, z0, z1, y0, y1, color) {
     const w = x1 - x0, h = y1 - y0, d = z1 - z0;
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial(color === 0x9c6b3a ? { map: this.crateTex, flatShading: true } : { color, flatShading: true }));
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial(color === 0x9c6b3a ? { map: this.crateTex } : { color }));
     m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
     this.group.add(m);
     const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), new THREE.LineBasicMaterial({ color: 0x3b3326, transparent: true, opacity: 0.55 }));
@@ -1784,7 +1868,7 @@ class MapBuilder {
   }
 
   barrel(x, z, col) {
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.0, 10), new THREE.MeshLambertMaterial({ color: col, flatShading: true }));
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.0, 10), new THREE.MeshLambertMaterial({ color: col }));
     m.position.set(x, 0.5, z);
     this.group.add(m);
     const band = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.08, 10), new THREE.MeshLambertMaterial({ color: 0x222222 }));
@@ -1794,7 +1878,7 @@ class MapBuilder {
   }
 
   silo(x, z, r, h, col = 0x828b94) {
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), new THREE.MeshLambertMaterial({ color: col, flatShading: true }));
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), new THREE.MeshLambertMaterial({ color: col }));
     m.position.set(x, h / 2, z);
     this.group.add(m);
     [-h * 0.35, 0, h * 0.35].forEach(oy => {
@@ -1802,15 +1886,15 @@ class MapBuilder {
       ring.position.set(x, h / 2 + oy, z);
       this.group.add(ring);
     });
-    const dome = new THREE.Mesh(new THREE.ConeGeometry(r * 1.02, 0.8, 16), new THREE.MeshLambertMaterial({ color: 0x616a70, flatShading: true }));
+    const dome = new THREE.Mesh(new THREE.ConeGeometry(r * 1.02, 0.8, 16), new THREE.MeshLambertMaterial({ color: 0x616a70 }));
     dome.position.set(x, h + 0.4, z);
     this.group.add(dome);
     World.boxes.push({ min: V3(x - r * 0.95, 0, z - r * 0.95), max: V3(x + r * 0.95, h + 1, z + r * 0.95) });
   }
 
   palm(x, z) {
-    const trunkM = new THREE.MeshLambertMaterial({ color: 0x6e4e2a, flatShading: true });
-    const frondM = new THREE.MeshLambertMaterial({ color: 0x2e6b36, flatShading: true });
+    const trunkM = new THREE.MeshLambertMaterial({ color: 0x6e4e2a });
+    const frondM = new THREE.MeshLambertMaterial({ color: 0x2e6b36 });
     const t = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 7.0, 7), trunkM);
     t.position.set(x, 3.5, z);
     t.rotation.z = (Math.random() - 0.5) * 0.15;
@@ -3804,13 +3888,23 @@ class UIManager {
     prepareLogo(); Device.apply();
     const gate = $('deviceGate');
     const setDevice = m => {
-      Device.mode = m; try { localStorage.setItem('ps_device', m); } catch (e) {}
-      Device.apply(); gate.style.display = 'none'; if (m !== 'mobile') Gyro.disable();
-      if (window.updateCursorState) window.updateCursorState();
+      window.selectDeviceDirect(m);
     };
-    gate.querySelectorAll('[data-dev]').forEach(b => b.addEventListener('click', () => setDevice(b.dataset.dev)));
-    gate.style.display = Device.mode ? 'none' : 'flex';
-    $('btnDevice').addEventListener('click', () => { gate.style.display = 'flex'; });
+    if (gate) {
+      gate.querySelectorAll('[data-dev]').forEach(b => {
+        const d = b.dataset.dev;
+        b.addEventListener('click', (e) => { e.preventDefault(); setDevice(d); });
+        b.addEventListener('touchend', (e) => { e.preventDefault(); setDevice(d); });
+      });
+      gate.style.display = Device.mode ? 'none' : 'flex';
+    }
+    const btnDev = $('btnDevice');
+    if (btnDev) {
+      btnDev.addEventListener('click', () => {
+        document.documentElement.classList.remove('has-device');
+        if (gate) gate.style.setProperty('display', 'flex', 'important');
+      });
+    }
     document.querySelectorAll('#menuSide .m-tab').forEach(b => b.addEventListener('click', () => this.setView(b.dataset.view)));
 
     if ($('selectedMap')) {
@@ -4417,13 +4511,50 @@ document.addEventListener('mouseup', () => {
 /* =====================================================================
    BOOT
    ===================================================================== */
-window.addEventListener('error', e => { const el = document.getElementById('err'); if (el) el.textContent = 'Error: ' + e.message + ' (line ' + e.lineno + ')'; });
-window.addEventListener('load', () => {
-  if (typeof THREE === 'undefined') { document.getElementById('err').textContent = 'Three.js failed to load from CDN. Check your internet connection.'; document.getElementById('play').disabled = true; return; }
-  try { CloudDB.init(); } catch (e) { console.warn('CloudDB init failed', e); }
-  window.game = new Game();
-  window.updateCursorState();
+window.addEventListener('error', e => {
+  console.error('[Window Error]', e);
+  const el = document.getElementById('err');
+  if (el) {
+    el.style.display = 'block';
+    el.textContent = 'Hata: ' + (e.message || 'Bilinmeyen hata') + (e.lineno ? ' (satır ' + e.lineno + ')' : '');
+  }
 });
+
+function bootGame() {
+  if (window._gameBooted) return;
+  window._gameBooted = true;
+  if (typeof THREE === 'undefined') {
+    console.error('Three.js is not loaded.');
+    const el = document.getElementById('err');
+    if (el) {
+      el.style.display = 'block';
+      el.textContent = 'Three.js yüklenemedi. Lütfen internet bağlantınızı kontrol edip sayfayı yenileyin.';
+    }
+    const playBtn = document.getElementById('play');
+    if (playBtn) playBtn.disabled = true;
+    return;
+  }
+  try { CloudDB.init(); } catch (e) { console.warn('CloudDB init failed', e); }
+  try {
+    window.game = new Game();
+    console.log('[CS2] Game initialized successfully.');
+  } catch (err) {
+    console.error('Fatal Game initialization error:', err);
+    const el = document.getElementById('err');
+    if (el) {
+      el.style.display = 'block';
+      el.textContent = 'Oyun başlatılırken bir sorun oluştu: ' + (err.message || err);
+    }
+  }
+  if (window.updateCursorState) window.updateCursorState();
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  bootGame();
+} else {
+  document.addEventListener('DOMContentLoaded', bootGame);
+  window.addEventListener('load', bootGame);
+}
 </script>
 </body>
 </html>
